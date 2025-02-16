@@ -20,6 +20,11 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
     { code: 'ua', flag: '🇺🇦', label: 'Українська' },
   ];
 
+  const handleLanguageChange = (code: string) => {
+    i18n.changeLanguage(code);
+    localStorage.setItem('preferredLanguage', code);
+  };
+
   return (
     <nav className={`${
       isDarkMode 
@@ -39,7 +44,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
             {languages.map(({ code, flag, label }) => (
               <button
                 key={code}
-                onClick={() => i18n.changeLanguage(code)}
+                onClick={() => handleLanguageChange(code)}
                 className={`text-xl transition-opacity duration-200 ${
                   i18n.language === code 
                     ? 'opacity-100' 
@@ -78,6 +83,17 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </button>
+
+          {/* Users List */}
+          <button 
+            className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
+            onClick={() => navigate('/users-list')}
+            title="Användarlista"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </button>
 

@@ -18,7 +18,6 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
   const [filters, setFilters] = useState({
     assignee: '',
     priority: '',
-    showCompleted: false
   });
 
   const languages = [
@@ -85,7 +84,7 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
             →
           </button>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center">
           <label className={`flex items-center space-x-2 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>
             <input
               type="checkbox"
@@ -95,13 +94,6 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
             />
             <span>{t('calendar.showArchived')}</span>
           </label>
-          <button className={`${
-            isDarkMode 
-              ? 'bg-[#2c3b52] hover:bg-[#374760]' 
-              : 'bg-blue-500 hover:bg-blue-600'
-          } text-white px-4 py-2 rounded font-medium shadow-sm`}>
-            + {t('calendar.newTask')}
-          </button>
         </div>
       </div>
     </div>
@@ -124,7 +116,6 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
             }`}
           >
             <option value="">{t('calendar.all')}</option>
-            {/* Lägg till assignees dynamiskt */}
           </select>
         </div>
         <div>
@@ -145,17 +136,6 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
             <option value="MEDIUM">{t('calendar.medium')}</option>
             <option value="LOW">{t('calendar.low')}</option>
           </select>
-        </div>
-        <div className="flex items-end">
-          <label className="flex items-center space-x-2 text-white">
-            <input
-              type="checkbox"
-              checked={filters.showCompleted}
-              onChange={(e) => setFilters({ ...filters, showCompleted: e.target.checked })}
-              className="form-checkbox h-4 w-4 text-blue-500"
-            />
-            <span>{t('calendar.showCompleted')}</span>
-          </label>
         </div>
       </div>
     </div>
@@ -181,7 +161,7 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
       if (!task) return false;
       if (filters.assignee && task.assignee !== filters.assignee) return false;
       if (filters.priority && task.priority !== filters.priority) return false;
-      if (!filters.showCompleted && task.status === 'COMPLETED') return false;
+      if (!showArchived && task.status === 'COMPLETED') return false;
       return true;
     });
   };

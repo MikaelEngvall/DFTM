@@ -1,0 +1,66 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "close": "Close"
+  },
+  "nav": {
+    "calendar": "Calendar",
+    "pendingTasks": "Review Reports",
+    "usersList": "User List",
+    "manageUsers": "Manage Users",
+    "profile": "My Profile",
+    "logout": "Logout",
+    "lightTheme": "Light Theme",
+    "darkTheme": "Dark Theme"
+  },
+  "calendar": {
+    "showArchived": "Show Archived",
+    "assignedTo": "Assigned To",
+    "priority": "Priority",
+    "all": "All",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "unassigned": "Unassigned",
+    "weekdays": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    }
+  },
+  "userList": {
+    "title": "Users",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "created": "Created",
+    "loadError": "Failed to load users"
+  },
+  "editUser": {
+    "title": "Edit User",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "roles": {
+      "user": "User",
+      "admin": "Admin",
+      "superadmin": "Superadmin"
+    },
+    "updateError": "Failed to update user",
+    "saving": "Saving..."
+  },
+  "login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "loginButton": "Login",
+    "error": "Invalid credentials"
+  }
+} 

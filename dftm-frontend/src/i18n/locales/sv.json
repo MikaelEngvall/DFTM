@@ -1,0 +1,66 @@
+{
+  "common": {
+    "save": "Spara",
+    "cancel": "Avbryt",
+    "loading": "Laddar...",
+    "error": "Ett fel uppstod",
+    "close": "Stäng"
+  },
+  "nav": {
+    "calendar": "Kalender",
+    "pendingTasks": "Granska felanmälningar",
+    "usersList": "Användarlista",
+    "manageUsers": "Hantera användare",
+    "profile": "Min profil",
+    "logout": "Logga ut",
+    "lightTheme": "Ljust tema",
+    "darkTheme": "Mörkt tema"
+  },
+  "calendar": {
+    "showArchived": "Visa arkiverade",
+    "assignedTo": "Tilldelad till",
+    "priority": "Prioritet",
+    "all": "Alla",
+    "high": "Hög",
+    "medium": "Medel",
+    "low": "Låg",
+    "unassigned": "Ej tilldelad",
+    "weekdays": {
+      "monday": "Måndag",
+      "tuesday": "Tisdag",
+      "wednesday": "Onsdag",
+      "thursday": "Torsdag",
+      "friday": "Fredag",
+      "saturday": "Lördag",
+      "sunday": "Söndag"
+    }
+  },
+  "userList": {
+    "title": "Användare",
+    "name": "Namn",
+    "email": "Email",
+    "role": "Roll",
+    "created": "Skapad",
+    "loadError": "Kunde inte hämta användare"
+  },
+  "editUser": {
+    "title": "Redigera användare",
+    "name": "Namn",
+    "email": "Email",
+    "role": "Roll",
+    "roles": {
+      "user": "Användare",
+      "admin": "Admin",
+      "superadmin": "Superadmin"
+    },
+    "updateError": "Kunde inte uppdatera användaren",
+    "saving": "Sparar..."
+  },
+  "login": {
+    "title": "Logga in",
+    "email": "Email",
+    "password": "Lösenord",
+    "loginButton": "Logga in",
+    "error": "Felaktiga inloggningsuppgifter"
+  }
+} 
