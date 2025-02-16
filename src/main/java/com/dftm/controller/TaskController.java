@@ -104,7 +104,15 @@ public class TaskController {
     @GetMapping("/status/{status}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<List<Task>> getTasksByStatus(@PathVariable TaskStatus status) {
-        return ResponseEntity.ok(taskService.getTasksByStatus(status));
+        log.info("Fetching tasks with status: {}", status);
+        try {
+            List<Task> tasks = taskRepository.findByStatus(status);
+            log.info("Found {} tasks with status {}", tasks.size(), status);
+            return ResponseEntity.ok(tasks);
+        } catch (Exception e) {
+            log.error("Error fetching tasks with status {}: {}", status, e.getMessage());
+            throw e;
+        }
     }
 
     @GetMapping("/pending")

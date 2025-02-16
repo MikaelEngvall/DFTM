@@ -15,5 +15,10 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   assigned: boolean;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  assignee?: string;
+  priority: 'HIGH' | 'MEDIUM' | 'LOW';
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'APPROVED' | 'REJECTED';
+  originalLanguage: string;
+  titleTranslations?: Record<string, string>;
+  descriptionTranslations?: Record<string, string>;
 } 

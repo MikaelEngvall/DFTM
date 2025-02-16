@@ -13,7 +13,7 @@ import com.dftm.model.TaskStatus;
 public interface TaskRepository extends MongoRepository<Task, String> {
     List<Task> findByAssignee(String assignee);
     List<Task> findByAssigner(String assigner);
-    @Query("{ '$or': [ { 'status' : ?0 }, { 'status' : null } ] }")
+    @Query("{ 'status' : ?0 }")
     List<Task> findByStatus(TaskStatus status);
     @Query("{ }")
     List<Task> findAllTasks();

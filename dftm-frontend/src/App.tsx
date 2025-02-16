@@ -1,13 +1,21 @@
 import { useState, useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { LoginPage } from './components/LoginPage'
 import { PendingTaskList } from './components/PendingTaskList'
+import { Navbar } from './components/Navbar'
 import axios from 'axios'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import { Calendar } from './components/Calendar'
+import { UserManagement } from './components/UserManagement'
+import { Profile } from './components/Profile'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [userRole, setUserRole] = useState('')
+  const [isDarkMode, setIsDarkMode] = useState(true)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -19,6 +27,13 @@ function App() {
 
   const handleLogin = (token: string) => {
     setIsAuthenticated(true)
+    // Här kan vi också sätta userRole baserat på JWT-token
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    delete axios.defaults.headers.common['Authorization']
+    setIsAuthenticated(false)
   }
 
   if (!isAuthenticated) {
@@ -26,28 +41,59 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">
-            DFTM Task Manager
-          </h1>
-          <button
-            onClick={() => {
-              localStorage.removeItem('token')
-              delete axios.defaults.headers.common['Authorization']
-              setIsAuthenticated(false)
-            }}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Logout
-          </button>
-        </div>
-      </header>
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <PendingTaskList />
-      </main>
-    </div>
+    <Router>
+      <div className="min-h-screen bg-[#1a2332] w-full">
+        <Navbar 
+          onLogout={handleLogout} 
+          userRole={userRole} 
+          onThemeChange={() => setIsDarkMode(!isDarkMode)}
+          isDarkMode={isDarkMode}
+        />
+        <main className="container mx-auto">
+          <Routes>
+            <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+            
+            <Route 
+              path="/pending-tasks" 
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN', 'SUPERADMIN']}>
+                  <PendingTaskList />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/calendar" 
+              element={
+                <ProtectedRoute>
+                  <Calendar />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/users" 
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN', 'SUPERADMIN']}>
+                  <UserManagement />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route path="/" element={<Navigate to="/pending-tasks" replace />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   )
 }
 
