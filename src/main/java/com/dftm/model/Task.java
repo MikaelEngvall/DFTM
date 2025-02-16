@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.mongodb.core.mapping.FieldType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,22 +15,25 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "tasks")
+@Document(collection = "pendingTasks")
 public class Task {
     @Id
     private String id;
     private String title;
     private String description;
-    private String descriptionTranslationId;  // Referens till översättning
-    @Field(targetType = FieldType.STRING)
+    private String reporter;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private boolean assigned;
     private TaskStatus status;
+    private Object titleTranslations;
+    private Object descriptionTranslations;
+    private String originalLanguage;
+    private String descriptionTranslationId;  // Referens till översättning
     private TaskPriority priority;
     private String assignee;    // Person som ska utföra uppgiften
     private String assigner;    // Admin som tilldelade uppgiften
-    private String reporter;    // Person som anmälde felet
     private LocalDateTime dueDate;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     private List<Comment> comments;
 
     // Lägg till dessa metoder om de saknas

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dftm.dto.TaskRequest;
 import com.dftm.model.Task;
 import com.dftm.model.TaskStatus;
+import com.dftm.repository.TaskRepository;
 import com.dftm.service.TaskService;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TaskController {
     private final TaskService taskService;
+    private final TaskRepository taskRepository;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
@@ -103,5 +105,49 @@ public class TaskController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<List<Task>> getTasksByStatus(@PathVariable TaskStatus status) {
         return ResponseEntity.ok(taskService.getTasksByStatus(status));
+    }
+
+    @GetMapping("/pending")
+    public ResponseEntity<List<Task>> getPendingTasks() {
+        log.info("\033[0;34m Fetching pending tasks... \033[0m");
+        try {
+            List<Task> allTasks = taskRepository.findAllTasks();
+            log.info("\033[0;33m All tasks in database: {} \033[0m", allTasks);
+            
+            // Hämta både tasks med PENDING status och null status
+            List<Task> pendingTasks = taskRepository.findByStatus(TaskStatus.PENDING);
+            log.info("\033[0;32m Found {} pending tasks \033[0m", pendingTasks.size());
+            
+            // Sätt status till PENDING om den är null
+            pendingTasks.stream()
+                .filter(task -> task.getStatus() == null)
+                .forEach(task -> {
+                    task.setStatus(TaskStatus.PENDING);
+                    taskRepository.save(task);
+                });
+            
+            return ResponseEntity.ok(pendingTasks);
+        } catch (Exception e) {
+            log.error("\033[0;31m Error fetching pending tasks: {} \033[0m", e.getMessage());
+            throw e;
+        }
+    }
+
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<Void> approveTask(@PathVariable String id) {
+        var task = taskRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Task not found"));
+        task.setStatus(TaskStatus.APPROVED);
+        taskRepository.save(task);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/reject")
+    public ResponseEntity<Void> rejectTask(@PathVariable String id) {
+        var task = taskRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Task not found"));
+        task.setStatus(TaskStatus.REJECTED);
+        taskRepository.save(task);
+        return ResponseEntity.ok().build();
     }
 } 

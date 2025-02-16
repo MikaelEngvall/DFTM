@@ -3,6 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { LoginPage } from './components/LoginPage'
+import { PendingTaskList } from './components/PendingTaskList'
 import axios from 'axios'
 
 function App() {
@@ -44,7 +45,7 @@ function App() {
         </div>
       </header>
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Här kommer vi lägga till PendingTaskList senare */}
+        <PendingTaskList />
       </main>
     </div>
   )
