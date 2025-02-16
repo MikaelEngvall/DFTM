@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Task } from '../types';
 
-export const PendingTaskList = () => {
+interface PendingTaskListProps {
+  isDarkMode: boolean;
+}
+
+export const PendingTaskList = ({ isDarkMode }: PendingTaskListProps) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');

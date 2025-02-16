@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { User } from '../types';
 
-export const Profile = () => {
+interface ProfileProps {
+  isDarkMode: boolean;
+}
+
+export const Profile = ({ isDarkMode }: ProfileProps) => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {

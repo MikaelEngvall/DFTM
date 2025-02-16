@@ -72,19 +72,21 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
   };
 
   const renderCalendarHeader = () => (
-    <div className="bg-[#1f2937] p-4 rounded-t-lg">
+    <div className={`${isDarkMode ? 'bg-[#1f2937]' : 'bg-gray-100'} p-4 rounded-t-lg`}>
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-4">
-          <button onClick={handlePrevMonth} className="text-white hover:text-gray-300">
+          <button onClick={handlePrevMonth} className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-blue-400`}>
             ←
           </button>
-          <h2 className="text-xl text-white font-medium">{formatMonth(currentMonth)}</h2>
-          <button onClick={handleNextMonth} className="text-white hover:text-gray-300">
+          <h2 className={`text-xl font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            {formatMonth(currentMonth)}
+          </h2>
+          <button onClick={handleNextMonth} className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-blue-400`}>
             →
           </button>
         </div>
         <div className="flex items-center space-x-4">
-          <label className="flex items-center space-x-2 text-white">
+          <label className={`flex items-center space-x-2 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>
             <input
               type="checkbox"
               checked={showArchived}
@@ -93,7 +95,11 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
             />
             <span>{t('calendar.showArchived')}</span>
           </label>
-          <button className="bg-[#2c3b52] text-white px-4 py-2 rounded hover:bg-[#374760]">
+          <button className={`${
+            isDarkMode 
+              ? 'bg-[#2c3b52] hover:bg-[#374760]' 
+              : 'bg-blue-500 hover:bg-blue-600'
+          } text-white px-4 py-2 rounded font-medium shadow-sm`}>
             + {t('calendar.newTask')}
           </button>
         </div>
@@ -102,7 +108,7 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
   );
 
   const renderFilters = () => (
-    <div className="bg-[#1f2937] p-4 mb-4 rounded-lg">
+    <div className={`${isDarkMode ? 'bg-[#1f2937]' : 'bg-gray-100'} p-4 mb-4 rounded-lg`}>
       <div className="flex space-x-4">
         <div>
           <label className="text-gray-400 block mb-1">{t('calendar.assignedTo')}</label>
@@ -185,10 +191,16 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
     const totalCells = Math.ceil(totalDays / 7) * 7; // Runda upp till närmaste multipel av 7
 
     return (
-      <div className="bg-[#1a2332] p-4 rounded-b-lg">
+      <div className={`${
+        isDarkMode ? 'bg-[#1a2332]' : 'bg-white'
+      } p-4 rounded-b-lg border ${
+        isDarkMode ? 'border-gray-700' : 'border-gray-200'
+      }`}>
         <div className="grid grid-cols-7 gap-1">
           {weekdays.map(day => (
-            <div key={day} className="text-center p-2 text-gray-400 text-sm font-medium">
+            <div key={day} className={`text-center p-2 ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-600'
+            } text-sm font-medium`}>
               {day}
             </div>
           ))}
@@ -211,7 +223,11 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
             return (
               <div
                 key={i}
-                className="aspect-square p-2 border border-[#2c3b52] hover:bg-[#2c3b52] transition-colors cursor-pointer"
+                className={`aspect-square p-2 border ${
+                  isDarkMode 
+                    ? 'border-[#2c3b52] hover:bg-[#2c3b52]' 
+                    : 'border-gray-200 hover:bg-gray-50'
+                } transition-colors cursor-pointer`}
                 onClick={() => handleDayClick(dayNumber)}
                 onDragOver={(e) => {
                   e.preventDefault();
@@ -228,7 +244,9 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
                   handleTaskDrop(taskId, newDate);
                 }}
               >
-                <div className="text-gray-400 text-sm">{dayNumber}</div>
+                <div className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-sm`}>
+                  {dayNumber}
+                </div>
                 {filteredTasks.map((task) => (
                   <div
                     key={task.id}
@@ -309,17 +327,6 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
 
   return (
     <div className={`container mx-auto p-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-      <div className="flex space-x-4 mb-4">
-        {languages.map(({ code, flag }) => (
-          <button
-            key={code}
-            onClick={() => handleLanguageChange(code)}
-            className={`text-xl ${i18n.language === code ? 'opacity-100' : 'opacity-50'}`}
-          >
-            {flag}
-          </button>
-        ))}
-      </div>
       {renderCalendarHeader()}
       {renderFilters()}
       {isLoading ? (

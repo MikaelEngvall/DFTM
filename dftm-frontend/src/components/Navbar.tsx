@@ -9,20 +9,7 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: NavbarProps) => {
-  const [currentLanguage, setCurrentLanguage] = useState('sv');
   const navigate = useNavigate();
-
-  const languages = [
-    { code: 'en', flag: '🇬🇧', label: 'English' },
-    { code: 'pl', flag: '🇵🇱', label: 'Polski' },
-    { code: 'sv', flag: '🇸🇪', label: 'Svenska' },
-    { code: 'ua', flag: '🇺🇦', label: 'Українська' },
-  ];
-
-  const handleLanguageChange = (code: string) => {
-    setCurrentLanguage(code);
-    // TODO: Implementera språkbyte via i18n
-  };
 
   return (
     <nav className={`${
@@ -37,27 +24,13 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
             alt="DFTASKS" 
             className="h-8"
           />
-          
-          {/* Language flags */}
-          <div className="flex space-x-2">
-            {languages.map(({ code, flag, label }) => (
-              <button
-                key={code}
-                onClick={() => handleLanguageChange(code)}
-                className={`text-xl ${currentLanguage === code ? 'opacity-100' : 'opacity-50'}`}
-                title={label}
-              >
-                {flag}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Navigation icons */}
         <div className="flex items-center space-x-6">
           {/* Calendar */}
           <button 
-            className={`hover:text-blue-400 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
+            className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             onClick={() => navigate('/calendar')}
             title="Kalender"
           >
@@ -68,7 +41,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           
           {/* Pending Tasks */}
           <button 
-            className={`hover:text-blue-400 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
+            className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             onClick={() => navigate('/pending-tasks')}
             title="Granska felanmälningar"
           >
@@ -80,7 +53,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           {/* Users (only for admin/superadmin) */}
           {(userRole === 'ADMIN' || userRole === 'SUPERADMIN') && (
             <button 
-              className={`hover:text-blue-400 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
+              className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
               onClick={() => navigate('/users')}
               title="Hantera användare"
             >
@@ -92,7 +65,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
 
           {/* Theme Toggle */}
           <button 
-            className={`hover:text-blue-400 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
+            className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             onClick={onThemeChange}
             title={isDarkMode ? 'Ljust tema' : 'Mörkt tema'}
           >
@@ -109,7 +82,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
 
           {/* Profile */}
           <button 
-            className={`hover:text-blue-400 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
+            className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             onClick={() => navigate('/profile')}
             title="Min profil"
           >
@@ -121,7 +94,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           {/* Logout */}
           <button 
             onClick={onLogout}
-            className={`hover:text-blue-400 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
+            className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             title="Logga ut"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

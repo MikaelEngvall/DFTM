@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { User } from '../types';
 
-export const UserManagement = () => {
+interface UserManagementProps {
+  isDarkMode: boolean;
+}
+
+export const UserManagement = ({ isDarkMode }: UserManagementProps) => {
   const [users, setUsers] = useState<User[]>([]);
   const userRole = localStorage.getItem('userRole');
 
