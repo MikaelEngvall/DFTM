@@ -4,6 +4,7 @@ import java.util.Properties;
 import java.time.LocalDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.HashMap;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 import com.dftm.config.JavaMailProperties;
 import com.dftm.model.PendingTask;
 import com.dftm.repository.PendingTaskRepository;
+import com.dftm.model.Language;
+import com.dftm.service.TranslationQueueService;
 
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
@@ -29,6 +32,7 @@ public class EmailListener {
     
     private final JavaMailProperties mailProperties;
     private final PendingTaskRepository pendingTaskRepository;
+    private final TranslationQueueService translationQueueService;
     private static final String MAIL_STORE_TYPE = "imaps";
 
     @Scheduled(fixedDelay = 60000) // Kör varje minut
@@ -155,6 +159,9 @@ public class EmailListener {
                     .createdAt(now)
                     .updatedAt(now)
                     .assigned(false)
+                    .titleTranslations(new HashMap<>())
+                    .descriptionTranslations(new HashMap<>())
+                    .originalLanguage(Language.SV)
                     .build();
             
             log.info("\033[0;34m Creating PendingTask: \n" + 
@@ -169,7 +176,16 @@ public class EmailListener {
                     pendingTask.getCreatedAt());
                     
             PendingTask savedTask = pendingTaskRepository.save(pendingTask);
-            log.info("\033[0;32m Successfully created pending task with ID: {} \033[0m", savedTask.getId());
+            
+            // Köa översättningar för alla språk
+            for (Language targetLang : Language.values()) {
+                if (targetLang != Language.SV) { // Skippa svenska som är original
+                    translationQueueService.queueTranslation(savedTask, targetLang);
+                }
+            }
+            
+            log.info("\033[0;32m Successfully created pending task with ID: {} \033[0m", 
+                savedTask.getId());
         } catch (Exception e) {
             log.error("\033[0;31m Failed to save pending task: {} \033[0m", e.getMessage(), e);
             throw e;

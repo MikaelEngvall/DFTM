@@ -8,6 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @Builder
@@ -23,4 +25,7 @@ public class PendingTask {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean assigned;
+    private Map<Language, String> titleTranslations = new HashMap<>();
+    private Map<Language, String> descriptionTranslations = new HashMap<>();
+    private Language originalLanguage = Language.SV; // Default till svenska
 } 
