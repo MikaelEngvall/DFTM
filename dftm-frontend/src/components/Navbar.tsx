@@ -31,7 +31,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           <img 
             src={isDarkMode ? "/images/Transparent Logo White Text.png" : "/images/Transparent Logo Black Text.png"}
             alt="DFTASKS" 
-            className="h-12"
+            className="h-16"
           />
           
           {/* Language flags */}
