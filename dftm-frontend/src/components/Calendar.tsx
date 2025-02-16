@@ -224,7 +224,11 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
               return (
                 <div
                   key={i}
-                  className="aspect-square p-2 border border-[#1a2332] bg-[#1a2332]"
+                  className={`aspect-square p-2 border ${
+                    isDarkMode 
+                      ? 'border-[#1a2332] bg-[#1a2332]' 
+                      : 'border-gray-100 bg-gray-50'
+                  }`}
                 />
               );
             }
