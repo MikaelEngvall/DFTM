@@ -106,7 +106,7 @@ public class TaskController {
     public ResponseEntity<List<Task>> getTasksByStatus(@PathVariable TaskStatus status) {
         log.info("Fetching tasks with status: {}", status);
         try {
-            List<Task> tasks = taskRepository.findByStatus(status);
+            List<Task> tasks = taskService.getTasksByStatus(status);
             log.info("Found {} tasks with status {}", tasks.size(), status);
             return ResponseEntity.ok(tasks);
         } catch (Exception e) {

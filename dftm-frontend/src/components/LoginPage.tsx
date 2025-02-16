@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
-import axios, { AxiosError } from 'axios';
-import { AuthResponse } from '../types';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
-interface LoginProps {
-  onLogin: (token: string) => void;
-}
-
-export const LoginPage = ({ onLogin }: LoginProps) => {
+export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showError, setShowError] = useState(false);
+  const navigate = useNavigate();
+  const { setIsAuthenticated, setUserRole } = useAuth();
 
   useEffect(() => {
     if (error) {
@@ -23,41 +22,32 @@ export const LoginPage = ({ onLogin }: LoginProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLoading) return;
-    
     setIsLoading(true);
     setError('');
-    setShowError(false);
 
     try {
-      const response = await axios.post<AuthResponse>(
-        'http://localhost:8080/api/v1/auth/authenticate',
-        { email, password }
-      );
-      
-      const { token, user } = response.data;
-      onLogin(token);
-      localStorage.setItem('token', token);
-      localStorage.setItem('userRole', user.role);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } catch (error: unknown) {
-      if (error instanceof AxiosError) {
-        switch (error.response?.status) {
-          case 403:
-            setError('Ogiltiga inloggningsuppgifter');
-            break;
-          case 429:
-            setError('För många försök. Vänta en stund och försök igen.');
-            break;
-          case 500:
-            setError('Serverfel. Kontakta systemadministratören.');
-            break;
-          default:
-            setError(`Inloggningen misslyckades: ${error.response?.data?.message || 'Okänt fel'}`);
+      const response = await axios.post('http://localhost:8080/api/v1/auth/authenticate', {
+        email,
+        password
+      });
+
+      if (response.data && response.data.token) {
+        const { token, user } = response.data;
+        localStorage.setItem('token', token);
+        
+        if (user && user.role) {
+          localStorage.setItem('userRole', user.role);
+          setUserRole(user.role);
         }
+        
+        setIsAuthenticated(true);
+        navigate('/calendar');
       } else {
-        setError('Ett oväntat fel inträffade. Kontrollera din internetanslutning.');
+        throw new Error('Invalid response format');
       }
+    } catch (error) {
+      console.error('Login failed:', error);
+      setError('Ogiltiga inloggningsuppgifter');
     } finally {
       setIsLoading(false);
     }
@@ -68,9 +58,9 @@ export const LoginPage = ({ onLogin }: LoginProps) => {
       <div className="max-w-md w-full space-y-8 p-8 rounded-lg">
         <div className="flex justify-center">
           <img
-            src="duggals-light.png"
-            alt="Duggals Fastigheter"
-            className="h-24"
+            src="/images/Transparent Logo White Text.png"
+            alt="DFTASKS"
+            className="h-32"
           />
         </div>
         

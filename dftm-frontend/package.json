@@ -14,9 +14,10 @@
     "@heroicons/react": "^2.2.0",
     "@types/react-beautiful-dnd": "^13.1.8",
     "axios": "^1.7.9",
+    "i18next": "^24.2.2",
     "react": "^19.0.0",
-    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^19.0.0",
+    "react-i18next": "^15.4.0",
     "react-router-dom": "^7.1.5"
   },
   "devDependencies": {

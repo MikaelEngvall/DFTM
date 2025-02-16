@@ -29,8 +29,8 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <img 
-            src="/dftasks-logo.png" 
-            alt="DFTasks" 
+            src={isDarkMode ? "/images/Transparent Logo White Text.png" : "/images/Transparent Logo Black Text.png"}
+            alt="DFTASKS" 
             className="h-8"
           />
           
