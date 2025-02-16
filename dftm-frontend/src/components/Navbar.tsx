@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface NavbarProps {
   onLogout: () => void;
@@ -9,7 +10,15 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: NavbarProps) => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+
+  const languages = [
+    { code: 'en', flag: '🇬🇧', label: 'English' },
+    { code: 'pl', flag: '🇵🇱', label: 'Polski' },
+    { code: 'sv', flag: '🇸🇪', label: 'Svenska' },
+    { code: 'ua', flag: '🇺🇦', label: 'Українська' },
+  ];
 
   return (
     <nav className={`${
@@ -18,12 +27,34 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
         : 'bg-white text-gray-800 border-gray-200'
     } p-4 border-b transition-colors duration-200`}>
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-8">
           <img 
             src={isDarkMode ? "/images/Transparent Logo White Text.png" : "/images/Transparent Logo Black Text.png"}
             alt="DFTASKS" 
             className="h-8"
           />
+          
+          {/* Language flags */}
+          <div className="flex space-x-2">
+            {languages.map(({ code, flag, label }) => (
+              <button
+                key={code}
+                onClick={() => i18n.changeLanguage(code)}
+                className={`text-xl transition-opacity duration-200 ${
+                  i18n.language === code 
+                    ? 'opacity-100' 
+                    : 'opacity-50 hover:opacity-75'
+                } ${
+                  isDarkMode 
+                    ? 'text-white' 
+                    : 'text-gray-700'
+                }`}
+                title={label}
+              >
+                {flag}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Navigation icons */}

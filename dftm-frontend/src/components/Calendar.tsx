@@ -111,22 +111,34 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
     <div className={`${isDarkMode ? 'bg-[#1f2937]' : 'bg-gray-100'} p-4 mb-4 rounded-lg`}>
       <div className="flex space-x-4">
         <div>
-          <label className="text-gray-400 block mb-1">{t('calendar.assignedTo')}</label>
+          <label className={`block mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            {t('calendar.assignedTo')}
+          </label>
           <select
             value={filters.assignee}
             onChange={(e) => setFilters({ ...filters, assignee: e.target.value })}
-            className="bg-[#2c3b52] text-white rounded px-3 py-2"
+            className={`rounded px-3 py-2 ${
+              isDarkMode 
+                ? 'bg-[#2c3b52] text-white' 
+                : 'bg-white text-gray-700 border border-gray-300'
+            }`}
           >
             <option value="">{t('calendar.all')}</option>
             {/* Lägg till assignees dynamiskt */}
           </select>
         </div>
         <div>
-          <label className="text-gray-400 block mb-1">{t('calendar.priority')}</label>
+          <label className={`block mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            {t('calendar.priority')}
+          </label>
           <select
             value={filters.priority}
             onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-            className="bg-[#2c3b52] text-white rounded px-3 py-2"
+            className={`rounded px-3 py-2 ${
+              isDarkMode 
+                ? 'bg-[#2c3b52] text-white' 
+                : 'bg-white text-gray-700 border border-gray-300'
+            }`}
           >
             <option value="">{t('calendar.all')}</option>
             <option value="HIGH">{t('calendar.high')}</option>
