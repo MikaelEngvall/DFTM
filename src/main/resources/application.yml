@@ -1,0 +1,11 @@
+spring:
+  mail:
+    host: imap.gmail.com
+    port: 993
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+
+google:
+  translate:
+    api:
+      key: ${GOOGLE_TRANSLATE_API_KEY} 
