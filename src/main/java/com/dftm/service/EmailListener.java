@@ -8,14 +8,10 @@ import java.util.regex.Pattern;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.dftm.model.Task;
-import com.dftm.model.TaskPriority;
-import com.dftm.model.TaskStatus;
 import com.dftm.config.JavaMailProperties;
 import com.dftm.model.PendingTask;
 import com.dftm.repository.PendingTaskRepository;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.Session;
@@ -23,19 +19,14 @@ import jakarta.mail.Store;
 import jakarta.mail.Flags;
 import jakarta.mail.BodyPart;
 import jakarta.mail.internet.MimeMultipart;
-import jakarta.mail.internet.InternetAddress;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import jakarta.mail.Multipart;
-import jakarta.activation.DataHandler;
-import jakarta.mail.util.ByteArrayDataSource;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmailListener {
     
-    private final TaskService taskService;
     private final JavaMailProperties mailProperties;
     private final PendingTaskRepository pendingTaskRepository;
     private static final String MAIL_STORE_TYPE = "imaps";
@@ -78,43 +69,89 @@ public class EmailListener {
 
     private void processEmail(Message message) throws Exception {
         String content = getTextFromMessage(message);
-        log.info("\033[0;34m ===== RAW EMAIL CONTENT START =====\n{}\n===== RAW EMAIL CONTENT END =====\033[0m", content);
         
-        // Debug varje regex-matchning
-        log.info("\033[0;34m Trying to match patterns:");
-        debugMatch(content, "Adress:\\s*([^\\n]+)", "Address");
-        debugMatch(content, "Lägenhetsnummer:\\s*([^\\n]+)", "Apartment");
-        debugMatch(content, "Telefonnummer:\\s*([^\\n]+)", "Phone");
-        debugMatch(content, "Meddelande:\\s*([^\\n]+)", "Message");
-        debugMatch(content, "E-post:\\s*([^\\n]+)", "Email");
-        log.info("===== PATTERN MATCHING END =====\033[0m");
+        // Rensa HTML först
+        content = cleanHtmlContent(content);
         
-        // Extrahera information med regex
-        String address = extractValue(content, "Adress:\\s*([^\\n]+)");
-        String apartmentNumber = extractValue(content, "Lägenhetsnummer:\\s*([^\\n]+)");
-        String phoneNumber = extractValue(content, "Telefonnummer:\\s*([^\\n]+)");
-        String description = extractValue(content, "Meddelande:\\s*([^\\n]+)");
-        String reporter = extractValue(content, "E-post:\\s*([^\\n]+)");
+        log.info("\033[0;34m Cleaned content:\n{}\033[0m", content);
         
-        log.info("Extracted values:\nAddress: '{}'\nApt: '{}'\nPhone: '{}'\nDesc: '{}'\nReporter: '{}'", 
-            address, apartmentNumber, phoneNumber, description, reporter);
+        // Kontrollera om innehållet är tomt
+        if (content == null || content.trim().isEmpty()) {
+            log.warn("\033[0;33m Skipping empty email message \033[0m");
+            return;
+        }
         
-        // Skapa titel
+        log.info("\033[0;34m Raw content length: {} \033[0m", content.length());
+        log.info("\033[0;34m Raw content bytes: {} \033[0m", 
+            String.format("%040x", new java.math.BigInteger(1, content.getBytes(java.nio.charset.StandardCharsets.UTF_8))));
+        log.info("\033[0;34m Raw content:\n{}\033[0m", content);
+
+        // Parse email content
+        String[] lines = content.split("\n");
+        String reporterName = "";
+        String reporterEmail = "";
+        String reporterPhone = "";
+        String address = "";
+        String apartmentNumber = "";
+        StringBuilder description = new StringBuilder();
+        boolean isDescription = false;
+
+        for (String line : lines) {
+            String trimmedLine = line.trim();
+            
+            if (trimmedLine.startsWith("Meddelande:")) {
+                isDescription = true;
+                // Ta med själva meddelandet om det finns på samma rad
+                String messageContent = trimmedLine.replace("Meddelande:", "").trim();
+                if (!messageContent.isEmpty()) {
+                    description.append(messageContent).append("\n");
+                }
+            } 
+            else if (trimmedLine.equals("---")) {
+                isDescription = false;
+            } 
+            else if (trimmedLine.startsWith("Namn:")) {
+                reporterName = trimmedLine.replace("Namn:", "").trim();
+                log.info("\033[0;34m Found reporter name: {} \033[0m", reporterName);
+            } 
+            else if (trimmedLine.startsWith("E-post:")) {
+                reporterEmail = trimmedLine.replace("E-post:", "").trim();
+                log.info("\033[0;34m Found reporter email: {} \033[0m", reporterEmail);
+            } 
+            else if (trimmedLine.startsWith("Telefonnummer:")) {
+                reporterPhone = trimmedLine.replace("Telefonnummer:", "").trim();
+                log.info("\033[0;34m Found reporter phone: {} \033[0m", reporterPhone);
+            } 
+            else if (trimmedLine.startsWith("Adress:")) {
+                address = trimmedLine.replace("Adress:", "").trim();
+                log.info("\033[0;34m Found address: {} \033[0m", address);
+            } 
+            else if (trimmedLine.startsWith("Lägenhetsnummer:")) {
+                apartmentNumber = trimmedLine.replace("Lägenhetsnummer:", "").trim();
+                log.info("\033[0;34m Found apartment number: {} \033[0m", apartmentNumber);
+            } 
+            else if (isDescription) {
+                description.append(trimmedLine).append("\n");
+            }
+        }
+
+        // Rensa beskrivningen
+        String finalDescription = description.toString().trim();
+        if (finalDescription.isEmpty()) {
+            finalDescription = "Ingen beskrivning tillgänglig";
+        }
+        log.info("\033[0;34m Final description: {} \033[0m", finalDescription);
+
         String title = String.format("Felanmälan från %s %s %s", 
-            address.trim(), 
-            apartmentNumber.trim(), 
-            phoneNumber.trim()
-        );
-        
-        log.info("Generated title: '{}'", title);
+            address, apartmentNumber, reporterPhone);
         
         LocalDateTime now = LocalDateTime.now();
         
         try {
             PendingTask pendingTask = PendingTask.builder()
                     .title(title)
-                    .description(description.trim())
-                    .reporter(reporter.trim())
+                    .description(finalDescription)
+                    .reporter(reporterEmail)
                     .createdAt(now)
                     .updatedAt(now)
                     .assigned(false)
@@ -148,30 +185,47 @@ public class EmailListener {
     }
 
     private String getTextFromMessage(Message message) throws Exception {
+        log.info("\033[0;34m Message type: {} \033[0m", message.getContentType());
+        
         if (message.isMimeType("text/plain")) {
             Object content = message.getContent();
-            log.info("\033[0;34m Content type: {} \033[0m", content.getClass().getName());
-            return new String(content.toString().getBytes("ISO-8859-1"), "UTF-8");
+            log.info("\033[0;34m Plain text content: {} \033[0m", content);
+            return content.toString();
         }
+        
         if (message.isMimeType("multipart/*")) {
             MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
+            log.info("\033[0;34m Found multipart message with {} parts \033[0m", mimeMultipart.getCount());
             return getTextFromMimeMultipart(mimeMultipart);
         }
-        return "";
+        
+        log.warn("\033[0;33m Unsupported message type: {} \033[0m", message.getContentType());
+        return message.getContent().toString();
     }
 
     private String getTextFromMimeMultipart(MimeMultipart mimeMultipart) throws Exception {
         StringBuilder result = new StringBuilder();
-        for (int i = 0; i < mimeMultipart.getCount(); i++) {
+        int count = mimeMultipart.getCount();
+        
+        for (int i = 0; i < count; i++) {
             BodyPart bodyPart = mimeMultipart.getBodyPart(i);
+            log.info("\033[0;34m Processing part {} of type {} \033[0m", i, bodyPart.getContentType());
+            
             if (bodyPart.isMimeType("text/plain")) {
-                Object content = bodyPart.getContent();
-                String text = new String(content.toString().getBytes("ISO-8859-1"), "UTF-8");
-                result.append(text);
-                log.info("\033[0;34m Part {}: '{}' \033[0m", i, text);
+                result.append(bodyPart.getContent());
+            }
+            else if (bodyPart.isMimeType("text/html")) {
+                log.info("\033[0;34m Found HTML content in part {} \033[0m", i);
+                // Om vi behöver hantera HTML-innehåll senare
+            }
+            else if (bodyPart.getContent() instanceof MimeMultipart) {
+                result.append(getTextFromMimeMultipart((MimeMultipart)bodyPart.getContent()));
             }
         }
-        return result.toString();
+        
+        String text = result.toString();
+        log.info("\033[0;34m Extracted text content: \n{} \033[0m", text);
+        return text;
     }
 
     private void debugMatch(String content, String pattern, String field) {
@@ -182,5 +236,25 @@ public class EmailListener {
         } else {
             log.info("No match found for {} with pattern: {}", field, pattern);
         }
+    }
+
+    private String cleanHtmlContent(String content) {
+        // Ersätt <br> med radbrytningar
+        String cleaned = content.replace("<br>", "\n");
+        
+        // Ta bort eventuella andra HTML-taggar
+        cleaned = cleaned.replaceAll("<[^>]+>", "");
+        
+        // Hantera specialtecken
+        cleaned = cleaned.replace("&nbsp;", " ")
+                        .replace("&lt;", "<")
+                        .replace("&gt;", ">")
+                        .replace("&amp;", "&");
+        
+        // Ta bort tomma rader och trimma
+        return cleaned.lines()
+                     .map(String::trim)
+                     .filter(line -> !line.isEmpty())
+                     .collect(java.util.stream.Collectors.joining("\n"));
     }
 } 
