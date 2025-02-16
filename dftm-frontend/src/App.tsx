@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import { LoginPage } from './components/LoginPage'
 import { PendingTaskList } from './components/PendingTaskList'
@@ -49,9 +47,12 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1a2332] w-full">
+    <div className={`min-h-screen w-full ${isDarkMode ? 'bg-[#1a2332] text-white' : 'bg-gray-100 text-gray-900'}`}>
       {!isAuthenticated ? (
-        <LoginPage />
+        <LoginPage 
+          isDarkMode={isDarkMode} 
+          onThemeChange={() => setIsDarkMode(!isDarkMode)} 
+        />
       ) : (
         <>
           <Navbar 
@@ -60,15 +61,15 @@ function AppContent() {
             onThemeChange={() => setIsDarkMode(!isDarkMode)}
             isDarkMode={isDarkMode}
           />
-          <main className="container mx-auto">
+          <main className={`container mx-auto ${isDarkMode ? 'bg-[#1a2332]' : 'bg-white'}`}>
             <Routes>
-              <Route path="/login" element={<LoginPage />} />
+              <Route path="/login" element={<LoginPage isDarkMode={isDarkMode} />} />
               
               <Route 
                 path="/pending-tasks" 
                 element={
                   <ProtectedRoute allowedRoles={['ADMIN', 'SUPERADMIN']}>
-                    <PendingTaskList />
+                    <PendingTaskList isDarkMode={isDarkMode} />
                   </ProtectedRoute>
                 } 
               />
@@ -77,7 +78,7 @@ function AppContent() {
                 path="/calendar" 
                 element={
                   <PrivateRoute>
-                    <Calendar />
+                    <Calendar isDarkMode={isDarkMode} />
                   </PrivateRoute>
                 } 
               />
@@ -86,7 +87,7 @@ function AppContent() {
                 path="/users" 
                 element={
                   <ProtectedRoute allowedRoles={['ADMIN', 'SUPERADMIN']}>
-                    <UserManagement />
+                    <UserManagement isDarkMode={isDarkMode} />
                   </ProtectedRoute>
                 } 
               />
@@ -95,7 +96,7 @@ function AppContent() {
                 path="/profile" 
                 element={
                   <ProtectedRoute>
-                    <Profile />
+                    <Profile isDarkMode={isDarkMode} />
                   </ProtectedRoute>
                 } 
               />

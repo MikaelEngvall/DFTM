@@ -2,8 +2,15 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
-export const LoginPage = () => {
+interface LoginPageProps {
+  isDarkMode: boolean;
+  onThemeChange?: () => void;
+}
+
+export const LoginPage = ({ isDarkMode, onThemeChange }: LoginPageProps) => {
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -11,6 +18,13 @@ export const LoginPage = () => {
   const [showError, setShowError] = useState(false);
   const navigate = useNavigate();
   const { setIsAuthenticated, setUserRole } = useAuth();
+
+  const languages = [
+    { code: 'en', flag: '🇬🇧', label: 'English' },
+    { code: 'pl', flag: '🇵🇱', label: 'Polski' },
+    { code: 'sv', flag: '🇸🇪', label: 'Svenska' },
+    { code: 'ua', flag: '🇺🇦', label: 'Українська' },
+  ];
 
   useEffect(() => {
     if (error) {
@@ -54,17 +68,49 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#1a2332]">
-      <div className="max-w-md w-full space-y-8 p-8 rounded-lg">
+    <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-[#1a2332]' : 'bg-gray-100'}`}>
+      <div className={`max-w-md w-full space-y-8 p-8 rounded-lg ${isDarkMode ? '' : 'bg-white shadow-lg'}`}>
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex space-x-2">
+            {languages.map(({ code, flag, label }) => (
+              <button
+                key={code}
+                onClick={() => i18n.changeLanguage(code)}
+                className={`text-xl ${i18n.language === code ? 'opacity-100' : 'opacity-50'}`}
+                title={label}
+              >
+                {flag}
+              </button>
+            ))}
+          </div>
+          {onThemeChange && (
+            <button 
+              onClick={onThemeChange}
+              className={`p-2 rounded-full ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
+              title={isDarkMode ? 'Ljust tema' : 'Mörkt tema'}
+            >
+              {isDarkMode ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              )}
+            </button>
+          )}
+        </div>
+
         <div className="flex justify-center">
           <img
-            src="/images/Transparent Logo White Text.png"
+            src={isDarkMode ? "/images/Transparent Logo White Text.png" : "/images/Transparent Logo Black Text.png"}
             alt="DFTASKS"
             className="h-32"
           />
         </div>
         
-        <div className="text-center text-gray-300 uppercase tracking-wider text-sm font-medium">
+        <div className={`text-center uppercase tracking-wider text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
           Fastighetsförvaltning
         </div>
 
@@ -88,9 +134,12 @@ export const LoginPage = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded border border-gray-600 bg-[#1a2332] shadow-sm p-2 
-                         text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`mt-1 block w-full rounded border p-2 
+                  ${isDarkMode 
+                    ? 'border-gray-600 bg-[#1a2332] text-gray-300' 
+                    : 'border-gray-300 bg-white text-gray-900'} 
+                  focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                  disabled:opacity-50 disabled:cursor-not-allowed`}
                 required
                 disabled={isLoading}
               />
@@ -104,9 +153,12 @@ export const LoginPage = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded border border-gray-600 bg-[#1a2332] shadow-sm p-2 
-                         text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`mt-1 block w-full rounded border p-2 
+                  ${isDarkMode 
+                    ? 'border-gray-600 bg-[#1a2332] text-gray-300' 
+                    : 'border-gray-300 bg-white text-gray-900'} 
+                  focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                  disabled:opacity-50 disabled:cursor-not-allowed`}
                 required
                 disabled={isLoading}
               />

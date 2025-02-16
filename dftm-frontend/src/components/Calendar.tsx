@@ -5,7 +5,7 @@ import { TaskModal } from './modals/TaskModal';
 import { CreateTaskModal } from './modals/CreateTaskModal';
 import { useTranslation } from 'react-i18next';
 
-export const Calendar = () => {
+export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
   const { t, i18n } = useTranslation();
   const [approvedTasks, setApprovedTasks] = useState<Task[]>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -308,7 +308,7 @@ export const Calendar = () => {
   ];
 
   return (
-    <div className="container mx-auto p-4">
+    <div className={`container mx-auto p-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
       <div className="flex space-x-4 mb-4">
         {languages.map(({ code, flag }) => (
           <button

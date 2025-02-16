@@ -25,7 +25,11 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
   };
 
   return (
-    <nav className="bg-[#1a2332] text-white p-4 border-b border-gray-700">
+    <nav className={`${
+      isDarkMode 
+        ? 'bg-[#1a2332] text-white border-gray-700' 
+        : 'bg-white text-gray-800 border-gray-200'
+    } p-4 border-b transition-colors duration-200`}>
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <img 
@@ -53,7 +57,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
         <div className="flex items-center space-x-6">
           {/* Calendar */}
           <button 
-            className="hover:text-blue-400" 
+            className={`hover:text-blue-400 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             onClick={() => navigate('/calendar')}
             title="Kalender"
           >
@@ -64,7 +68,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           
           {/* Pending Tasks */}
           <button 
-            className="hover:text-blue-400"
+            className={`hover:text-blue-400 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             onClick={() => navigate('/pending-tasks')}
             title="Granska felanmälningar"
           >
@@ -76,7 +80,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           {/* Users (only for admin/superadmin) */}
           {(userRole === 'ADMIN' || userRole === 'SUPERADMIN') && (
             <button 
-              className="hover:text-blue-400"
+              className={`hover:text-blue-400 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
               onClick={() => navigate('/users')}
               title="Hantera användare"
             >
@@ -88,7 +92,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
 
           {/* Theme Toggle */}
           <button 
-            className="hover:text-blue-400"
+            className={`hover:text-blue-400 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             onClick={onThemeChange}
             title={isDarkMode ? 'Ljust tema' : 'Mörkt tema'}
           >
@@ -105,7 +109,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
 
           {/* Profile */}
           <button 
-            className="hover:text-blue-400"
+            className={`hover:text-blue-400 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             onClick={() => navigate('/profile')}
             title="Min profil"
           >
@@ -117,7 +121,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           {/* Logout */}
           <button 
             onClick={onLogout}
-            className="hover:text-blue-400"
+            className={`hover:text-blue-400 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             title="Logga ut"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
