@@ -14,13 +14,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dftm.dto.CreateUserRequest;
 import com.dftm.dto.UpdateProfileRequest;
 import com.dftm.dto.UserResponse;
+import com.dftm.exception.BadRequestException;
 import com.dftm.exception.ResourceNotFoundException;
 import com.dftm.model.User;
 import com.dftm.repository.UserRepository;
@@ -125,6 +128,37 @@ public class UserController {
         user.setEmail(request.getEmail());
         user.setUpdatedAt(LocalDateTime.now());
         
+        User savedUser = userRepository.save(user);
+        
+        return ResponseEntity.ok(UserResponse.builder()
+            .id(savedUser.getId())
+            .name(savedUser.getName())
+            .email(savedUser.getEmail())
+            .role(savedUser.getRole())
+            .active(savedUser.isActive())
+            .createdAt(savedUser.getCreatedAt())
+            .build());
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest request) {
+        log.info("Creating new user with email: {}", request.getEmail());
+        
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new BadRequestException("Email already exists");
+        }
+
+        User user = User.builder()
+            .name(request.getName())
+            .email(request.getEmail())
+            .password(passwordEncoder.encode(request.getPassword()))
+            .role(request.getRole())
+            .active(true)
+            .createdAt(LocalDateTime.now())
+            .updatedAt(LocalDateTime.now())
+            .build();
+
         User savedUser = userRepository.save(user);
         
         return ResponseEntity.ok(UserResponse.builder()
