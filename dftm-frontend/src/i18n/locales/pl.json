@@ -20,5 +20,10 @@
       "saturday": "SOBOTA",
       "sunday": "NIEDZIELA"
     }
+  },
+  "tasks": {
+    "count_one": "{{count}} zadanie",
+    "count_few": "{{count}} zadania",
+    "count_many": "{{count}} zadań"
   }
 } 

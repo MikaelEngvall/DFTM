@@ -108,5 +108,9 @@
     "error": "Felaktiga inloggningsuppgifter",
     "loggingIn": "Loggar in...",
     "propertyManagement": "Fastighetsförvaltning"
+  },
+  "tasks": {
+    "count_one": "{{count}} uppgift",
+    "count_other": "{{count}} uppgifter"
   }
 } 

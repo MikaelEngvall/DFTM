@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "check-translations": "ts-node scripts/checkTranslations.ts",
+    "extract-translations": "ts-node scripts/extractTranslations.ts",
+    "generate-translation-types": "ts-node scripts/generateTranslationTypes.ts"
+  }
+} 
