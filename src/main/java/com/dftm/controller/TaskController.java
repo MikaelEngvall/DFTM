@@ -102,7 +102,7 @@ public class TaskController {
     }
 
     @GetMapping("/status/{status}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERADMIN')")
     public ResponseEntity<List<Task>> getTasksByStatus(@PathVariable TaskStatus status) {
         log.info("Fetching tasks with status: {}", status);
         try {

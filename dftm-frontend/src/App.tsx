@@ -11,6 +11,7 @@ import { Profile } from './components/Profile'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { UserList } from './components/users/UserList'
 import { Unauthorized } from './components/Unauthorized'
+import { UserManagement } from './components/UserManagement'
 
 function AppContent() {
   const [isDarkMode, setIsDarkMode] = useState(true)
@@ -88,6 +89,15 @@ function AppContent() {
                 element={
                   <ProtectedRoute>
                     <Profile isDarkMode={isDarkMode} />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/user-management" 
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN', 'SUPERADMIN']}>
+                    <UserManagement isDarkMode={isDarkMode} />
                   </ProtectedRoute>
                 } 
               />

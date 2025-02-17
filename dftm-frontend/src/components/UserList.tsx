@@ -3,15 +3,7 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { EditUserModal } from './modals/EditUserModal';
 import { CreateUserModal } from './modals/CreateUserModal';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  createdAt: string;
-  active: boolean;
-}
+import { User } from '../types';
 
 interface UserListProps {
   isDarkMode: boolean;
@@ -26,25 +18,27 @@ export const UserList = ({ isDarkMode }: UserListProps) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showInactive, setShowInactive] = useState(false);
 
-  const fetchUsers = async () => {
-    try {
-      setIsLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await axios.get<User[]>('http://localhost:8080/api/v1/users', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      setUsers(response.data);
-    } catch (error) {
-      console.error('Failed to fetch users:', error);
-      setError(t('userList.loadError'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem('token');
+        console.log('Token:', token);
+        
+        const response = await axios.get<User[]>('http://localhost:8080/api/v1/users', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setUsers(response.data);
+      } catch (error: any) {
+        console.error('Failed to fetch users:', error.response?.status, error.response?.data);
+        setError(t('userList.loadError'));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchUsers();
   }, []);
 
@@ -192,7 +186,7 @@ export const UserList = ({ isDarkMode }: UserListProps) => {
         <EditUserModal
           user={selectedUser}
           onClose={() => setSelectedUser(null)}
-          onSave={fetchUsers}
+          onSave={() => {}}
           isDarkMode={isDarkMode}
         />
       )}
@@ -200,7 +194,7 @@ export const UserList = ({ isDarkMode }: UserListProps) => {
       {showCreateModal && (
         <CreateUserModal
           onClose={() => setShowCreateModal(false)}
-          onSave={fetchUsers}
+          onSave={() => {}}
           isDarkMode={isDarkMode}
         />
       )}

@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { languages } from '../i18n/languages';
+import { Link } from 'react-router-dom';
+import { UserGroupIcon } from '@heroicons/react/24/outline';
 
 interface NavbarProps {
   onLogout: () => void;
@@ -81,30 +83,17 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
             </svg>
           </button>
 
-          {/* Users List */}
-          {(userRole === 'ADMIN' || userRole === 'SUPERADMIN') && (
-            <button 
-              className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
-              onClick={() => navigate('/user-list')}
-              title={t('nav.usersList')}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </button>
-          )}
-
           {/* Manage Users (only for admin/superadmin) */}
           {(userRole === 'ADMIN' || userRole === 'SUPERADMIN') && (
-            <button 
-              className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
-              onClick={() => navigate('/manage-users')}
-              title={t('nav.manageUsers')}
+            <Link 
+              to="/user-management" 
+              className={`hover:text-blue-400 transition-colors duration-200 ${
+                isDarkMode ? 'text-white' : 'text-gray-700'
+              }`}
+              title={t('navbar.manageUsers')}
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </button>
+              <UserGroupIcon className="h-6 w-6" />
+            </Link>
           )}
 
           {/* Theme Toggle */}
