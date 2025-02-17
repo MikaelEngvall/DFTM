@@ -117,5 +117,36 @@
     "title": "Åtkomst nekad",
     "message": "Du har inte behörighet att se denna sida.",
     "goBack": "Gå tillbaka"
+  },
+  "userManagement": {
+    "title": "Hantera användare",
+    "name": "Namn",
+    "email": "E-post",
+    "role": "Roll",
+    "status": "Status",
+    "actions": "Åtgärder",
+    "addUser": "Lägg till användare",
+    "showInactive": "Visa inaktiva",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "loadError": "Kunde inte ladda användare",
+    "updateError": "Kunde inte uppdatera användare",
+    "roles": {
+      "admin": "Administratör",
+      "superadmin": "Superadministratör",
+      "user": "Användare"
+    }
+  },
+  "profile": {
+    "title": "Min profil",
+    "name": "Namn",
+    "email": "E-post",
+    "role": "Roll",
+    "currentPassword": "Nuvarande lösenord",
+    "newPassword": "Nytt lösenord",
+    "edit": "Redigera",
+    "loadError": "Kunde inte ladda profil",
+    "updateError": "Kunde inte uppdatera profil",
+    "notFound": "Profilen kunde inte hittas"
   }
 } 

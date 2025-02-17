@@ -77,5 +77,36 @@
     "error": "Invalid credentials",
     "loggingIn": "Logging in...",
     "propertyManagement": "Property Management"
+  },
+  "userManagement": {
+    "title": "Manage Users",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "status": "Status",
+    "actions": "Actions",
+    "addUser": "Add User",
+    "showInactive": "Show Inactive",
+    "active": "Active",
+    "inactive": "Inactive",
+    "loadError": "Failed to load users",
+    "updateError": "Failed to update user",
+    "roles": {
+      "admin": "Administrator",
+      "superadmin": "Super Administrator",
+      "user": "User"
+    }
+  },
+  "profile": {
+    "title": "My Profile",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "edit": "Edit",
+    "loadError": "Failed to load profile",
+    "updateError": "Failed to update profile",
+    "notFound": "Profile not found"
   }
 } 
