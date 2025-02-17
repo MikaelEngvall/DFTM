@@ -4,7 +4,10 @@
     "cancel": "Cancel",
     "loading": "Loading...",
     "error": "An error occurred",
-    "close": "Close"
+    "close": "Close",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm"
   },
   "nav": {
     "calendar": "Calendar",
@@ -41,7 +44,17 @@
     "email": "Email",
     "role": "Role",
     "created": "Created",
-    "loadError": "Failed to load users"
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "showInactive": "Show inactive",
+    "addNew": "Add User",
+    "loadError": "Failed to load users",
+    "roles": {
+      "user": "User",
+      "admin": "Admin",
+      "superadmin": "Superadmin"
+    }
   },
   "editUser": {
     "title": "Edit User",

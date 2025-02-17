@@ -5,7 +5,9 @@
     "loading": "Laddar...",
     "error": "Ett fel uppstod",
     "close": "Stäng",
-    "edit": "Redigera"
+    "edit": "Redigera",
+    "delete": "Ta bort",
+    "confirm": "Bekräfta"
   },
   "nav": {
     "calendar": "Kalender",
@@ -42,13 +44,30 @@
     "email": "Email",
     "role": "Roll",
     "created": "Skapad",
-    "loadError": "Kunde inte hämta användare"
+    "status": "Status",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "showInactive": "Visa inaktiva",
+    "addNew": "Lägg till användare",
+    "loadError": "Kunde inte hämta användare",
+    "roles": {
+      "user": "Användare",
+      "admin": "Admin",
+      "superadmin": "Superadmin"
+    }
   },
   "editUser": {
     "title": "Redigera användare",
     "name": "Namn",
     "email": "Email",
     "role": "Roll",
+    "status": "Status",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "password": "Lösenord",
+    "confirmPassword": "Bekräfta lösenord",
+    "passwordOptional": "Lämna tomt för att behålla nuvarande lösenord",
+    "passwordMismatch": "Lösenorden matchar inte",
     "roles": {
       "user": "Användare",
       "admin": "Admin",
@@ -56,6 +75,30 @@
     },
     "updateError": "Kunde inte uppdatera användaren",
     "saving": "Sparar..."
+  },
+  "createUser": {
+    "title": "Skapa ny användare",
+    "name": "Namn",
+    "email": "Email",
+    "role": "Roll",
+    "password": "Lösenord",
+    "confirmPassword": "Bekräfta lösenord",
+    "roles": {
+      "user": "Användare",
+      "admin": "Admin",
+      "superadmin": "Superadmin"
+    },
+    "createError": "Kunde inte skapa användaren",
+    "creating": "Skapar...",
+    "success": "Användaren har skapats"
+  },
+  "deleteUser": {
+    "title": "Ta bort användare",
+    "confirmation": "Är du säker på att du vill ta bort användaren",
+    "warning": "Detta går inte att ångra",
+    "deleting": "Tar bort...",
+    "error": "Kunde inte ta bort användaren",
+    "success": "Användaren har tagits bort"
   },
   "login": {
     "title": "Logga in",
