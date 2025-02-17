@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { languages } from '../i18n/languages';
 
 interface LoginPageProps {
   isDarkMode: boolean;
@@ -18,13 +19,6 @@ export const LoginPage = ({ isDarkMode, onThemeChange }: LoginPageProps) => {
   const [showError, setShowError] = useState(false);
   const navigate = useNavigate();
   const { setIsAuthenticated, setUserRole } = useAuth();
-
-  const languages = [
-    { code: 'en', flag: '🇬🇧', label: 'English' },
-    { code: 'pl', flag: '🇵🇱', label: 'Polski' },
-    { code: 'sv', flag: '🇸🇪', label: 'Svenska' },
-    { code: 'ua', flag: '🇺🇦', label: 'Українська' },
-  ];
 
   useEffect(() => {
     if (error) {
@@ -69,14 +63,22 @@ export const LoginPage = ({ isDarkMode, onThemeChange }: LoginPageProps) => {
 
   return (
     <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-[#1a2332]' : 'bg-gray-100'}`}>
-      <div className={`max-w-md w-full space-y-8 p-8 rounded-lg ${isDarkMode ? '' : 'bg-white shadow-lg'}`}>
+      <div className={`max-w-md w-full space-y-8 p-8 rounded-lg ${isDarkMode ? 'bg-[#1f2937]' : 'bg-white shadow-lg'}`}>
         <div className="flex justify-between items-center mb-8">
           <div className="flex space-x-2">
             {languages.map(({ code, flag, label }) => (
               <button
                 key={code}
                 onClick={() => i18n.changeLanguage(code)}
-                className={`text-xl ${i18n.language === code ? 'opacity-100' : 'opacity-50'}`}
+                className={`text-xl transition-opacity duration-200 ${
+                  i18n.language === code 
+                    ? 'opacity-100' 
+                    : 'opacity-50 hover:opacity-75'
+                } ${
+                  isDarkMode 
+                    ? 'text-white' 
+                    : 'text-gray-700'
+                }`}
                 title={label}
               >
                 {flag}
@@ -102,16 +104,18 @@ export const LoginPage = ({ isDarkMode, onThemeChange }: LoginPageProps) => {
           )}
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center space-y-6">
           <img
             src={isDarkMode ? "/images/Transparent Logo White Text.png" : "/images/Transparent Logo Black Text.png"}
             alt="DFTASKS"
             className="h-32"
           />
-        </div>
-        
-        <div className={`text-center uppercase tracking-wider text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-          Fastighetsförvaltning
+          
+          <div className={`text-center uppercase tracking-wider text-sm font-medium ${
+            isDarkMode ? 'text-gray-300' : 'text-gray-600'
+          }`}>
+            {t('login.propertyManagement')}
+          </div>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -121,14 +125,14 @@ export const LoginPage = ({ isDarkMode, onThemeChange }: LoginPageProps) => {
                          transform transition-all duration-300 ease-in-out
                          animate-[slideIn_0.3s_ease-out]"
             >
-              {error}
+              {t('login.error')}
             </div>
           )}
           
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 uppercase tracking-wider">
-                E-post
+                {t('login.email')}
               </label>
               <input
                 type="email"
@@ -147,7 +151,7 @@ export const LoginPage = ({ isDarkMode, onThemeChange }: LoginPageProps) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-300 uppercase tracking-wider">
-                Lösenord
+                {t('login.password')}
               </label>
               <input
                 type="password"
@@ -176,13 +180,13 @@ export const LoginPage = ({ isDarkMode, onThemeChange }: LoginPageProps) => {
           >
             {isLoading ? (
               <>
-                <span className="opacity-0">Loggar in</span>
+                <span className="opacity-0">{t('login.loggingIn')}</span>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 </div>
               </>
             ) : (
-              'Logga in'
+              t('login.loginButton')
             )}
           </button>
         </form>

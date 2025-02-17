@@ -4,7 +4,8 @@
     "cancel": "Avbryt",
     "loading": "Laddar...",
     "error": "Ett fel uppstod",
-    "close": "Stäng"
+    "close": "Stäng",
+    "edit": "Redigera"
   },
   "nav": {
     "calendar": "Kalender",
@@ -58,9 +59,11 @@
   },
   "login": {
     "title": "Logga in",
-    "email": "Email",
+    "email": "E-post",
     "password": "Lösenord",
     "loginButton": "Logga in",
-    "error": "Felaktiga inloggningsuppgifter"
+    "error": "Felaktiga inloggningsuppgifter",
+    "loggingIn": "Loggar in...",
+    "propertyManagement": "Fastighetsförvaltning"
   }
 } 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { languages } from '../i18n/languages';
 
 interface NavbarProps {
   onLogout: () => void;
@@ -12,13 +13,6 @@ interface NavbarProps {
 export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: NavbarProps) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-
-  const languages = [
-    { code: 'en', flag: '🇬🇧', label: 'English' },
-    { code: 'pl', flag: '🇵🇱', label: 'Polski' },
-    { code: 'sv', flag: '🇸🇪', label: 'Svenska' },
-    { code: 'ua', flag: '🇺🇦', label: 'Українська' },
-  ];
 
   const handleLanguageChange = (code: string) => {
     i18n.changeLanguage(code);
@@ -68,7 +62,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           <button 
             className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             onClick={() => navigate('/calendar')}
-            title="Kalender"
+            title={t('nav.calendar')}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -79,7 +73,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           <button 
             className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             onClick={() => navigate('/pending-tasks')}
-            title="Granska felanmälningar"
+            title={t('nav.pendingTasks')}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -90,7 +84,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           <button 
             className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             onClick={() => navigate('/users-list')}
-            title="Användarlista"
+            title={t('nav.usersList')}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -102,7 +96,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
             <button 
               className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
               onClick={() => navigate('/users')}
-              title="Hantera användare"
+              title={t('nav.manageUsers')}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -114,7 +108,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           <button 
             className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             onClick={onThemeChange}
-            title={isDarkMode ? 'Ljust tema' : 'Mörkt tema'}
+            title={isDarkMode ? t('nav.lightTheme') : t('nav.darkTheme')}
           >
             {isDarkMode ? (
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +125,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           <button 
             className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
             onClick={() => navigate('/profile')}
-            title="Min profil"
+            title={t('nav.profile')}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -142,7 +136,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           <button 
             onClick={onLogout}
             className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
-            title="Logga ut"
+            title={t('nav.logout')}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

@@ -61,6 +61,8 @@
     "email": "Email",
     "password": "Password",
     "loginButton": "Login",
-    "error": "Invalid credentials"
+    "error": "Invalid credentials",
+    "loggingIn": "Logging in...",
+    "propertyManagement": "Property Management"
   }
 } 

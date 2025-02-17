@@ -7,9 +7,9 @@ import { Navbar } from './components/Navbar'
 import axios from 'axios'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { Calendar } from './components/Calendar'
-import { UserManagement } from './components/UserManagement'
 import { Profile } from './components/Profile'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { UserList } from './components/UserList'
 
 function AppContent() {
   const [isDarkMode, setIsDarkMode] = useState(true)
@@ -84,10 +84,10 @@ function AppContent() {
               />
               
               <Route 
-                path="/users" 
+                path="/users-list" 
                 element={
                   <ProtectedRoute allowedRoles={['ADMIN', 'SUPERADMIN']}>
-                    <UserManagement isDarkMode={isDarkMode} />
+                    <UserList isDarkMode={isDarkMode} />
                   </ProtectedRoute>
                 } 
               />

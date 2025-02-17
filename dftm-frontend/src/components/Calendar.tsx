@@ -45,14 +45,21 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
       setError('');
     } catch (error) {
       console.error('Failed to fetch approved tasks:', error);
-      setError('Kunde inte hämta godkända uppgifter');
+      setError(t('calendar.fetchError'));
     } finally {
       setIsLoading(false);
     }
   };
 
   const formatMonth = (date: Date) => {
-    return date.toLocaleDateString('sv-SE', {
+    // Använd exakt samma språkkoder som i i18n config
+    const localeMap = {
+      'sv-SE': 'sv-SE',
+      'en-GB': 'en-GB',
+      'pl-PL': 'pl-PL',
+      'uk-UA': 'uk-UA'
+    };
+    return date.toLocaleDateString(localeMap[i18n.language] || 'sv-SE', {
       month: 'long',
       year: 'numeric'
     }).toUpperCase();
@@ -103,9 +110,7 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
     <div className={`${isDarkMode ? 'bg-[#1f2937]' : 'bg-gray-100'} p-4 mb-4 rounded-lg`}>
       <div className="flex space-x-4">
         <div>
-          <label className={`block mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            {t('calendar.assignedTo')}
-          </label>
+          <label className={`block mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{t('calendar.assignedTo')}</label>
           <select
             value={filters.assignee}
             onChange={(e) => setFilters({ ...filters, assignee: e.target.value })}
@@ -119,9 +124,7 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
           </select>
         </div>
         <div>
-          <label className={`block mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            {t('calendar.priority')}
-          </label>
+          <label className={`block mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{t('calendar.priority')}</label>
           <select
             value={filters.priority}
             onChange={(e) => setFilters({ ...filters, priority: e.target.value })}

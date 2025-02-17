@@ -1,0 +1,68 @@
+{
+  "common": {
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "loading": "Завантаження...",
+    "error": "Сталася помилка",
+    "close": "Закрити"
+  },
+  "nav": {
+    "calendar": "Календар",
+    "pendingTasks": "Перегляд звітів",
+    "usersList": "Список користувачів",
+    "manageUsers": "Керування користувачами",
+    "profile": "Мій профіль",
+    "logout": "Вийти",
+    "lightTheme": "Світла тема",
+    "darkTheme": "Темна тема"
+  },
+  "calendar": {
+    "showArchived": "Показати архівовані",
+    "assignedTo": "Призначено",
+    "priority": "Пріоритет",
+    "all": "Всі",
+    "high": "Високий",
+    "medium": "Середній",
+    "low": "Низький",
+    "unassigned": "Не призначено",
+    "weekdays": {
+      "monday": "Понеділок",
+      "tuesday": "Вівторок",
+      "wednesday": "Середа",
+      "thursday": "Четвер",
+      "friday": "П'ятниця",
+      "saturday": "Субота",
+      "sunday": "Неділя"
+    }
+  },
+  "userList": {
+    "title": "Користувачі",
+    "name": "Ім'я",
+    "email": "Email",
+    "role": "Роль",
+    "created": "Створено",
+    "loadError": "Не вдалося завантажити користувачів"
+  },
+  "editUser": {
+    "title": "Редагувати користувача",
+    "name": "Ім'я",
+    "email": "Email",
+    "role": "Роль",
+    "roles": {
+      "user": "Користувач",
+      "admin": "Адміністратор",
+      "superadmin": "Суперадміністратор"
+    },
+    "updateError": "Не вдалося оновити користувача",
+    "saving": "Збереження..."
+  },
+  "login": {
+    "title": "Вхід",
+    "email": "Email",
+    "password": "Пароль",
+    "loginButton": "Увійти",
+    "error": "Невірні облікові дані",
+    "loggingIn": "Вхід...",
+    "propertyManagement": "Управління нерухомістю"
+  }
+} 
