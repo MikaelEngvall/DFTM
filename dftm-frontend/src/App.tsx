@@ -9,7 +9,8 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { Calendar } from './components/Calendar'
 import { Profile } from './components/Profile'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import { UserList } from './components/UserList'
+import { UserList } from './components/users/UserList'
+import { Unauthorized } from './components/Unauthorized'
 
 function AppContent() {
   const [isDarkMode, setIsDarkMode] = useState(true)
@@ -49,10 +50,10 @@ function AppContent() {
   return (
     <div className={`min-h-screen w-full ${isDarkMode ? 'bg-[#1a2332] text-white' : 'bg-gray-100 text-gray-900'}`}>
       {!isAuthenticated ? (
-        <LoginPage 
-          isDarkMode={isDarkMode} 
-          onThemeChange={() => setIsDarkMode(!isDarkMode)} 
-        />
+        <Routes>
+          <Route path="/login" element={<LoginPage isDarkMode={isDarkMode} />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
       ) : (
         <>
           <Navbar 
@@ -77,14 +78,14 @@ function AppContent() {
               <Route 
                 path="/calendar" 
                 element={
-                  <PrivateRoute>
+                  <ProtectedRoute>
                     <Calendar isDarkMode={isDarkMode} />
-                  </PrivateRoute>
+                  </ProtectedRoute>
                 } 
               />
               
               <Route 
-                path="/users-list" 
+                path="/user-list" 
                 element={
                   <ProtectedRoute allowedRoles={['ADMIN', 'SUPERADMIN']}>
                     <UserList isDarkMode={isDarkMode} />
@@ -100,6 +101,8 @@ function AppContent() {
                   </ProtectedRoute>
                 } 
               />
+              
+              <Route path="/unauthorized" element={<Unauthorized />} />
               
               <Route path="/" element={<Navigate to="/calendar" replace />} />
             </Routes>

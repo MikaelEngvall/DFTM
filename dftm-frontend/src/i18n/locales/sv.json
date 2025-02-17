@@ -112,5 +112,10 @@
   "tasks": {
     "count_one": "{{count}} uppgift",
     "count_other": "{{count}} uppgifter"
+  },
+  "unauthorized": {
+    "title": "Åtkomst nekad",
+    "message": "Du har inte behörighet att se denna sida.",
+    "goBack": "Gå tillbaka"
   }
 } 
