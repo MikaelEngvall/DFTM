@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 
@@ -19,7 +18,6 @@ interface UserRowProps {
 
 export const UserRow = ({ user, isDarkMode }: UserRowProps) => {
   const { t } = useTranslation();
-  const [isEditing, setIsEditing] = useState(false);
 
   return (
     <tr className={`${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'}`}>
@@ -46,7 +44,6 @@ export const UserRow = ({ user, isDarkMode }: UserRowProps) => {
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <button
-          onClick={() => setIsEditing(true)}
           className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
         >
           {t('common.edit')}

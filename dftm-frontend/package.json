@@ -12,8 +12,10 @@
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "@types/date-fns": "^2.5.3",
     "@types/react-beautiful-dnd": "^13.1.8",
     "axios": "^1.7.9",
+    "date-fns": "^4.1.0",
     "i18next": "^24.2.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

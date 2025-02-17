@@ -1,9 +1,6 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { languages } from '../i18n/languages';
-import { Link } from 'react-router-dom';
-import { UserIcon } from '../components/common/UserIcon';
 
 interface NavbarProps {
   onLogout: () => void;
@@ -20,20 +17,6 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
     i18n.changeLanguage(code);
     localStorage.setItem('preferredLanguage', code);
   };
-
-  const userManagementLink = (userRole === 'ADMIN' || userRole === 'SUPERADMIN') && (
-    <Link
-      to="/user-list"
-      className={`flex items-center px-4 py-2 text-sm ${
-        isDarkMode 
-          ? 'hover:bg-gray-700' 
-          : 'hover:bg-gray-100'
-      }`}
-    >
-      <UserIcon className="h-5 w-5 mr-2" />
-      {t('nav.usersList')}
-    </Link>
-  );
 
   return (
     <nav className={`${
@@ -97,13 +80,23 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
           </button>
 
           {/* Users List */}
-          {userManagementLink}
+          {(userRole === 'ADMIN' || userRole === 'SUPERADMIN') && (
+            <button 
+              className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
+              onClick={() => navigate('/user-list')}
+              title={t('nav.usersList')}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </button>
+          )}
 
           {/* Users (only for admin/superadmin) */}
           {(userRole === 'ADMIN' || userRole === 'SUPERADMIN') && (
             <button 
               className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
-              onClick={() => navigate('/users')}
+              onClick={() => navigate('/manage-users')}
               title={t('nav.manageUsers')}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

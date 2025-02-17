@@ -37,16 +37,6 @@ function AppContent() {
     setUserRole('')
   }
 
-  const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      return <Navigate to="/login" replace />;
-    }
-    
-    return <>{children}</>;
-  };
-
   return (
     <div className={`min-h-screen w-full ${isDarkMode ? 'bg-[#1a2332] text-white' : 'bg-gray-100 text-gray-900'}`}>
       {!isAuthenticated ? (
