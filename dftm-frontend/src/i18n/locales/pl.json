@@ -25,5 +25,36 @@
     "count_one": "{{count}} zadanie",
     "count_few": "{{count}} zadania",
     "count_many": "{{count}} zadań"
+  },
+  "userManagement": {
+    "title": "Zarządzaj użytkownikami",
+    "name": "Imię",
+    "email": "E-mail",
+    "role": "Rola",
+    "status": "Status",
+    "actions": "Akcje",
+    "addUser": "Dodaj użytkownika",
+    "showInactive": "Pokaż nieaktywnych",
+    "active": "Aktywny",
+    "inactive": "Nieaktywny",
+    "loadError": "Nie udało się załadować użytkowników",
+    "updateError": "Nie udało się zaktualizować użytkownika",
+    "roles": {
+      "admin": "Administrator",
+      "superadmin": "Super Administrator",
+      "user": "Użytkownik"
+    }
+  },
+  "profile": {
+    "title": "Mój profil",
+    "name": "Imię",
+    "email": "E-mail",
+    "role": "Rola",
+    "currentPassword": "Aktualne hasło",
+    "newPassword": "Nowe hasło",
+    "edit": "Edytuj",
+    "loadError": "Nie udało się załadować profilu",
+    "updateError": "Nie udało się zaktualizować profilu",
+    "notFound": "Nie znaleziono profilu"
   }
 } 
