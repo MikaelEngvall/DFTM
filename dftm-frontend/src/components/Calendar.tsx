@@ -51,15 +51,15 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
     }
   };
 
-  const formatMonth = (date: Date) => {
-    // Använd exakt samma språkkoder som i i18n config
+  const formatMonthYear = (date: Date) => {
     const localeMap = {
-      'sv-SE': 'sv-SE',
-      'en-GB': 'en-GB',
-      'pl-PL': 'pl-PL',
-      'uk-UA': 'uk-UA'
-    };
-    return date.toLocaleDateString(localeMap[i18n.language] || 'sv-SE', {
+      'sv': 'sv-SE',
+      'en': 'en-GB',
+      'pl': 'pl-PL',
+      'uk': 'uk-UA'
+    } as const;
+
+    return date.toLocaleDateString(localeMap[i18n.language as keyof typeof localeMap] || 'sv-SE', {
       month: 'long',
       year: 'numeric'
     }).toUpperCase();
@@ -85,7 +85,7 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
             ←
           </button>
           <h2 className={`text-xl font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            {formatMonth(currentMonth)}
+            {formatMonthYear(currentMonth)}
           </h2>
           <button onClick={handleNextMonth} className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-blue-400`}>
             →

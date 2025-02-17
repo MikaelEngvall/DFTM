@@ -92,7 +92,7 @@ export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: Navbar
             </button>
           )}
 
-          {/* Users (only for admin/superadmin) */}
+          {/* Manage Users (only for admin/superadmin) */}
           {(userRole === 'ADMIN' || userRole === 'SUPERADMIN') && (
             <button 
               className={`hover:text-blue-400 transition-colors duration-200 ${isDarkMode ? 'text-white' : 'text-gray-700'}`}
