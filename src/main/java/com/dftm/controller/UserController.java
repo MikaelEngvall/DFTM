@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +25,12 @@ import com.dftm.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.security.core.userdetails.BadCredentialsException;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -31,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
     
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
@@ -73,6 +82,53 @@ public class UserController {
         
         user.setActive(status.get("active"));
         user.setUpdatedAt(LocalDateTime.now());
+        User savedUser = userRepository.save(user);
+        
+        return ResponseEntity.ok(UserResponse.builder()
+            .id(savedUser.getId())
+            .name(savedUser.getName())
+            .email(savedUser.getEmail())
+            .role(savedUser.getRole())
+            .active(savedUser.isActive())
+            .createdAt(savedUser.getCreatedAt())
+            .build());
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserResponse> getProfile(Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        
+        return ResponseEntity.ok(UserResponse.builder()
+            .id(user.getId())
+            .name(user.getName())
+            .email(user.getEmail())
+            .role(user.getRole())
+            .active(user.isActive())
+            .createdAt(user.getCreatedAt())
+            .build());
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<UserResponse> updateProfile(
+        @RequestBody UpdateProfileRequest request,
+        Authentication authentication
+    ) {
+        User user = userRepository.findByEmail(authentication.getName())
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        
+        // Validera lösenord om det finns med i requesten
+        if (request.getCurrentPassword() != null && !request.getCurrentPassword().isEmpty()) {
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                throw new BadCredentialsException("Invalid current password");
+            }
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        }
+        
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setUpdatedAt(LocalDateTime.now());
+        
         User savedUser = userRepository.save(user);
         
         return ResponseEntity.ok(UserResponse.builder()
