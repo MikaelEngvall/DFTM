@@ -4,10 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { languages } from '../i18n/languages';
+import jwtDecode from 'jwt-decode';
 
 interface LoginPageProps {
   isDarkMode: boolean;
   onThemeChange?: () => void;
+}
+
+interface DecodedToken {
+  sub: string;
+  role: string;
+  exp: number;
 }
 
 export const LoginPage = ({ isDarkMode, onThemeChange }: LoginPageProps) => {
@@ -34,28 +41,44 @@ export const LoginPage = ({ isDarkMode, onThemeChange }: LoginPageProps) => {
     setError('');
 
     try {
+      console.log('Starting authentication...');
       const response = await axios.post('http://localhost:8080/api/v1/auth/authenticate', {
         email,
         password
       });
 
+      console.log('Full response:', response);
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      console.log('Response data:', response.data);
+
       if (response.data && response.data.token) {
-        const { token, user } = response.data;
-        localStorage.setItem('token', token);
+        const { token } = response.data;
+        const decoded = jwtDecode<DecodedToken>(token);
+        const userRole = decoded.role || 'USER';
+        console.log('Decoded token:', decoded);
+        console.log('User role from token:', userRole);
         
-        if (user && user.role) {
-          localStorage.setItem('userRole', user.role);
-          setUserRole(user.role);
-        }
+        localStorage.setItem('token', token);
+        localStorage.setItem('userRole', userRole);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         
         setIsAuthenticated(true);
+        setUserRole(userRole);
+        
         navigate('/calendar');
       } else {
-        throw new Error('Invalid response format');
+        console.error('Invalid response format:', response.data);
+        setError('Invalid response format from server');
       }
-    } catch (error) {
-      console.error('Login failed:', error);
-      setError('Ogiltiga inloggningsuppgifter');
+    } catch (err) {
+      console.error('Login error details:', err);
+      if (axios.isAxiosError(err)) {
+        console.error('Response data:', err.response?.data);
+        console.error('Response status:', err.response?.status);
+        console.error('Response headers:', err.response?.headers);
+      }
+      setError(t('login.error'));
     } finally {
       setIsLoading(false);
     }

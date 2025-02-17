@@ -12,6 +12,8 @@ interface NavbarProps {
 export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: NavbarProps) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  console.log('Navbar userRole:', userRole);
+  console.log('Role comparison:', userRole === 'ADMIN', userRole === 'SUPERADMIN');
 
   const handleLanguageChange = (code: string) => {
     i18n.changeLanguage(code);

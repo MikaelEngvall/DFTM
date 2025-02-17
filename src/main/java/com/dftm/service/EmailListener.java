@@ -13,7 +13,6 @@ import com.dftm.config.JavaMailProperties;
 import com.dftm.model.PendingTask;
 import com.dftm.repository.PendingTaskRepository;
 import com.dftm.model.Language;
-import com.dftm.service.TranslationQueueService;
 
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
@@ -32,39 +31,37 @@ public class EmailListener {
     
     private final JavaMailProperties mailProperties;
     private final PendingTaskRepository pendingTaskRepository;
-    private final TranslationQueueService translationQueueService;
-    private static final String MAIL_STORE_TYPE = "imaps";
 
     @Scheduled(fixedDelay = 60000) // Kör varje minut
     public void checkEmail() {
         log.info("\033[0;33m Checking emails... \033[0m");
         Properties properties = new Properties();
-        properties.put("mail.store.protocol", MAIL_STORE_TYPE);
+        properties.put("mail.store.protocol", "imaps");
         properties.put("mail.imaps.host", mailProperties.getHost());
         properties.put("mail.imaps.port", mailProperties.getPort());
 
         try {
             Session session = Session.getDefaultInstance(properties);
-            Store store = session.getStore(MAIL_STORE_TYPE);
-            store.connect(
-                mailProperties.getHost(),
-                mailProperties.getUsername(),
-                mailProperties.getPassword()
-            );
+            try (Store store = session.getStore("imaps")) {
+                store.connect(
+                    mailProperties.getHost(),
+                    mailProperties.getUsername(),
+                    mailProperties.getPassword()
+                );
 
-            Folder inbox = store.getFolder("INBOX");
-            inbox.open(Folder.READ_WRITE);
+                Folder inbox = store.getFolder("INBOX");
+                inbox.open(Folder.READ_WRITE);
 
-            Message[] messages = inbox.getMessages();
-            for (Message message : messages) {
-                if (!message.isSet(Flags.Flag.SEEN)) {
-                    processEmail(message);
-                    message.setFlag(Flags.Flag.SEEN, true);
+                Message[] messages = inbox.getMessages();
+                for (Message message : messages) {
+                    if (!message.isSet(Flags.Flag.SEEN)) {
+                        processEmail(message);
+                        message.setFlag(Flags.Flag.SEEN, true);
+                    }
                 }
-            }
 
-            inbox.close(false);
-            store.close();
+                inbox.close(false);
+            }
             log.info("\033[0;32m Email check completed \033[0m");
         } catch (Exception e) {
             log.error("\033[0;31m Error checking emails: {} \033[0m", e.getMessage());
@@ -177,27 +174,12 @@ public class EmailListener {
                     
             PendingTask savedTask = pendingTaskRepository.save(pendingTask);
             
-            // Köa översättningar för alla språk
-            for (Language targetLang : Language.values()) {
-                if (targetLang != Language.SV) { // Skippa svenska som är original
-                    translationQueueService.queueTranslation(savedTask, targetLang);
-                }
-            }
-            
             log.info("\033[0;32m Successfully created pending task with ID: {} \033[0m", 
                 savedTask.getId());
         } catch (Exception e) {
             log.error("\033[0;31m Failed to save pending task: {} \033[0m", e.getMessage(), e);
             throw e;
         }
-    }
-
-    private String extractValue(String content, String pattern) {
-        Pattern p = Pattern.compile(pattern, Pattern.MULTILINE);
-        Matcher m = p.matcher(content);
-        String result = m.find() ? m.group(1).trim() : "";
-        log.debug("Pattern: '{}' -> Result: '{}'", pattern, result);
-        return result;
     }
 
     private String getTextFromMessage(Message message) throws Exception {
@@ -242,16 +224,6 @@ public class EmailListener {
         String text = result.toString();
         log.info("\033[0;34m Extracted text content: \n{} \033[0m", text);
         return text;
-    }
-
-    private void debugMatch(String content, String pattern, String field) {
-        Pattern p = Pattern.compile(pattern, Pattern.MULTILINE);
-        Matcher m = p.matcher(content);
-        if (m.find()) {
-            log.info("Found match for {}: '{}'", field, m.group(1).trim());
-        } else {
-            log.info("No match found for {} with pattern: {}", field, pattern);
-        }
     }
 
     private String cleanHtmlContent(String content) {

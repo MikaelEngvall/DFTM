@@ -1,8 +1,6 @@
 package com.dftm.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.dftm.client.GoogleTranslateClient;
 import com.dftm.model.Language;
@@ -21,10 +19,6 @@ import java.util.Map;
 @Slf4j
 public class TranslationService {
     
-    @Value("${google.translate.api.key}")
-    private String apiKey;
-    
-    private final RestTemplate restTemplate;
     private final TranslationRepository translationRepository;
     private final GoogleTranslateClient googleTranslateClient;
 

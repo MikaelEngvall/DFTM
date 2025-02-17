@@ -20,4 +20,6 @@ public class Translation {
     private String id;
     private String originalText;
     private Map<Language, String> translations = new HashMap<>();
+    @Builder.Default
+    private boolean active = true;
 } 
