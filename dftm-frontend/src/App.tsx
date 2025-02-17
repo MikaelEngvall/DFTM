@@ -54,7 +54,7 @@ function AppContent() {
           />
           <main className={`container mx-auto ${isDarkMode ? 'bg-[#1a2332]' : 'bg-white'}`}>
             <Routes>
-              <Route path="/login" element={<LoginPage isDarkMode={isDarkMode} />} />
+              <Route path="/login" element={<Navigate to="/calendar" replace />} />
               
               <Route 
                 path="/pending-tasks" 
@@ -95,6 +95,7 @@ function AppContent() {
               <Route path="/unauthorized" element={<Unauthorized />} />
               
               <Route path="/" element={<Navigate to="/calendar" replace />} />
+              <Route path="*" element={<Navigate to="/calendar" replace />} />
             </Routes>
           </main>
         </>
