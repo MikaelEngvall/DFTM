@@ -1,21 +1,57 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { languages } from '../i18n/languages';
 import { Link } from 'react-router-dom';
 import { UserGroupIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import axios from 'axios';
 
 interface NavbarProps {
   onLogout: () => void;
   userRole: string;
   onThemeChange: () => void;
   isDarkMode: boolean;
+  onDarkModeToggle: () => void;
 }
 
-export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode }: NavbarProps) => {
+export const Navbar = ({ onLogout, userRole, onThemeChange, isDarkMode, onDarkModeToggle }: NavbarProps) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await axios.get('http://localhost:8080/api/v1/users/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const preferredLanguage = response.data.preferredLanguage?.toLowerCase();
+        if (preferredLanguage) {
+          // Konvertera språkkod till rätt format (t.ex. 'SV' -> 'se')
+          const languageMap: { [key: string]: string } = {
+            'SV': 'se',
+            'EN': 'gb',
+            'PL': 'pl',
+            'UK': 'ua'
+          };
+          const mappedLanguage = languageMap[preferredLanguage.toUpperCase()];
+          if (mappedLanguage) {
+            i18n.changeLanguage(mappedLanguage);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [i18n]);
 
   const handleLanguageChange = (code: string) => {
     i18n.changeLanguage(code);

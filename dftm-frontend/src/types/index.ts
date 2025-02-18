@@ -4,7 +4,7 @@ export interface User {
     email: string;
     role: string;
     active: boolean;
-    preferredLanguage: string | null;
+    preferredLanguage: string;
     createdAt: string | null;
     updatedAt: string | null;
 }
