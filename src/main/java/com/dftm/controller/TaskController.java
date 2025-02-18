@@ -1,9 +1,12 @@
 package com.dftm.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,8 +18,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dftm.dto.TaskRequest;
+import com.dftm.model.PendingTask;
 import com.dftm.model.Task;
+import com.dftm.model.TaskPriority;
 import com.dftm.model.TaskStatus;
+import com.dftm.repository.PendingTaskRepository;
 import com.dftm.repository.TaskRepository;
 import com.dftm.service.TaskService;
 
@@ -30,9 +36,10 @@ import lombok.extern.slf4j.Slf4j;
 public class TaskController {
     private final TaskService taskService;
     private final TaskRepository taskRepository;
+    private final PendingTaskRepository pendingTaskRepository;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<Task> createTask(@RequestBody TaskRequest request) {
         Task task = request.toTask();
         return ResponseEntity.ok(taskService.createTask(task));
@@ -102,9 +109,10 @@ public class TaskController {
     }
 
     @GetMapping("/status/{status}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'SUPERADMIN')")
     public ResponseEntity<List<Task>> getTasksByStatus(@PathVariable TaskStatus status) {
-        log.info("Fetching tasks with status: {}", status);
+        log.info("Fetching tasks with status: {}, Current user authorities: {}", 
+            status, SecurityContextHolder.getContext().getAuthentication().getAuthorities());
         try {
             List<Task> tasks = taskService.getTasksByStatus(status);
             log.info("Found {} tasks with status {}", tasks.size(), status);
@@ -116,46 +124,68 @@ public class TaskController {
     }
 
     @GetMapping("/pending")
-    public ResponseEntity<List<Task>> getPendingTasks() {
-        log.info("\033[0;34m Fetching pending tasks... \033[0m");
+    public ResponseEntity<List<PendingTask>> getPendingTasks() {
+        log.info("Fetching pending tasks...");
         try {
-            List<Task> allTasks = taskRepository.findAllTasks();
-            log.info("\033[0;33m All tasks in database: {} \033[0m", allTasks);
+            List<PendingTask> pendingTasks = pendingTaskRepository.findAll();
+            log.info("Found {} pending tasks", pendingTasks.size());
             
-            // Hämta både tasks med PENDING status och null status
-            List<Task> pendingTasks = taskRepository.findByStatus(TaskStatus.PENDING);
-            log.info("\033[0;32m Found {} pending tasks \033[0m", pendingTasks.size());
+            List<PendingTask> activePendingTasks = pendingTasks.stream()
+                .filter(PendingTask::isActive)
+                .filter(task -> TaskStatus.PENDING.toString().equals(task.getStatus()))
+                .collect(Collectors.toList());
             
-            // Sätt status till PENDING om den är null
-            pendingTasks.stream()
-                .filter(task -> task.getStatus() == null)
-                .forEach(task -> {
-                    task.setStatus(TaskStatus.PENDING);
-                    taskRepository.save(task);
-                });
-            
-            return ResponseEntity.ok(pendingTasks);
+            log.info("Found {} active pending tasks", activePendingTasks.size());
+            return ResponseEntity.ok(activePendingTasks);
         } catch (Exception e) {
-            log.error("\033[0;31m Error fetching pending tasks: {} \033[0m", e.getMessage());
+            log.error("Error fetching pending tasks: {}", e.getMessage());
             throw e;
         }
     }
 
     @PostMapping("/{id}/approve")
     public ResponseEntity<Void> approveTask(@PathVariable String id) {
-        var task = taskRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Task not found"));
-        task.setStatus(TaskStatus.APPROVED);
-        taskRepository.save(task);
-        return ResponseEntity.ok().build();
+        try {
+            var pendingTask = pendingTaskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pending task not found"));
+            
+            Task task = Task.builder()
+                .title(pendingTask.getTitle())
+                .description(pendingTask.getDescription())
+                .reporter(pendingTask.getReporter())
+                .status(TaskStatus.APPROVED)
+                .priority(TaskPriority.valueOf(pendingTask.getPriority()))
+                .createdAt(pendingTask.getCreatedAt())
+                .updatedAt(LocalDateTime.now())
+                .assigned(false)
+                .titleTranslations(pendingTask.getTitleTranslations())
+                .descriptionTranslations(pendingTask.getDescriptionTranslations())
+                .originalLanguage(pendingTask.getOriginalLanguage().getCode())
+                .build();
+
+            taskRepository.save(task);
+            
+            pendingTask.setStatus(TaskStatus.APPROVED.toString());
+            pendingTaskRepository.save(pendingTask);
+            
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Failed to approve task: {}", e.getMessage());
+            throw new RuntimeException("Failed to approve task", e);
+        }
     }
 
     @PostMapping("/{id}/reject")
     public ResponseEntity<Void> rejectTask(@PathVariable String id) {
-        var task = taskRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Task not found"));
-        task.setStatus(TaskStatus.REJECTED);
-        taskRepository.save(task);
-        return ResponseEntity.ok().build();
+        try {
+            var task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+            task.setStatus(TaskStatus.REJECTED);
+            taskRepository.save(task);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Failed to reject task: {}", e.getMessage());
+            throw new RuntimeException("Failed to reject task", e);
+        }
     }
 } 

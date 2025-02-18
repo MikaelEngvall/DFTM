@@ -33,19 +33,25 @@ export const Calendar = ({ isDarkMode }: { isDarkMode: boolean }) => {
 
   const fetchApprovedTasks = async () => {
     try {
-      setIsLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get<Task[]>('http://localhost:8080/api/v1/tasks/status/APPROVED', {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      if (!token) {
+        throw new Error('No token found');
+      }
+
+      const response = await axios.get<Task[]>(
+        'http://localhost:8080/api/v1/tasks/status/APPROVED',
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
-      });
-      console.log('Fetched tasks:', response.data);
+      );
+      console.log('Approved tasks response:', response.data); // För debugging
       setApprovedTasks(response.data);
-      setError('');
     } catch (error) {
       console.error('Failed to fetch approved tasks:', error);
-      setError(t('calendar.fetchError'));
+      setError('Failed to load tasks');
     } finally {
       setIsLoading(false);
     }

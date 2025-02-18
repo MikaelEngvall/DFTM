@@ -22,16 +22,12 @@ public class PendingTask {
     private String title;
     private String description;
     private String reporter;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private boolean assigned;
     private Map<Language, String> titleTranslations = new HashMap<>();
     private Map<Language, String> descriptionTranslations = new HashMap<>();
-    private Language originalLanguage = Language.SV; // Default till svenska
-    @Builder.Default
+    private Language originalLanguage = Language.SV;
     private String status = TaskStatus.PENDING.toString();
-    @Builder.Default
     private String priority = TaskPriority.MEDIUM.toString();
-    @Builder.Default
     private boolean active = true;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 } 

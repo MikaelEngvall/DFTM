@@ -1,25 +1,25 @@
 package com.dftm.service;
 
-import java.util.Properties;
 import java.time.LocalDateTime;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.HashMap;
+import java.util.Properties;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.dftm.config.JavaMailProperties;
-import com.dftm.model.PendingTask;
-import com.dftm.repository.PendingTaskRepository;
 import com.dftm.model.Language;
+import com.dftm.model.PendingTask;
+import com.dftm.model.TaskPriority;
+import com.dftm.model.TaskStatus;
+import com.dftm.repository.PendingTaskRepository;
 
+import jakarta.mail.BodyPart;
+import jakarta.mail.Flags;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.Session;
 import jakarta.mail.Store;
-import jakarta.mail.Flags;
-import jakarta.mail.BodyPart;
 import jakarta.mail.internet.MimeMultipart;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -155,10 +155,12 @@ public class EmailListener {
                     .reporter(reporterEmail)
                     .createdAt(now)
                     .updatedAt(now)
-                    .assigned(false)
                     .titleTranslations(new HashMap<>())
                     .descriptionTranslations(new HashMap<>())
                     .originalLanguage(Language.SV)
+                    .status(TaskStatus.PENDING.toString())
+                    .priority(TaskPriority.MEDIUM.toString())
+                    .active(true)
                     .build();
             
             log.info("\033[0;34m Creating PendingTask: \n" + 

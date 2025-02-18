@@ -2,6 +2,7 @@ package com.dftm.dto;
 
 import java.time.LocalDateTime;
 import com.dftm.model.Role;
+import com.dftm.model.Language;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,5 +14,6 @@ public class UserResponse {
     private String email;
     private Role role;
     private boolean active;
+    private Language preferredLanguage;
     private LocalDateTime createdAt;
 } 

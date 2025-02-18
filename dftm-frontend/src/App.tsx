@@ -9,7 +9,6 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { Calendar } from './components/Calendar'
 import { Profile } from './components/Profile'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import { UserList } from './components/users/UserList'
 import { Unauthorized } from './components/Unauthorized'
 import { UserManagement } from './components/UserManagement'
 
@@ -71,15 +70,6 @@ function AppContent() {
                 element={
                   <ProtectedRoute>
                     <Calendar isDarkMode={isDarkMode} />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              <Route 
-                path="/user-list" 
-                element={
-                  <ProtectedRoute allowedRoles={['ADMIN', 'SUPERADMIN']}>
-                    <UserList isDarkMode={isDarkMode} />
                   </ProtectedRoute>
                 } 
               />

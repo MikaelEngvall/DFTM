@@ -74,23 +74,32 @@
       "superadmin": "Superadmin"
     },
     "updateError": "Kunde inte uppdatera användaren",
-    "saving": "Sparar..."
+    "saving": "Sparar...",
+    "preferredLanguage": "Föredraget språk",
+    "languages": {
+      "SV": "Svenska",
+      "EN": "Engelska",
+      "PL": "Polska",
+      "UK": "Ukrainska"
+    }
   },
   "createUser": {
-    "title": "Skapa ny användare",
+    "title": "Skapa användare",
     "name": "Namn",
-    "email": "Email",
-    "role": "Roll",
+    "email": "E-post",
     "password": "Lösenord",
     "confirmPassword": "Bekräfta lösenord",
+    "role": "Roll",
     "roles": {
-      "user": "Användare",
-      "admin": "Admin",
-      "superadmin": "Superadmin"
+      "USER": "Användare",
+      "ADMIN": "Administratör",
+      "SUPERADMIN": "Superadministratör"
     },
-    "createError": "Kunde inte skapa användaren",
+    "submit": "Skapa",
+    "cancel": "Avbryt",
     "creating": "Skapar...",
-    "success": "Användaren har skapats"
+    "passwordMismatch": "Lösenorden matchar inte",
+    "createError": "Kunde inte skapa användare"
   },
   "deleteUser": {
     "title": "Ta bort användare",
@@ -148,5 +157,68 @@
     "loadError": "Kunde inte ladda profil",
     "updateError": "Kunde inte uppdatera profil",
     "notFound": "Profilen kunde inte hittas"
+  },
+  "modals": {
+    "createUser": {
+      "title": "Skapa användare",
+      "name": "Namn",
+      "email": "E-post",
+      "password": "Lösenord",
+      "role": "Roll",
+      "submit": "Skapa",
+      "cancel": "Avbryt",
+      "preferredLanguage": "Föredraget språk",
+      "languages": {
+        "SV": "Svenska",
+        "EN": "Engelska",
+        "PL": "Polska",
+        "UK": "Ukrainska"
+      }
+    },
+    "editUser": {
+      "title": "Redigera användare",
+      "name": "Namn",
+      "email": "E-post",
+      "role": "Roll",
+      "roles": {
+        "USER": "Användare",
+        "ADMIN": "Administratör",
+        "SUPERADMIN": "Superadministratör"
+      },
+      "submit": "Spara",
+      "cancel": "Avbryt",
+      "saving": "Sparar...",
+      "preferredLanguage": "Föredraget språk",
+      "languages": {
+        "SV": "Svenska",
+        "EN": "Engelska",
+        "PL": "Polska",
+        "UK": "Ukrainska"
+      }
+    }
+  },
+  "errors": {
+    "login": {
+      "invalidCredentials": "Felaktiga inloggningsuppgifter",
+      "serverError": "Kunde inte ansluta till servern"
+    },
+    "users": {
+      "loadError": "Kunde inte hämta användare",
+      "createError": "Kunde inte skapa användare",
+      "updateError": "Kunde inte uppdatera användare",
+      "deleteError": "Kunde inte ta bort användare",
+      "emailExists": "E-postadressen används redan",
+      "passwordMismatch": "Lösenorden matchar inte",
+      "invalidRole": "Ogiltig roll",
+      "notFound": "Användaren hittades inte"
+    }
+  },
+  "success": {
+    "users": {
+      "created": "Användaren har skapats",
+      "updated": "Användaren har uppdaterats",
+      "deleted": "Användaren har tagits bort",
+      "statusChanged": "Användarens status har ändrats"
+    }
   }
 } 

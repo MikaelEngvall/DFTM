@@ -2,6 +2,7 @@ package com.dftm.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "pendingTasks")
+@Document(collection = "tasks")
 public class Task {
     @Id
     private String id;
@@ -26,8 +27,8 @@ public class Task {
     private LocalDateTime updatedAt;
     private boolean assigned;
     private TaskStatus status;
-    private Object titleTranslations;
-    private Object descriptionTranslations;
+    private Map<Language, String> titleTranslations;
+    private Map<Language, String> descriptionTranslations;
     private String originalLanguage;
     private String descriptionTranslationId;  // Referens till översättning
     private TaskPriority priority;

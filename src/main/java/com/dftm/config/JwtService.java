@@ -6,7 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +21,8 @@ import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtService.class);
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -36,10 +41,13 @@ public class JwtService {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", userDetails.getAuthorities().stream()
+        String role = userDetails.getAuthorities().stream()
                 .findFirst()
-                .map(authority -> authority.getAuthority().replace("ROLE_", ""))
-                .orElse("USER"));
+                .map(GrantedAuthority::getAuthority)
+                .orElse("USER");
+                
+        claims.put("role", role);
+        log.info("Generating token for user with role: {}", role);
         
         return generateToken(claims, userDetails);
     }
@@ -80,5 +88,11 @@ public class JwtService {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public String extractRole(String token) {
+        String role = extractClaim(token, claims -> claims.get("role", String.class));
+        log.info("Extracted role from token: {}", role);
+        return role;
     }
 } 

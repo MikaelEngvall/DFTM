@@ -75,117 +75,154 @@ export const Profile = ({ isDarkMode }: ProfileProps) => {
   }
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl">
-      <div className={`rounded-lg shadow-lg p-6 ${isDarkMode ? 'bg-[#1a2332]' : 'bg-white'}`}>
-        <h1 className={`text-2xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-          {t('profile.title')}
-        </h1>
-
-        {error && (
-          <div className="text-red-500 text-center p-4 bg-red-100 rounded mb-4">
-            {error}
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-3xl mx-auto">
+        <div className={`rounded-lg shadow-lg ${isDarkMode ? 'bg-[#1a2332]' : 'bg-white'} overflow-hidden`}>
+          <div className="px-4 sm:px-6 py-5">
+            <h2 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              {t('profile.title')}
+            </h2>
           </div>
-        )}
+          
+          <div className="border-t border-gray-200 dark:border-gray-700">
+            <div className="px-4 sm:px-6 py-5">
+              {error && (
+                <div className="text-red-500 text-center p-4 bg-red-100 rounded mb-4">
+                  {error}
+                </div>
+              )}
 
-        {isEditing ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                {t('profile.name')}
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
+              {isEditing ? (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                      <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {t('profile.name')}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className={`mt-1 block w-full rounded-md shadow-sm 
+                          ${isDarkMode ? 'bg-[#2c3b52] border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}
+                          focus:ring-blue-500 focus:border-blue-500`}
+                      />
+                    </div>
 
-            <div>
-              <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                {t('profile.email')}
-              </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
+                    <div>
+                      <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {t('profile.email')}
+                      </label>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className={`mt-1 block w-full rounded-md shadow-sm 
+                          ${isDarkMode ? 'bg-[#2c3b52] border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}
+                          focus:ring-blue-500 focus:border-blue-500`}
+                      />
+                    </div>
+                  </div>
 
-            <div>
-              <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                {t('profile.currentPassword')}
-              </label>
-              <input
-                type="password"
-                value={formData.currentPassword}
-                onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
+                  <div>
+                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      {t('profile.currentPassword')}
+                    </label>
+                    <input
+                      type="password"
+                      value={formData.currentPassword}
+                      onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
+                      className={`mt-1 block w-full rounded-md shadow-sm 
+                        ${isDarkMode ? 'bg-[#2c3b52] border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}
+                        focus:ring-blue-500 focus:border-blue-500`}
+                    />
+                  </div>
 
-            <div>
-              <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                {t('profile.newPassword')}
-              </label>
-              <input
-                type="password"
-                value={formData.newPassword}
-                onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
+                  <div>
+                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      {t('profile.newPassword')}
+                    </label>
+                    <input
+                      type="password"
+                      value={formData.newPassword}
+                      onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                      className={`mt-1 block w-full rounded-md shadow-sm 
+                        ${isDarkMode ? 'bg-[#2c3b52] border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}
+                        focus:ring-blue-500 focus:border-blue-500`}
+                    />
+                  </div>
 
-            <div className="flex justify-end space-x-4 mt-6">
-              <button
-                type="button"
-                onClick={() => setIsEditing(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                {t('common.cancel')}
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-              >
-                {t('common.save')}
-              </button>
-            </div>
-          </form>
-        ) : (
-          <div className="space-y-4">
-            <div>
-              <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                {t('profile.name')}
-              </h3>
-              <p className={`mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{user.name}</p>
-            </div>
+                  <div>
+                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      {t('profile.confirmPassword')}
+                    </label>
+                    <input
+                      type="password"
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                      className={`mt-1 block w-full rounded-md shadow-sm 
+                        ${isDarkMode ? 'bg-[#2c3b52] border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}
+                        focus:ring-blue-500 focus:border-blue-500`}
+                    />
+                  </div>
 
-            <div>
-              <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                {t('profile.email')}
-              </h3>
-              <p className={`mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{user.email}</p>
-            </div>
+                  <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(false)}
+                      className={`px-4 py-2 rounded-md ${
+                        isDarkMode ? 'bg-gray-600 hover:bg-gray-700' : 'bg-gray-200 hover:bg-gray-300'
+                      } text-sm font-medium w-full sm:w-auto`}
+                    >
+                      {t('common.cancel')}
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 
+                               text-sm font-medium w-full sm:w-auto"
+                    >
+                      {t('common.save')}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                      <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {t('profile.name')}
+                      </h3>
+                      <p className={`mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{user.name}</p>
+                    </div>
 
-            <div>
-              <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                {t('profile.role')}
-              </h3>
-              <p className={`mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{user.role}</p>
-            </div>
+                    <div>
+                      <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {t('profile.email')}
+                      </h3>
+                      <p className={`mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{user.email}</p>
+                    </div>
 
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-              >
-                {t('profile.edit')}
-              </button>
+                    <div>
+                      <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {t('profile.role')}
+                      </h3>
+                      <p className={`mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{user.role}</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 
+                               text-sm font-medium w-full sm:w-auto"
+                    >
+                      {t('profile.edit')}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

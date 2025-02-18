@@ -22,9 +22,18 @@ export const UserManagement = ({ isDarkMode }: UserManagementProps) => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+      
       const response = await axios.get<User[]>('http://localhost:8080/api/v1/users', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
+      
+      console.log('Users response:', response.data); // För debugging
       setUsers(response.data);
     } catch (error) {
       console.error('Failed to fetch users:', error);
@@ -57,13 +66,13 @@ export const UserManagement = ({ isDarkMode }: UserManagementProps) => {
   if (isLoading) return <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 m-auto" />;
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
         <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
           {t('userManagement.title')}
         </h1>
         
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
           <label className={`flex items-center space-x-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
             <input
               type="checkbox"
@@ -76,9 +85,9 @@ export const UserManagement = ({ isDarkMode }: UserManagementProps) => {
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
+            className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
-            {t('userManagement.addUser')}
+            {t('userList.addNew')}
           </button>
         </div>
       </div>
@@ -89,71 +98,50 @@ export const UserManagement = ({ isDarkMode }: UserManagementProps) => {
         </div>
       )}
 
-      <div className={`overflow-x-auto rounded-lg ${isDarkMode ? 'bg-[#1a2332]' : 'bg-white'}`}>
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className={isDarkMode ? 'bg-[#1f2937]' : 'bg-gray-50'}>
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                {t('userManagement.name')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                {t('userManagement.email')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                {t('userManagement.role')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                {t('userManagement.status')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                {t('userManagement.actions')}
-              </th>
-            </tr>
-          </thead>
-          <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+      <div className={`overflow-x-auto rounded-lg shadow ${isDarkMode ? 'bg-[#1a2332]' : 'bg-white'}`}>
+        <div className="min-w-full divide-y divide-gray-200">
+          <div className="hidden sm:grid sm:grid-cols-4 gap-4 px-6 py-3 bg-gray-50 dark:bg-gray-700">
+            <div className="text-xs font-medium text-gray-500 uppercase">{t('userManagement.name')}</div>
+            <div className="text-xs font-medium text-gray-500 uppercase">{t('userManagement.email')}</div>
+            <div className="text-xs font-medium text-gray-500 uppercase">{t('userManagement.role')}</div>
+            <div className="text-xs font-medium text-gray-500 uppercase">{t('userManagement.status')}</div>
+          </div>
+
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {filteredUsers.map((user) => (
-              <tr key={user.id}>
-                <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                  {user.name}
-                </td>
-                <td className={`px-6 py-4 whitespace-nowrap ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
-                  {user.email}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                    ${user.role === 'SUPERADMIN' 
-                      ? 'bg-purple-100 text-purple-800' 
-                      : user.role === 'ADMIN'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-green-100 text-green-800'}`
-                  }>
-                    {user.role}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <button
-                    onClick={() => handleStatusToggle(user.id, user.active)}
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                      ${user.active 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'}`
-                    }
-                  >
-                    {user.active ? t('userManagement.active') : t('userManagement.inactive')}
-                  </button>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    onClick={() => setSelectedUser(user)}
-                    className="text-blue-600 hover:text-blue-900"
-                  >
-                    {t('common.edit')}
-                  </button>
-                </td>
-              </tr>
+              <div 
+                key={user.id}
+                onClick={() => setSelectedUser(user)}
+                className={`cursor-pointer transition-colors duration-150 hover:bg-gray-50 
+                  dark:hover:bg-gray-600 ${!user.active ? 'opacity-60' : ''}`}
+              >
+                <div className="sm:hidden p-4 space-y-2">
+                  <div className="font-medium">{user.name}</div>
+                  <div className="text-sm text-gray-500">{user.email}</div>
+                  <div className="flex justify-between items-center">
+                    <span className={getRoleTagClass(user.role)}>{user.role}</span>
+                    <span className={getStatusTagClass(user.active)}>
+                      {user.active ? t('userManagement.active') : t('userManagement.inactive')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="hidden sm:grid sm:grid-cols-4 gap-4 px-6 py-4">
+                  <div>{user.name}</div>
+                  <div>{user.email}</div>
+                  <div>
+                    <span className={getRoleTagClass(user.role)}>{user.role}</span>
+                  </div>
+                  <div>
+                    <span className={getStatusTagClass(user.active)}>
+                      {user.active ? t('userManagement.active') : t('userManagement.inactive')}
+                    </span>
+                  </div>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
 
       {selectedUser && (
@@ -174,4 +162,24 @@ export const UserManagement = ({ isDarkMode }: UserManagementProps) => {
       )}
     </div>
   );
+};
+
+// Hjälpfunktioner för styling
+const getRoleTagClass = (role: string) => {
+  const baseClass = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full';
+  switch (role) {
+    case 'SUPERADMIN':
+      return `${baseClass} bg-purple-100 text-purple-800`;
+    case 'ADMIN':
+      return `${baseClass} bg-blue-100 text-blue-800`;
+    default:
+      return `${baseClass} bg-green-100 text-green-800`;
+  }
+};
+
+const getStatusTagClass = (active: boolean) => {
+  const baseClass = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full';
+  return active 
+    ? `${baseClass} bg-green-100 text-green-800`
+    : `${baseClass} bg-red-100 text-red-800`;
 }; 

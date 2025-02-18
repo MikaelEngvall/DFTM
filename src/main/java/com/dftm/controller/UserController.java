@@ -41,25 +41,28 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SUPERADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
-        log.info("Fetching all users");
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        log.info("User authorities: {}", auth.getAuthorities());
-        
-        List<UserResponse> users = userRepository.findAll().stream()
-            .map(user -> UserResponse.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .active(user.isActive())
-                .createdAt(user.getCreatedAt())
-                .build())
-            .collect(Collectors.toList());
-        
-        log.info("Found {} users", users.size());
-        return ResponseEntity.ok(users);
+        log.info("Attempting to fetch all users. Current user authorities: {}", 
+            SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+        try {
+            List<User> users = userRepository.findAll();
+            log.info("Successfully fetched {} users", users.size());
+            return ResponseEntity.ok(users.stream()
+                .map(user -> UserResponse.builder()
+                    .id(user.getId())
+                    .name(user.getName())
+                    .email(user.getEmail())
+                    .role(user.getRole())
+                    .preferredLanguage(user.getPreferredLanguage())
+                    .active(user.isActive())
+                    .createdAt(user.getCreatedAt())
+                    .build())
+                .collect(Collectors.toList()));
+        } catch (Exception e) {
+            log.error("Failed to fetch users: {}", e.getMessage());
+            throw e;
+        }
     }
 
     @GetMapping("/test")
@@ -141,33 +144,42 @@ public class UserController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SUPERADMIN')")
     public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest request) {
-        log.info("Creating new user with email: {}", request.getEmail());
-        
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BadRequestException("Email already exists");
+        log.info("Attempting to create new user. Current user authorities: {}", 
+            SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+        try {
+            // Kontrollera om e-postadressen redan finns
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new BadRequestException("Email already exists");
+            }
+
+            User newUser = User.builder()
+                    .name(request.getName())
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .role(request.getRole())
+                    .preferredLanguage(request.getPreferredLanguage())
+                    .active(true)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+
+            User savedUser = userRepository.save(newUser);
+            log.info("Successfully created new user with email: {}", savedUser.getEmail());
+
+            return ResponseEntity.ok(UserResponse.builder()
+                    .id(savedUser.getId())
+                    .name(savedUser.getName())
+                    .email(savedUser.getEmail())
+                    .role(savedUser.getRole())
+                    .preferredLanguage(savedUser.getPreferredLanguage())
+                    .active(savedUser.isActive())
+                    .createdAt(savedUser.getCreatedAt())
+                    .build());
+        } catch (Exception e) {
+            log.error("Failed to create user: {}", e.getMessage());
+            throw e;
         }
-
-        User user = User.builder()
-            .name(request.getName())
-            .email(request.getEmail())
-            .password(passwordEncoder.encode(request.getPassword()))
-            .role(request.getRole())
-            .active(true)
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
-            .build();
-
-        User savedUser = userRepository.save(user);
-        
-        return ResponseEntity.ok(UserResponse.builder()
-            .id(savedUser.getId())
-            .name(savedUser.getName())
-            .email(savedUser.getEmail())
-            .role(savedUser.getRole())
-            .active(savedUser.isActive())
-            .createdAt(savedUser.getCreatedAt())
-            .build());
     }
 } 

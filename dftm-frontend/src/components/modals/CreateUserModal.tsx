@@ -17,25 +17,24 @@ export const CreateUserModal = ({ onClose, onSave, isDarkMode }: CreateUserModal
   const [role, setRole] = useState('USER');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [preferredLanguage, setPreferredLanguage] = useState('SV');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (password !== confirmPassword) {
-      setError(t('createUser.passwordMismatch'));
-      return;
-    }
-
     setIsLoading(true);
-    setError('');
-
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:8080/api/v1/users', 
-        { name, email, password, role },
+      if (!token) {
+        throw new Error('No token found');
+      }
+
+      await axios.post(
+        'http://localhost:8080/api/v1/users',
+        { name, email, password, role, preferredLanguage },
         {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         }
       );
@@ -43,7 +42,7 @@ export const CreateUserModal = ({ onClose, onSave, isDarkMode }: CreateUserModal
       onClose();
     } catch (error) {
       console.error('Failed to create user:', error);
-      setError(t('createUser.createError'));
+      setError(t('modals.createUser.error'));
     } finally {
       setIsLoading(false);
     }
@@ -54,7 +53,7 @@ export const CreateUserModal = ({ onClose, onSave, isDarkMode }: CreateUserModal
       <div className={`max-w-md w-full rounded-lg ${isDarkMode ? 'bg-[#1a2332]' : 'bg-white'} p-6`}>
         <div className="flex justify-between items-center mb-4">
           <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            {t('createUser.title')}
+            {t('modals.createUser.title')}
           </h2>
           <button 
             onClick={onClose}
@@ -73,7 +72,7 @@ export const CreateUserModal = ({ onClose, onSave, isDarkMode }: CreateUserModal
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              {t('createUser.name')}
+              {t('modals.createUser.name')}
             </label>
             <input
               type="text"
@@ -90,7 +89,7 @@ export const CreateUserModal = ({ onClose, onSave, isDarkMode }: CreateUserModal
 
           <div>
             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              {t('createUser.email')}
+              {t('modals.createUser.email')}
             </label>
             <input
               type="email"
@@ -107,7 +106,7 @@ export const CreateUserModal = ({ onClose, onSave, isDarkMode }: CreateUserModal
 
           <div>
             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              {t('createUser.password')}
+              {t('modals.createUser.password')}
             </label>
             <input
               type="password"
@@ -124,7 +123,7 @@ export const CreateUserModal = ({ onClose, onSave, isDarkMode }: CreateUserModal
 
           <div>
             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              {t('createUser.confirmPassword')}
+              {t('modals.createUser.confirmPassword')}
             </label>
             <input
               type="password"
@@ -141,7 +140,7 @@ export const CreateUserModal = ({ onClose, onSave, isDarkMode }: CreateUserModal
 
           <div>
             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              {t('createUser.role')}
+              {t('modals.createUser.role')}
             </label>
             <select
               value={role}
@@ -152,9 +151,29 @@ export const CreateUserModal = ({ onClose, onSave, isDarkMode }: CreateUserModal
                   : 'bg-white border-gray-300 text-gray-900'
               } focus:ring-blue-500 focus:border-blue-500`}
             >
-              <option value="USER">{t('createUser.roles.user')}</option>
-              <option value="ADMIN">{t('createUser.roles.admin')}</option>
-              <option value="SUPERADMIN">{t('createUser.roles.superadmin')}</option>
+              <option value="USER">{t('modals.createUser.roles.user')}</option>
+              <option value="ADMIN">{t('modals.createUser.roles.admin')}</option>
+              <option value="SUPERADMIN">{t('modals.createUser.roles.superadmin')}</option>
+            </select>
+          </div>
+
+          <div>
+            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              {t('modals.createUser.preferredLanguage')}
+            </label>
+            <select
+              value={preferredLanguage}
+              onChange={(e) => setPreferredLanguage(e.target.value)}
+              className={`mt-1 block w-full rounded-md shadow-sm ${
+                isDarkMode 
+                  ? 'bg-[#2c3b52] border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              } focus:ring-blue-500 focus:border-blue-500`}
+            >
+              <option value="SV">{t('modals.createUser.languages.SV')}</option>
+              <option value="EN">{t('modals.createUser.languages.EN')}</option>
+              <option value="PL">{t('modals.createUser.languages.PL')}</option>
+              <option value="UK">{t('modals.createUser.languages.UK')}</option>
             </select>
           </div>
 
@@ -168,7 +187,7 @@ export const CreateUserModal = ({ onClose, onSave, isDarkMode }: CreateUserModal
                   : 'bg-gray-200 hover:bg-gray-300'
               } text-sm font-medium`}
             >
-              {t('common.cancel')}
+              {t('modals.createUser.cancel')}
             </button>
             <button
               type="submit"
@@ -176,7 +195,7 @@ export const CreateUserModal = ({ onClose, onSave, isDarkMode }: CreateUserModal
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 
                        text-sm font-medium disabled:opacity-50"
             >
-              {isLoading ? t('createUser.creating') : t('common.save')}
+              {isLoading ? t('modals.createUser.creating') : t('modals.createUser.submit')}
             </button>
           </div>
         </form>

@@ -32,7 +32,7 @@ export const EditUserModal = ({ user, onClose, onSave, isDarkMode }: EditUserMod
     try {
       const token = localStorage.getItem('token');
       await axios.put(`http://localhost:8080/api/v1/users/${user.id}`, 
-        { name, email, role },
+        { name, email, role, preferredLanguage },
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -43,20 +43,28 @@ export const EditUserModal = ({ user, onClose, onSave, isDarkMode }: EditUserMod
       onClose();
     } catch (error) {
       console.error('Failed to update user:', error);
-      setError(t('editUser.updateError'));
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          setError(t('errors.users.notFound'));
+        } else {
+          setError(t('errors.users.updateError'));
+        }
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-      <div className={`max-w-md w-full rounded-lg ${isDarkMode ? 'bg-[#1a2332]' : 'bg-white'} p-6`}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className={`max-w-md w-full rounded-lg ${isDarkMode ? 'bg-[#1a2332]' : 'bg-white'} p-6 shadow-xl`}>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">{t('editUser.title')}</h2>
+          <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            {t('modals.editUser.title')}
+          </h2>
           <button 
             onClick={onClose}
-            className={`text-gray-400 hover:text-gray-500`}
+            className="text-gray-400 hover:text-gray-500"
           >
             ✕
           </button>
@@ -64,14 +72,14 @@ export const EditUserModal = ({ user, onClose, onSave, isDarkMode }: EditUserMod
 
         {error && (
           <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
-            {t('editUser.updateError')}
+            {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              {t('editUser.name')}
+              {t('modals.editUser.name')}
             </label>
             <input
               type="text"
@@ -88,7 +96,7 @@ export const EditUserModal = ({ user, onClose, onSave, isDarkMode }: EditUserMod
 
           <div>
             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              {t('editUser.email')}
+              {t('modals.editUser.email')}
             </label>
             <input
               type="email"
@@ -105,7 +113,7 @@ export const EditUserModal = ({ user, onClose, onSave, isDarkMode }: EditUserMod
 
           <div>
             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              {t('editUser.role')}
+              {t('modals.editUser.role')}
             </label>
             <select
               value={role}
@@ -116,9 +124,9 @@ export const EditUserModal = ({ user, onClose, onSave, isDarkMode }: EditUserMod
                   : 'bg-white border-gray-300 text-gray-900'
               } focus:ring-blue-500 focus:border-blue-500`}
             >
-              <option value="USER">{t('editUser.roles.user')}</option>
-              <option value="ADMIN">{t('editUser.roles.admin')}</option>
-              <option value="SUPERADMIN">{t('editUser.roles.superadmin')}</option>
+              <option value="USER">{t('modals.editUser.roles.USER')}</option>
+              <option value="ADMIN">{t('modals.editUser.roles.ADMIN')}</option>
+              <option value="SUPERADMIN">{t('modals.editUser.roles.SUPERADMIN')}</option>
             </select>
           </div>
 
@@ -132,14 +140,15 @@ export const EditUserModal = ({ user, onClose, onSave, isDarkMode }: EditUserMod
                   : 'bg-gray-200 hover:bg-gray-300'
               } text-sm font-medium`}
             >
-              {t('common.cancel')}
+              {t('modals.editUser.cancel')}
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium disabled:opacity-50"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 
+                       text-sm font-medium disabled:opacity-50"
             >
-              {isLoading ? t('editUser.saving') : t('common.save')}
+              {isLoading ? t('editUser.saving') : t('modals.editUser.submit')}
             </button>
           </div>
         </form>

@@ -67,6 +67,11 @@ export const LoginPage = ({ isDarkMode, onThemeChange }: LoginPageProps) => {
         setUserRole(userRole);
         
         navigate('/calendar');
+
+        if (response.data.user.preferredLanguage) {
+          i18n.changeLanguage(response.data.user.preferredLanguage.toLowerCase());
+          localStorage.setItem('preferredLanguage', response.data.user.preferredLanguage.toLowerCase());
+        }
       } else {
         console.error('Invalid response format:', response.data);
         setError('Invalid response format from server');

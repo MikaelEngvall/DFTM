@@ -49,14 +49,7 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        log.info("\033[0;34m Attempting authentication for user: {} \033[0m", request.getEmail());
-        
         try {
-            // Kolla först om användaren finns
-            var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found: " + request.getEmail()));
-
-            // Försök autentisera
             authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     request.getEmail(),
@@ -64,24 +57,18 @@ public class AuthenticationService {
                 )
             );
             
-            // Om autentiseringen lyckas, generera token
-            var jwtToken = jwtService.generateToken(user);
-            log.info("\033[0;32m Successfully authenticated user: {} \033[0m", request.getEmail());
+            var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                
+            log.info("User authenticated. Email: {}, Role: {}", user.getEmail(), user.getRole());
             
+            var jwtToken = jwtService.generateToken(user);
             return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
-                
-        } catch (UsernameNotFoundException e) {
-            log.error("\033[0;31m User not found: {} \033[0m", request.getEmail());
-            throw new RuntimeException("Invalid credentials");
         } catch (BadCredentialsException e) {
-            log.error("\033[0;31m Invalid password for user: {} \033[0m", request.getEmail());
+            log.error("Invalid credentials for user: {}", request.getEmail());
             throw new RuntimeException("Invalid credentials");
-        } catch (Exception e) {
-            log.error("\033[0;31m Authentication failed for user: {}, error: {} \033[0m", 
-                request.getEmail(), e.getMessage());
-            throw new RuntimeException("Authentication failed");
         }
     }
 } 

@@ -56,5 +56,77 @@
     "loadError": "Nie udało się załadować profilu",
     "updateError": "Nie udało się zaktualizować profilu",
     "notFound": "Nie znaleziono profilu"
+  },
+  "modals": {
+    "createUser": {
+      "title": "Utwórz użytkownika",
+      "name": "Imię",
+      "email": "E-mail",
+      "password": "Hasło",
+      "confirmPassword": "Potwierdź hasło",
+      "role": "Rola",
+      "roles": {
+        "USER": "Użytkownik",
+        "ADMIN": "Administrator",
+        "SUPERADMIN": "Super Administrator"
+      },
+      "submit": "Utwórz",
+      "cancel": "Anuluj",
+      "creating": "Tworzenie...",
+      "passwordMismatch": "Hasła nie są zgodne",
+      "createError": "Nie udało się utworzyć użytkownika",
+      "preferredLanguage": "Preferowany język",
+      "languages": {
+        "SV": "Szwedzki",
+        "EN": "Angielski",
+        "PL": "Polski",
+        "UK": "Ukraiński"
+      }
+    },
+    "editUser": {
+      "title": "Edytuj użytkownika",
+      "name": "Imię",
+      "email": "E-mail",
+      "role": "Rola",
+      "roles": {
+        "USER": "Użytkownik",
+        "ADMIN": "Administrator",
+        "SUPERADMIN": "Super Administrator"
+      },
+      "submit": "Zapisz",
+      "cancel": "Anuluj",
+      "saving": "Zapisywanie...",
+      "preferredLanguage": "Preferowany język",
+      "languages": {
+        "SV": "Szwedzki",
+        "EN": "Angielski",
+        "PL": "Polski",
+        "UK": "Ukraiński"
+      }
+    }
+  },
+  "errors": {
+    "login": {
+      "invalidCredentials": "Nieprawidłowe dane logowania",
+      "serverError": "Nie można połączyć się z serwerem"
+    },
+    "users": {
+      "loadError": "Nie udało się załadować użytkowników",
+      "createError": "Nie udało się utworzyć użytkownika",
+      "updateError": "Nie udało się zaktualizować użytkownika",
+      "deleteError": "Nie udało się usunąć użytkownika",
+      "emailExists": "Email już istnieje",
+      "passwordMismatch": "Hasła nie są zgodne",
+      "invalidRole": "Nieprawidłowa rola",
+      "notFound": "Nie znaleziono użytkownika"
+    }
+  },
+  "success": {
+    "users": {
+      "created": "Użytkownik został utworzony",
+      "updated": "Użytkownik został zaktualizowany",
+      "deleted": "Użytkownik został usunięty",
+      "statusChanged": "Status użytkownika został zmieniony"
+    }
   }
 } 

@@ -67,7 +67,14 @@
       "superadmin": "Superadmin"
     },
     "updateError": "Failed to update user",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "preferredLanguage": "Preferred Language",
+    "languages": {
+      "SV": "Swedish",
+      "EN": "English",
+      "PL": "Polish",
+      "UK": "Ukrainian"
+    }
   },
   "login": {
     "title": "Login",
@@ -108,5 +115,77 @@
     "loadError": "Failed to load profile",
     "updateError": "Failed to update profile",
     "notFound": "Profile not found"
+  },
+  "modals": {
+    "createUser": {
+      "title": "Create User",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "role": "Role",
+      "roles": {
+        "USER": "User",
+        "ADMIN": "Administrator",
+        "SUPERADMIN": "Super Administrator"
+      },
+      "submit": "Create",
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "passwordMismatch": "Passwords do not match",
+      "createError": "Failed to create user",
+      "preferredLanguage": "Preferred Language",
+      "languages": {
+        "SV": "Swedish",
+        "EN": "English",
+        "PL": "Polish",
+        "UK": "Ukrainian"
+      }
+    },
+    "editUser": {
+      "title": "Edit User",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "roles": {
+        "USER": "User",
+        "ADMIN": "Administrator",
+        "SUPERADMIN": "Super Administrator"
+      },
+      "submit": "Save",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "preferredLanguage": "Preferred Language",
+      "languages": {
+        "SV": "Swedish",
+        "EN": "English",
+        "PL": "Polish",
+        "UK": "Ukrainian"
+      }
+    }
+  },
+  "errors": {
+    "login": {
+      "invalidCredentials": "Invalid credentials",
+      "serverError": "Could not connect to server"
+    },
+    "users": {
+      "loadError": "Failed to load users",
+      "createError": "Failed to create user",
+      "updateError": "Failed to update user",
+      "deleteError": "Failed to delete user",
+      "emailExists": "Email already exists",
+      "passwordMismatch": "Passwords do not match",
+      "invalidRole": "Invalid role",
+      "notFound": "User not found"
+    }
+  },
+  "success": {
+    "users": {
+      "created": "User has been created",
+      "updated": "User has been updated",
+      "deleted": "User has been deleted",
+      "statusChanged": "User status has been changed"
+    }
   }
 } 
