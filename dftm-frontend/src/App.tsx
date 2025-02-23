@@ -11,6 +11,7 @@ import { Profile } from './components/Profile'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { Unauthorized } from './components/Unauthorized'
 import { UserManagement } from './components/UserManagement'
+import i18n from './i18n'
 
 function AppContent() {
   const [isDarkMode, setIsDarkMode] = useState(true)
@@ -19,12 +20,16 @@ function AppContent() {
   useEffect(() => {
     const token = localStorage.getItem('token')
     const savedUserRole = localStorage.getItem('userRole')
+    const savedLanguage = localStorage.getItem('preferredLanguage')
     
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       setIsAuthenticated(true)
       if (savedUserRole) {
         setUserRole(savedUserRole)
+      }
+      if (savedLanguage) {
+        i18n.changeLanguage(savedLanguage)
       }
     }
   }, [setIsAuthenticated, setUserRole])
@@ -35,6 +40,20 @@ function AppContent() {
     delete axios.defaults.headers.common['Authorization']
     setIsAuthenticated(false)
     setUserRole('')
+  }
+
+  const handleLanguageChange = async (language: string) => {
+    try {
+      const token = localStorage.getItem('token')
+      await axios.put('http://localhost:8080/api/v1/users/profile', 
+        { preferredLanguage: language.toUpperCase() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      localStorage.setItem('preferredLanguage', language)
+      i18n.changeLanguage(language)
+    } catch (error) {
+      console.error('Failed to update preferred language:', error)
+    }
   }
 
   return (
@@ -51,6 +70,7 @@ function AppContent() {
             userRole={userRole} 
             onThemeChange={() => setIsDarkMode(!isDarkMode)}
             isDarkMode={isDarkMode}
+            onLanguageChange={handleLanguageChange}
           />
           <main className={`container mx-auto ${isDarkMode ? 'bg-[#1a2332]' : 'bg-white'}`}>
             <Routes>

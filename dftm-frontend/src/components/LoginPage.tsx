@@ -62,17 +62,19 @@ export const LoginPage = ({ isDarkMode, onThemeChange }: LoginPageProps) => {
         
         localStorage.setItem('token', token);
         localStorage.setItem('userRole', userRole);
+        
+        if (response.data.preferredLanguage) {
+          const language = response.data.preferredLanguage.toLowerCase();
+          localStorage.setItem('preferredLanguage', language);
+          i18n.changeLanguage(language);
+        }
+        
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         
         setIsAuthenticated(true);
         setUserRole(userRole);
         
         navigate('/calendar');
-
-        if (response.data.user?.preferredLanguage) {
-          i18n.changeLanguage(response.data.user.preferredLanguage.toLowerCase());
-          localStorage.setItem('preferredLanguage', response.data.user.preferredLanguage.toLowerCase());
-        }
       } else {
         console.error('Invalid response format:', response.data);
         setError('Invalid response format from server');
