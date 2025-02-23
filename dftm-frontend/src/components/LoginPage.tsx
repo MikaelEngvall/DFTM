@@ -51,6 +51,7 @@ export const LoginPage = ({ isDarkMode, onThemeChange }: LoginPageProps) => {
       console.log('Response status:', response.status);
       console.log('Response headers:', response.headers);
       console.log('Response data:', response.data);
+      console.log('Authentication response data structure:', JSON.stringify(response.data, null, 2));
 
       if (response.data && response.data.token) {
         const { token } = response.data;
@@ -68,7 +69,7 @@ export const LoginPage = ({ isDarkMode, onThemeChange }: LoginPageProps) => {
         
         navigate('/calendar');
 
-        if (response.data.user.preferredLanguage) {
+        if (response.data.user?.preferredLanguage) {
           i18n.changeLanguage(response.data.user.preferredLanguage.toLowerCase());
           localStorage.setItem('preferredLanguage', response.data.user.preferredLanguage.toLowerCase());
         }
