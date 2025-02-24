@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import com.dftm.model.Language;
+import com.dftm.model.Role;
 
 @Data
 @Builder
@@ -30,4 +31,6 @@ public class RegisterRequest {
 
     @NotNull(message = "Preferred language is required")
     private Language preferredLanguage;
+
+    private Role role = Role.USER; // Default to USER if not specified
 } 

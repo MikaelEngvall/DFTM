@@ -31,7 +31,7 @@ public class AuthenticationService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
+                .role(request.getRole() != null ? request.getRole() : Role.USER)
                 .preferredLanguage(request.getPreferredLanguage())
                 .active(true)
                 .createdAt(LocalDateTime.now())
