@@ -1,26 +1,25 @@
 package com.dftm.service;
 
-import java.util.Properties;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.HashMap;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.dftm.config.JavaMailProperties;
+import com.dftm.model.Language;
 import com.dftm.model.PendingTask;
 import com.dftm.repository.PendingTaskRepository;
-import com.dftm.model.Language;
-import com.dftm.service.TranslationQueueService;
 
+import jakarta.mail.BodyPart;
+import jakarta.mail.Flags;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.Session;
 import jakarta.mail.Store;
-import jakarta.mail.Flags;
-import jakarta.mail.BodyPart;
 import jakarta.mail.internet.MimeMultipart;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
