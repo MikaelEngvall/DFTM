@@ -27,13 +27,15 @@ public class Task {
     @Field(targetType = FieldType.STRING)
     private TaskStatus status;
     private TaskPriority priority;
-    private String assignee;    // Person som ska utföra uppgiften
+    private String assignedTo;    // Person som ska utföra uppgiften
     private String assigner;    // Admin som tilldelade uppgiften
     private String reporter;    // Person som anmälde felet
     private LocalDateTime dueDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<Comment> comments;
+    private boolean archived;
+    private boolean approved;
 
     // Lägg till dessa metoder om de saknas
     public void setCreatedAt(LocalDateTime createdAt) {
@@ -52,16 +54,16 @@ public class Task {
         this.id = id;
     }
 
-    public void setAssignee(String assignee) {
-        this.assignee = assignee;
+    public void setAssignedTo(String assignedTo) {
+        this.assignedTo = assignedTo;
     }
 
     public void setAssigner(String assigner) {
         this.assigner = assigner;
     }
 
-    public String getAssignee() {
-        return this.assignee;
+    public String getAssignedTo() {
+        return this.assignedTo;
     }
 
     public String getTitle() {
@@ -74,5 +76,21 @@ public class Task {
 
     public List<Comment> getComments() {
         return this.comments;
+    }
+
+    public boolean isArchived() {
+        return this.archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
+
+    public boolean isApproved() {
+        return this.approved;
+    }
+
+    public void setApproved(boolean approved) {
+        this.approved = approved;
     }
 } 

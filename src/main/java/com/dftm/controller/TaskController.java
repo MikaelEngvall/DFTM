@@ -19,6 +19,7 @@ import com.dftm.model.Task;
 import com.dftm.model.TaskStatus;
 import com.dftm.service.TaskService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,30 +31,50 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<Task> createTask(@RequestBody TaskRequest request) {
-        Task task = request.toTask();
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    public ResponseEntity<Task> createTask(@Valid @RequestBody Task task) {
+        log.debug("POST request to create task");
         return ResponseEntity.ok(taskService.createTask(task));
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<Task> getTask(@PathVariable String id) {
-        return ResponseEntity.ok(taskService.getTask(id));
+    @GetMapping
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<Task>> getAllTasks(
+            @RequestParam(required = false) Boolean archived,
+            @RequestParam(required = false) String assignedTo) {
+        log.debug("GET request to fetch all tasks, archived: {}, assignedTo: {}", archived, assignedTo);
+        return ResponseEntity.ok(taskService.getAllTasks(archived, assignedTo));
     }
 
-    @GetMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<List<Task>> getAllTasks() {
-        log.error("\033[0;33m Attempting to fetch all tasks... \033[0m");
-        try {
-            var tasks = taskService.getAllTasks();
-            log.error("\033[0;32m Successfully fetched {} tasks \033[0m", tasks.size());
-            return ResponseEntity.ok(tasks);
-        } catch (Exception e) {
-            log.error("\033[0;31m Failed to fetch tasks: {} \033[0m", e.getMessage());
-            throw e;
-        }
+    @GetMapping("/{taskId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Task> getTaskById(@PathVariable String taskId) {
+        log.debug("GET request to fetch task with ID: {}", taskId);
+        return ResponseEntity.ok(taskService.getTaskById(taskId));
+    }
+
+    @PutMapping("/{taskId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN') or @taskService.isAssignedToUser(#taskId, authentication.principal.id)")
+    public ResponseEntity<Task> updateTask(
+            @PathVariable String taskId,
+            @Valid @RequestBody Task task) {
+        log.debug("PUT request to update task with ID: {}", taskId);
+        return ResponseEntity.ok(taskService.updateTask(taskId, task));
+    }
+
+    @DeleteMapping("/{taskId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    public ResponseEntity<Void> archiveTask(@PathVariable String taskId) {
+        log.debug("DELETE request to archive task with ID: {}", taskId);
+        taskService.archiveTask(taskId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{taskId}/approve")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    public ResponseEntity<Task> approveTask(@PathVariable String taskId) {
+        log.debug("POST request to approve task with ID: {}", taskId);
+        return ResponseEntity.ok(taskService.approveTask(taskId));
     }
 
     @PutMapping("/{id}")

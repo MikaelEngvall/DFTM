@@ -10,7 +10,9 @@ import com.dftm.model.TaskStatus;
 
 @Repository
 public interface TaskRepository extends MongoRepository<Task, String> {
-    List<Task> findByAssignee(String assignee);
+    List<Task> findByAssignedTo(String assignedTo);
     List<Task> findByAssigner(String assigner);
     List<Task> findByStatus(TaskStatus status);
+    List<Task> findByArchived(Boolean archived);
+    List<Task> findByArchivedAndAssignedTo(Boolean archived, String assignedTo);
 } 
