@@ -26,7 +26,7 @@ public class AttachmentController {
     private final AttachmentService attachmentService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<Attachment> addAttachment(
             @PathVariable String taskId,
             @RequestParam("file") MultipartFile file
@@ -35,7 +35,7 @@ public class AttachmentController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<List<Attachment>> getAttachments(@PathVariable String taskId) {
         return ResponseEntity.ok(attachmentService.getAttachmentsByTaskId(taskId));
     }

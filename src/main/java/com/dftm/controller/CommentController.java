@@ -27,7 +27,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<Comment> addComment(
             @PathVariable String taskId,
             @RequestBody Comment comment
@@ -36,7 +36,7 @@ public class CommentController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<List<Comment>> getComments(
             @PathVariable String taskId,
             @RequestParam(required = false, defaultValue = "SV") Language language

@@ -116,28 +116,28 @@ public class UserService {
 
     private boolean hasPermissionToEdit(User editor, User target) {
         // SUPERADMIN kan redigera alla
-        if (editor.getRole() == Role.SUPERADMIN) {
+        if (editor.getRole() == Role.ROLE_SUPERADMIN) {
             return true;
         }
         
         // ADMIN kan redigera alla förutom SUPERADMIN
-        if (editor.getRole() == Role.ADMIN) {
-            return target.getRole() != Role.SUPERADMIN;
+        if (editor.getRole() == Role.ROLE_ADMIN) {
+            return target.getRole() != Role.ROLE_SUPERADMIN;
         }
         
         // USER kan bara redigera sig själv
-        return editor.getRole() == Role.USER && editor.getId().equals(target.getId());
+        return editor.getRole() == Role.ROLE_USER && editor.getId().equals(target.getId());
     }
 
     private boolean canChangeRole(User editor, User target, Role newRole) {
         // SUPERADMIN kan ändra till vilken roll som helst
-        if (editor.getRole() == Role.SUPERADMIN) {
+        if (editor.getRole() == Role.ROLE_SUPERADMIN) {
             return true;
         }
         
         // ADMIN kan inte ändra till eller från SUPERADMIN
-        if (editor.getRole() == Role.ADMIN) {
-            return newRole != Role.SUPERADMIN && target.getRole() != Role.SUPERADMIN;
+        if (editor.getRole() == Role.ROLE_ADMIN) {
+            return newRole != Role.ROLE_SUPERADMIN && target.getRole() != Role.ROLE_SUPERADMIN;
         }
         
         // USER kan inte ändra roller

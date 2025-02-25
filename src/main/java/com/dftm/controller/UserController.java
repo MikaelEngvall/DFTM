@@ -31,49 +31,49 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<List<User>> getAllUsers() {
         log.debug("GET request to fetch all users");
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN') or #userId == authentication.principal.id")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<User> getUserById(@PathVariable String userId) {
         log.debug("GET request to fetch user with ID: {}", userId);
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
     @GetMapping("/language/{language}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<List<User>> getUsersByLanguage(@PathVariable Language language) {
         log.debug("GET request to fetch users with language: {}", language);
         return ResponseEntity.ok(userService.getUsersByLanguage(language));
     }
 
     @GetMapping("/active")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<List<User>> getActiveUsers() {
         log.debug("GET request to fetch active users");
         return ResponseEntity.ok(userService.getActiveUsers());
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<List<User>> getUsersByName(@RequestParam String name) {
         log.debug("GET request to fetch users with name containing: {}", name);
         return ResponseEntity.ok(userService.getUsersByName(name));
     }
 
     @GetMapping("/role/{role}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<List<User>> getUsersByRole(@PathVariable Role role) {
         log.debug("GET request to fetch users with role: {}", role);
         return ResponseEntity.ok(userService.getUsersByRole(role));
     }
 
     @PatchMapping("/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN') or #userId == authentication.principal.id")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<User> updateUser(
             @PathVariable String userId,
             @Valid @RequestBody UpdateUserRequest request) {

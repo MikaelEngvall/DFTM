@@ -1,17 +1,18 @@
 package com.dftm.config;
 
+import java.time.LocalDateTime;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.dftm.model.Language;
 import com.dftm.model.Role;
 import com.dftm.model.User;
 import com.dftm.repository.UserRepository;
-import com.dftm.model.Language;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class AdminInitializer implements CommandLineRunner {
                     .name("Admin")
                     .email("admin@dftm.com")
                     .password(passwordEncoder.encode("admin123"))
-                    .role(Role.ADMIN)
+                    .role(Role.ROLE_ADMIN)
                     .preferredLanguage(Language.SV)
                     .active(true)
                     .createdAt(LocalDateTime.now())

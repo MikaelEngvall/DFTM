@@ -7,15 +7,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.dftm.exception.UnauthorizedAccessException;
-import com.dftm.model.Task;
-import com.dftm.model.User;
-import com.dftm.model.TaskStatus;
-import com.dftm.model.Role;
-import com.dftm.model.Translation;
-import com.dftm.model.Language;
-import com.dftm.repository.TaskRepository;
 import com.dftm.exception.ResourceNotFoundException;
+import com.dftm.exception.UnauthorizedAccessException;
+import com.dftm.model.Language;
+import com.dftm.model.Role;
+import com.dftm.model.Task;
+import com.dftm.model.TaskStatus;
+import com.dftm.model.Translation;
+import com.dftm.model.User;
+import com.dftm.repository.TaskRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -175,8 +175,7 @@ public class TaskService {
 
     private boolean hasPermissionToEdit(User user, Task task) {
         // ADMIN och SUPERADMIN kan redigera alla uppgifter
-        String userRole = user.getRole().toString().replace("ROLE_", "");
-        if (userRole.equals("ADMIN") || userRole.equals("SUPERADMIN")) {
+        if (user.getRole() == Role.ROLE_ADMIN || user.getRole() == Role.ROLE_SUPERADMIN) {
             return true;
         }
         

@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dftm.dto.TaskRequest;
+import com.dftm.model.Language;
 import com.dftm.model.Task;
 import com.dftm.model.TaskStatus;
-import com.dftm.model.Language;
 import com.dftm.service.TaskService;
 
 import jakarta.validation.Valid;
@@ -48,7 +48,6 @@ public class TaskController {
     }
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Task>> getAllTasks(
             @RequestParam(required = false) Boolean archived,
             @RequestParam(required = false) String assignedTo,

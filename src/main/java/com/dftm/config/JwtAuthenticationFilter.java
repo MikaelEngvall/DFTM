@@ -36,8 +36,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
 
-        // Skip filter for auth endpoints
-        if (request.getRequestURI().contains("/api/v1/auth/")) {
+        // Skip filter for public endpoints
+        if (request.getRequestURI().contains("/api/v1/auth/") ||
+            request.getRequestURI().contains("/api/v1/tasks") && request.getMethod().equals("GET") ||
+            request.getRequestURI().contains("/api/v1/health")) {
             filterChain.doFilter(request, response);
             return;
         }
