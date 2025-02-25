@@ -22,8 +22,9 @@ public class Task {
     @Id
     private String id;
     private String title;
+    private String titleTranslationId;  // Referens till översättning av titeln
     private String description;
-    private String descriptionTranslationId;  // Referens till översättning
+    private String descriptionTranslationId;  // Referens till översättning av beskrivningen
     @Field(targetType = FieldType.STRING)
     private TaskStatus status;
     private TaskPriority priority;
@@ -36,6 +37,7 @@ public class Task {
     private List<Comment> comments;
     private boolean archived;
     private boolean approved;
+    private Language originalLanguage = Language.SV;  // Standardspråk för uppgiften
 
     // Lägg till dessa metoder om de saknas
     public void setCreatedAt(LocalDateTime createdAt) {

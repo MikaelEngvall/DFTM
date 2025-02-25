@@ -12,6 +12,8 @@ import com.dftm.model.Task;
 import com.dftm.model.User;
 import com.dftm.model.TaskStatus;
 import com.dftm.model.Role;
+import com.dftm.model.Translation;
+import com.dftm.model.Language;
 import com.dftm.repository.TaskRepository;
 import com.dftm.exception.ResourceNotFoundException;
 
@@ -23,12 +25,30 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TaskService {
     private final TaskRepository taskRepository;
+    private final TranslationService translationService;
 
     public Task createTask(Task task) {
         log.debug("Creating new task");
+        
+        // Skapa översättningar för titel och beskrivning
+        Translation titleTranslation = translationService.createTranslation(
+            task.getTitle(), 
+            task.getOriginalLanguage()
+        );
+        Translation descriptionTranslation = translationService.createTranslation(
+            task.getDescription(), 
+            task.getOriginalLanguage()
+        );
+        
+        // Spara referenserna till översättningarna
+        task.setTitleTranslationId(titleTranslation.getId());
+        task.setDescriptionTranslationId(descriptionTranslation.getId());
+        
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
         task.setArchived(false);
+        task.setApproved(true);  // Sätt alltid approved till true för nya uppgifter
+        
         return taskRepository.save(task);
     }
 
@@ -62,7 +82,7 @@ public class TaskService {
         
         Task existingTask = getTaskById(taskId);
         
-        // Kontrollera om användaren har behörighet att uppdatera uppgiften
+        // Kontrollera behörighet
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) auth.getPrincipal();
         
@@ -70,9 +90,28 @@ public class TaskService {
             throw new UnauthorizedAccessException("You do not have permission to edit this task");
         }
 
-        // Uppdatera fält
+        // Uppdatera översättningar om texten har ändrats
+        if (!existingTask.getTitle().equals(updatedTask.getTitle())) {
+            Translation titleTranslation = translationService.createTranslation(
+                updatedTask.getTitle(), 
+                updatedTask.getOriginalLanguage()
+            );
+            updatedTask.setTitleTranslationId(titleTranslation.getId());
+        }
+        
+        if (!existingTask.getDescription().equals(updatedTask.getDescription())) {
+            Translation descriptionTranslation = translationService.createTranslation(
+                updatedTask.getDescription(), 
+                updatedTask.getOriginalLanguage()
+            );
+            updatedTask.setDescriptionTranslationId(descriptionTranslation.getId());
+        }
+
+        // Uppdatera övriga fält
         existingTask.setTitle(updatedTask.getTitle());
         existingTask.setDescription(updatedTask.getDescription());
+        existingTask.setTitleTranslationId(updatedTask.getTitleTranslationId());
+        existingTask.setDescriptionTranslationId(updatedTask.getDescriptionTranslationId());
         existingTask.setStatus(updatedTask.getStatus());
         existingTask.setPriority(updatedTask.getPriority());
         existingTask.setDueDate(updatedTask.getDueDate());
@@ -132,11 +171,51 @@ public class TaskService {
 
     private boolean hasPermissionToEdit(User user, Task task) {
         // ADMIN och SUPERADMIN kan redigera alla uppgifter
-        if (user.getRole() == Role.ADMIN || user.getRole() == Role.SUPERADMIN) {
+        String userRole = user.getRole().toString().replace("ROLE_", "");
+        if (userRole.equals("ADMIN") || userRole.equals("SUPERADMIN")) {
             return true;
         }
         
         // Användare kan bara redigera uppgifter som är tilldelade till dem
         return task.getAssignedTo() != null && task.getAssignedTo().equals(user.getId());
+    }
+
+    // Ny metod för att hämta översatt uppgift
+    public Task getTranslatedTask(String taskId, Language language) {
+        Task task = getTaskById(taskId);
+        
+        // Om språket är samma som originalspråket, returnera uppgiften som den är
+        if (language == task.getOriginalLanguage()) {
+            return task;
+        }
+        
+        // Hämta översättningar
+        String translatedTitle = translationService.getTranslatedText(
+            task.getTitleTranslationId(), 
+            language
+        );
+        String translatedDescription = translationService.getTranslatedText(
+            task.getDescriptionTranslationId(), 
+            language
+        );
+        
+        // Skapa en kopia av uppgiften med översatta texter
+        Task translatedTask = new Task();
+        translatedTask.setId(task.getId());
+        translatedTask.setTitle(translatedTitle);
+        translatedTask.setDescription(translatedDescription);
+        translatedTask.setStatus(task.getStatus());
+        translatedTask.setPriority(task.getPriority());
+        translatedTask.setAssignedTo(task.getAssignedTo());
+        translatedTask.setAssigner(task.getAssigner());
+        translatedTask.setReporter(task.getReporter());
+        translatedTask.setDueDate(task.getDueDate());
+        translatedTask.setCreatedAt(task.getCreatedAt());
+        translatedTask.setUpdatedAt(task.getUpdatedAt());
+        translatedTask.setComments(task.getComments());
+        translatedTask.setArchived(task.isArchived());
+        translatedTask.setApproved(task.isApproved());
+        
+        return translatedTask;
     }
 } 

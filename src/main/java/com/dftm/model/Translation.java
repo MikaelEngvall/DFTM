@@ -1,14 +1,15 @@
 package com.dftm.model;
 
+import java.util.Map;
+import java.util.HashMap;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.Map;
-import java.util.HashMap;
 
 @Data
 @Builder
@@ -19,5 +20,6 @@ public class Translation {
     @Id
     private String id;
     private String originalText;
+    private Language originalLanguage;
     private Map<Language, String> translations = new HashMap<>();
 } 

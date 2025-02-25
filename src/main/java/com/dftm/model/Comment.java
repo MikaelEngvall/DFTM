@@ -19,10 +19,11 @@ public class Comment {
     private String id;
     private String taskId;
     private String text;
-    private String translationId;  // Referens till översättning
+    private String textTranslationId;  // Referens till översättning av kommentartexten
     private String userId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Language originalLanguage = Language.SV;  // Standardspråk för kommentaren
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
@@ -37,7 +38,7 @@ public class Comment {
     }
 
     public String getTranslationId() {
-        return this.translationId;
+        return this.textTranslationId;
     }
 
     public String getText() {

@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dftm.model.Comment;
+import com.dftm.model.Language;
 import com.dftm.service.CommentService;
 
 import lombok.RequiredArgsConstructor;
@@ -35,7 +37,10 @@ public class CommentController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<List<Comment>> getComments(@PathVariable String taskId) {
-        return ResponseEntity.ok(commentService.getCommentsByTaskId(taskId));
+    public ResponseEntity<List<Comment>> getComments(
+            @PathVariable String taskId,
+            @RequestParam(required = false, defaultValue = "SV") Language language
+    ) {
+        return ResponseEntity.ok(commentService.getTranslatedComments(taskId, language));
     }
 } 

@@ -74,4 +74,50 @@ public class TranslationService {
 
         return translation.getTranslations().getOrDefault(language, translation.getOriginalText());
     }
+
+    public Translation createTranslation(String originalText, Language originalLanguage) {
+        log.debug("Creating new translation for text: {}", originalText);
+        
+        Translation translation = Translation.builder()
+                .originalText(originalText)
+                .originalLanguage(originalLanguage)
+                .translations(new HashMap<>())
+                .build();
+
+        // Lägg till översättningar för alla språk utom originalspråket
+        for (Language targetLang : Language.values()) {
+            if (targetLang != originalLanguage) {
+                try {
+                    String translatedText = googleTranslateClient.translate(
+                        originalText, 
+                        originalLanguage.getCode(), 
+                        targetLang.getCode()
+                    );
+                    translation.getTranslations().put(targetLang, translatedText);
+                } catch (Exception e) {
+                    log.error("Failed to translate text to {}: {}", targetLang, e.getMessage());
+                }
+            }
+        }
+
+        return translationRepository.save(translation);
+    }
+
+    public Translation getTranslation(String id) {
+        return translationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Translation not found with id: " + id));
+    }
+
+    public String getTranslatedText(String translationId, Language language) {
+        Translation translation = getTranslation(translationId);
+        
+        if (language == translation.getOriginalLanguage()) {
+            return translation.getOriginalText();
+        }
+        
+        return translation.getTranslations().getOrDefault(
+            language, 
+            translation.getOriginalText()  // Returnera originaltexten om ingen översättning finns
+        );
+    }
 } 

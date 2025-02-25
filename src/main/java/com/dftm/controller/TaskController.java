@@ -1,6 +1,7 @@
 package com.dftm.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dftm.dto.TaskRequest;
 import com.dftm.model.Task;
 import com.dftm.model.TaskStatus;
+import com.dftm.model.Language;
 import com.dftm.service.TaskService;
 
 import jakarta.validation.Valid;
@@ -31,7 +33,7 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<Task> createTask(@Valid @RequestBody Task task) {
         log.debug("POST request to create task");
         return ResponseEntity.ok(taskService.createTask(task));
@@ -41,20 +43,33 @@ public class TaskController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Task>> getAllTasks(
             @RequestParam(required = false) Boolean archived,
-            @RequestParam(required = false) String assignedTo) {
-        log.debug("GET request to fetch all tasks, archived: {}, assignedTo: {}", archived, assignedTo);
-        return ResponseEntity.ok(taskService.getAllTasks(archived, assignedTo));
+            @RequestParam(required = false) String assignedTo,
+            @RequestParam(required = false, defaultValue = "SV") Language language) {
+        log.debug("GET request to fetch all tasks, archived: {}, assignedTo: {}, language: {}", 
+            archived, assignedTo, language);
+        
+        List<Task> tasks = taskService.getAllTasks(archived, assignedTo);
+        
+        // Översätt alla uppgifter till önskat språk
+        List<Task> translatedTasks = tasks.stream()
+            .map(task -> taskService.getTranslatedTask(task.getId(), language))
+            .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(translatedTasks);
     }
 
     @GetMapping("/{taskId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Task> getTaskById(@PathVariable String taskId) {
-        log.debug("GET request to fetch task with ID: {}", taskId);
-        return ResponseEntity.ok(taskService.getTaskById(taskId));
+    public ResponseEntity<Task> getTaskById(
+            @PathVariable String taskId,
+            @RequestParam(required = false, defaultValue = "SV") Language language) {
+        log.debug("GET request to fetch task with ID: {}, language: {}", taskId, language);
+        Task translatedTask = taskService.getTranslatedTask(taskId, language);
+        return ResponseEntity.ok(translatedTask);
     }
 
     @PutMapping("/{taskId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN') or @taskService.isAssignedToUser(#taskId, authentication.principal.id)")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN') or @taskService.isAssignedToUser(#taskId, authentication.principal.id)")
     public ResponseEntity<Task> updateTask(
             @PathVariable String taskId,
             @Valid @RequestBody Task task) {
@@ -63,7 +78,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/{taskId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<Void> archiveTask(@PathVariable String taskId) {
         log.debug("DELETE request to archive task with ID: {}", taskId);
         taskService.archiveTask(taskId);
@@ -71,28 +86,14 @@ public class TaskController {
     }
 
     @PostMapping("/{taskId}/approve")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<Task> approveTask(@PathVariable String taskId) {
         log.debug("POST request to approve task with ID: {}", taskId);
         return ResponseEntity.ok(taskService.approveTask(taskId));
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<Task> updateTask(@PathVariable String id, @RequestBody TaskRequest request) {
-        Task task = request.toTask();
-        return ResponseEntity.ok(taskService.updateTask(id, task));
-    }
-
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteTask(@PathVariable String id) {
-        taskService.deleteTask(id);
-        return ResponseEntity.ok().build();
-    }
-
     @PutMapping("/{id}/assign")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Task> assignTask(
             @PathVariable String id, 
             @RequestParam String assignee, 
@@ -109,19 +110,19 @@ public class TaskController {
     }
 
     @GetMapping("/assignee/{assignee}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<List<Task>> getTasksByAssignee(@PathVariable String assignee) {
-        return ResponseEntity.ok(taskService.getTasksByAssignee(assignee));
+        return ResponseEntity.ok(taskService.getTasksByAssignedTo(assignee));
     }
 
     @GetMapping("/assigner/{assigner}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<Task>> getTasksByAssigner(@PathVariable String assigner) {
         return ResponseEntity.ok(taskService.getTasksByAssigner(assigner));
     }
 
     @GetMapping("/status/{status}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<List<Task>> getTasksByStatus(@PathVariable TaskStatus status) {
         return ResponseEntity.ok(taskService.getTasksByStatus(status));
     }
