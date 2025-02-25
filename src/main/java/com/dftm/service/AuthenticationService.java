@@ -12,10 +12,10 @@ import com.dftm.config.JwtService;
 import com.dftm.dto.AuthenticationRequest;
 import com.dftm.dto.AuthenticationResponse;
 import com.dftm.dto.RegisterRequest;
+import com.dftm.exception.EmailAlreadyExistsException;
 import com.dftm.model.Role;
 import com.dftm.model.User;
 import com.dftm.repository.UserRepository;
-import com.dftm.exception.EmailAlreadyExistsException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class AuthenticationService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(hashedPassword)
-                .role(request.getRole() != null ? request.getRole() : Role.USER)
+                .role(request.getRole() != null ? request.getRole() : Role.ROLE_USER)
                 .preferredLanguage(request.getPreferredLanguage())
                 .active(true)
                 .createdAt(LocalDateTime.now())

@@ -27,7 +27,10 @@ public class PendingTask {
     private boolean assigned;
     @Builder.Default
     private boolean approved = false;  // Standardvärde false för nya pending tasks
+    @Builder.Default
     private Map<Language, String> titleTranslations = new HashMap<>();
+    @Builder.Default
     private Map<Language, String> descriptionTranslations = new HashMap<>();
+    @Builder.Default
     private Language originalLanguage = Language.SV; // Default till svenska
 } 

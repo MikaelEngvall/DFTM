@@ -23,6 +23,7 @@ public class Comment {
     private String userId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    @Builder.Default
     private Language originalLanguage = Language.SV;  // Standardspråk för kommentaren
 
     public void setTaskId(String taskId) {

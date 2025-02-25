@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Data
 @Builder
@@ -21,17 +23,31 @@ import lombok.NoArgsConstructor;
 public class Task {
     @Id
     private String id;
+
+    @NotBlank(message = "Title is required")
     private String title;
-    private String titleTranslationId;  // Referens till översättning av titeln
+    private String titleTranslationId;
+
+    @NotBlank(message = "Description is required")
     private String description;
-    private String descriptionTranslationId;  // Referens till översättning av beskrivningen
-    @Field(targetType = FieldType.STRING)
+    private String descriptionTranslationId;
+
+    @NotNull(message = "Status is required")
     private TaskStatus status;
+    private String statusDisplay; // För översatt status
+
+    @NotNull(message = "Priority is required")
     private TaskPriority priority;
+    private String priorityDisplay; // För översatt prioritet
+
+    @NotBlank(message = "AssignedTo is required")
     private String assignedTo;    // Person som ska utföra uppgiften
     private String assigner;    // Admin som tilldelade uppgiften
     private String reporter;    // Person som anmälde felet
+
+    @NotNull(message = "DueDate is required")
     private LocalDateTime dueDate;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<Comment> comments;

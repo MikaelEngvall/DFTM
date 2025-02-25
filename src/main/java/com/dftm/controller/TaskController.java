@@ -3,6 +3,8 @@ package com.dftm.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,6 +33,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TaskController {
     private final TaskService taskService;
+    private final MessageSource messageSource;
+
+    private String getMessage(String code) {
+        return messageSource.getMessage(code, null, LocaleContextHolder.getLocale());
+    }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
@@ -44,7 +51,10 @@ public class TaskController {
             taskRequest.getAssignedTo(),
             taskRequest.getDueDate()
         );
-        return ResponseEntity.ok(taskService.createTask(task));
+        Task createdTask = taskService.createTask(task);
+        return ResponseEntity.ok()
+            .header("X-Message", getMessage("task.created"))
+            .body(createdTask);
     }
 
     @GetMapping
@@ -56,10 +66,14 @@ public class TaskController {
             archived, assignedTo, language);
         
         List<Task> tasks = taskService.getAllTasks(archived, assignedTo);
-        
-        // Översätt alla uppgifter till önskat språk
         List<Task> translatedTasks = tasks.stream()
-            .map(task -> taskService.getTranslatedTask(task.getId(), language))
+            .map(task -> {
+                Task translatedTask = taskService.getTranslatedTask(task.getId(), language);
+                // Översätt status och prioritet
+                translatedTask.setStatusDisplay(getMessage("status." + translatedTask.getStatus().name()));
+                translatedTask.setPriorityDisplay(getMessage("priority." + translatedTask.getPriority().name()));
+                return translatedTask;
+            })
             .collect(Collectors.toList());
         
         return ResponseEntity.ok(translatedTasks);
@@ -72,6 +86,8 @@ public class TaskController {
             @RequestParam(required = false, defaultValue = "SV") Language language) {
         log.debug("GET request to fetch task with ID: {}, language: {}", taskId, language);
         Task translatedTask = taskService.getTranslatedTask(taskId, language);
+        translatedTask.setStatusDisplay(getMessage("status." + translatedTask.getStatus().name()));
+        translatedTask.setPriorityDisplay(getMessage("priority." + translatedTask.getPriority().name()));
         return ResponseEntity.ok(translatedTask);
     }
 
@@ -81,7 +97,10 @@ public class TaskController {
             @PathVariable String taskId,
             @Valid @RequestBody Task task) {
         log.debug("PUT request to update task with ID: {}", taskId);
-        return ResponseEntity.ok(taskService.updateTask(taskId, task));
+        Task updatedTask = taskService.updateTask(taskId, task);
+        return ResponseEntity.ok()
+            .header("X-Message", getMessage("task.updated"))
+            .body(updatedTask);
     }
 
     @DeleteMapping("/{taskId}")
@@ -89,14 +108,19 @@ public class TaskController {
     public ResponseEntity<Void> archiveTask(@PathVariable String taskId) {
         log.debug("DELETE request to archive task with ID: {}", taskId);
         taskService.archiveTask(taskId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok()
+            .header("X-Message", getMessage("task.deleted"))
+            .build();
     }
 
     @PostMapping("/{taskId}/approve")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<Task> approveTask(@PathVariable String taskId) {
         log.debug("POST request to approve task with ID: {}", taskId);
-        return ResponseEntity.ok(taskService.approveTask(taskId));
+        Task approvedTask = taskService.approveTask(taskId);
+        return ResponseEntity.ok()
+            .header("X-Message", getMessage("task.updated"))
+            .body(approvedTask);
     }
 
     @PutMapping("/{id}/assign")
@@ -107,9 +131,11 @@ public class TaskController {
             @RequestParam(required = false) String assigner) {
         log.error("\033[0;33m Attempting to assign task {} to {} \033[0m", id, assignee);
         try {
-            var task = taskService.assignTask(id, assignee, assigner);
+            Task task = taskService.assignTask(id, assignee, assigner);
             log.error("\033[0;32m Successfully assigned task \033[0m");
-            return ResponseEntity.ok(task);
+            return ResponseEntity.ok()
+                .header("X-Message", getMessage("task.updated"))
+                .body(task);
         } catch (Exception e) {
             log.error("\033[0;31m Failed to assign task: {} \033[0m", e.getMessage());
             throw e;

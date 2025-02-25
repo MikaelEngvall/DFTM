@@ -10,25 +10,42 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Document(collection = "users")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "users")
 public class User implements UserDetails {
     @Id
     private String id;
+
+    @NotBlank(message = "Name is required")
     private String name;
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
     private String email;
+
+    @NotBlank(message = "Password is required")
     private String password;
+
+    @NotNull(message = "Role is required")
     private Role role;
-    private boolean active;
+    private String roleDisplay;
+
+    @NotNull(message = "Preferred language is required")
     private Language preferredLanguage;
+
+    private boolean active;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

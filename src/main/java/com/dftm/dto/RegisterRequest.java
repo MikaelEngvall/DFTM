@@ -18,19 +18,20 @@ import com.dftm.model.Role;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterRequest {
-    @NotBlank(message = "Name is required")
+    @NotBlank(message = "{name.required}")
     private String name;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "{email.required}")
+    @Email(message = "{email.invalid}")
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters long")
+    @NotBlank(message = "{password.required}")
+    @Size(min = 6, message = "{password.length}")
     private String password;
 
-    @NotNull(message = "Preferred language is required")
+    @NotNull(message = "{language.required}")
     private Language preferredLanguage;
 
-    private Role role = Role.USER; // Default to USER if not specified
+    @Builder.Default
+    private Role role = Role.ROLE_USER;
 } 
