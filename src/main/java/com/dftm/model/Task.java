@@ -36,8 +36,26 @@ public class Task {
     private LocalDateTime updatedAt;
     private List<Comment> comments;
     private boolean archived;
-    private boolean approved;
+    @Builder.Default
+    private boolean approved = true;  // Standardvärde för approved är true
+    @Builder.Default
     private Language originalLanguage = Language.SV;  // Standardspråk för uppgiften
+
+    public static Task createNewTask(String title, String description, TaskStatus status, TaskPriority priority, String assignedTo, LocalDateTime dueDate) {
+        return Task.builder()
+                .title(title)
+                .description(description)
+                .status(status)
+                .priority(priority)
+                .assignedTo(assignedTo)
+                .dueDate(dueDate)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .archived(false)
+                .approved(true)  // Sätt alltid approved till true för nya uppgifter
+                .originalLanguage(Language.SV)
+                .build();
+    }
 
     // Lägg till dessa metoder om de saknas
     public void setCreatedAt(LocalDateTime createdAt) {

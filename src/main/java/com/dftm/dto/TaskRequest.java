@@ -20,8 +20,10 @@ public class TaskRequest {
     private String description;
     private TaskStatus status;
     private TaskPriority priority;
-    private String assignee;
+    private String assignedTo;
     private LocalDateTime dueDate;
+    @Builder.Default
+    private boolean approved = true;
 
     public Task toTask() {
         return Task.builder()
@@ -29,8 +31,9 @@ public class TaskRequest {
                 .description(description)
                 .status(status)
                 .priority(priority)
-                .assignee(assignee)
+                .assignedTo(assignedTo)
                 .dueDate(dueDate)
+                .approved(approved)
                 .build();
     }
 } 

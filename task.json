@@ -1,1 +1,1 @@
-{"assigner":null,"assignedTo":null,"dueDate":"2024-04-01T12:00:00","title":"Test uppgift","description":"Detta ar en testuppgift","status":"pending","priority":"MEDIUM","reporter":null}
+{"assigner":null,"description":"Detta ar en testuppgift","assignedTo":null,"reporter":null,"approved":true,"status":"pending","title":"Test uppgift 10","priority":"MEDIUM","dueDate":"2024-04-01T12:00:00"}

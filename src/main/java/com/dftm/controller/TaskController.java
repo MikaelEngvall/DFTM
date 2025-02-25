@@ -34,8 +34,16 @@ public class TaskController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
-    public ResponseEntity<Task> createTask(@Valid @RequestBody Task task) {
+    public ResponseEntity<Task> createTask(@Valid @RequestBody TaskRequest taskRequest) {
         log.debug("POST request to create task");
+        Task task = Task.createNewTask(
+            taskRequest.getTitle(),
+            taskRequest.getDescription(),
+            taskRequest.getStatus(),
+            taskRequest.getPriority(),
+            taskRequest.getAssignedTo(),
+            taskRequest.getDueDate()
+        );
         return ResponseEntity.ok(taskService.createTask(task));
     }
 

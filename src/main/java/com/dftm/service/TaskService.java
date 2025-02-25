@@ -29,6 +29,7 @@ public class TaskService {
 
     public Task createTask(Task task) {
         log.debug("Creating new task");
+        log.debug("Input task approved = {}", task.isApproved());
         
         // Skapa översättningar för titel och beskrivning
         Translation titleTranslation = translationService.createTranslation(
@@ -48,8 +49,11 @@ public class TaskService {
         task.setUpdatedAt(LocalDateTime.now());
         task.setArchived(false);
         task.setApproved(true);  // Sätt alltid approved till true för nya uppgifter
+        log.debug("Before save approved = {}", task.isApproved());
         
-        return taskRepository.save(task);
+        Task savedTask = taskRepository.save(task);
+        log.debug("After save approved = {}", savedTask.isApproved());
+        return savedTask;
     }
 
     public Task getTask(String id) {
