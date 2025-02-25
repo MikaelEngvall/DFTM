@@ -15,6 +15,7 @@ import com.dftm.dto.RegisterRequest;
 import com.dftm.model.Role;
 import com.dftm.model.User;
 import com.dftm.repository.UserRepository;
+import com.dftm.exception.EmailAlreadyExistsException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,13 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
         log.debug("\033[0;33m Registering new user: {} \033[0m", request.getEmail());
+        
+        // Check if email already exists
+        if (userRepository.existsByEmail(request.getEmail())) {
+            log.error("\033[0;31m Email already exists: {} \033[0m", request.getEmail());
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+        
         var hashedPassword = passwordEncoder.encode(request.getPassword());
         log.debug("\033[0;33m Generated password hash: {} \033[0m", hashedPassword);
         
