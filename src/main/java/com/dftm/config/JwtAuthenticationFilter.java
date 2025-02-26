@@ -54,11 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-<<<<<<< HEAD
-        log.debug("\033[0;33m JWT token found: {} \033[0m", jwt.substring(0, 10) + "...");
-=======
         log.info("JWT token found: {}", jwt.substring(0, Math.min(jwt.length(), 20)));
->>>>>>> da99129625826e73133cdac6490346b8c8af8627
         
         try {
             userEmail = jwtService.extractUsername(jwt);
@@ -74,14 +70,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-<<<<<<< HEAD
-                    log.debug("\033[0;32m Authentication successful for user: {} \033[0m", userEmail);
-                } else {
-                    log.error("\033[0;31m Token validation failed for user: {} \033[0m", userEmail);
-=======
                     log.info("Authentication successful. User: {}, Authorities: {}", 
                         userEmail, userDetails.getAuthorities());
->>>>>>> da99129625826e73133cdac6490346b8c8af8627
+                } else {
+                    log.error("\033[0;31m Token validation failed for user: {} \033[0m", userEmail);
                 }
             }
         } catch (Exception e) {
