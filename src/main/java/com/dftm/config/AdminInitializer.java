@@ -29,7 +29,7 @@ public class AdminInitializer implements CommandLineRunner {
                     .name("Admin")
                     .email("admin@dftm.com")
                     .password(passwordEncoder.encode("admin123"))
-                    .role(Role.ROLE_ADMIN)
+                    .role(Role.ADMIN)
                     .preferredLanguage(Language.SV)
                     .active(true)
                     .createdAt(LocalDateTime.now())
