@@ -23,4 +23,6 @@ public class Translation {
     private Language originalLanguage;
     @Builder.Default
     private Map<Language, String> translations = new HashMap<>();
+    @Builder.Default
+    private boolean active = true;
 } 

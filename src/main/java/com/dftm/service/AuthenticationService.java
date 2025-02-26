@@ -3,6 +3,10 @@ package com.dftm.service;
 import java.time.LocalDateTime;
 
 import org.springframework.security.authentication.AuthenticationManager;
+<<<<<<< HEAD
+=======
+import org.springframework.security.authentication.BadCredentialsException;
+>>>>>>> da99129625826e73133cdac6490346b8c8af8627
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,7 +16,10 @@ import com.dftm.config.JwtService;
 import com.dftm.dto.AuthenticationRequest;
 import com.dftm.dto.AuthenticationResponse;
 import com.dftm.dto.RegisterRequest;
+<<<<<<< HEAD
 import com.dftm.exception.EmailAlreadyExistsException;
+=======
+>>>>>>> da99129625826e73133cdac6490346b8c8af8627
 import com.dftm.model.Role;
 import com.dftm.model.User;
 import com.dftm.repository.UserRepository;
@@ -62,7 +69,6 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        log.error("\033[0;33m Attempting to login user: {} \033[0m", request.getEmail());
         try {
             log.debug("\033[0;33m Checking if user exists in database \033[0m");
             var userExists = userRepository.findByEmail(request.getEmail());
@@ -71,6 +77,7 @@ public class AuthenticationService {
                 throw new UsernameNotFoundException("User not found");
             }
             
+<<<<<<< HEAD
             // Logga hashat lösenord från databasen
             log.debug("\033[0;33m Stored password hash: {} \033[0m", userExists.get().getPassword());
             
@@ -88,14 +95,28 @@ public class AuthenticationService {
             }
             
             var user = userExists.get();
+=======
+            var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                
+            log.info("User authenticated. Email: {}, Role: {}", user.getEmail(), user.getRole());
+            
+>>>>>>> da99129625826e73133cdac6490346b8c8af8627
             var jwtToken = jwtService.generateToken(user);
-            log.error("\033[0;32m Login successful for: {} \033[0m", request.getEmail());
             return AuthenticationResponse.builder()
+<<<<<<< HEAD
                     .token(jwtToken)
                     .build();
         } catch (Exception e) {
             log.error("\033[0;31m Login failed for: {} with error: {} \033[0m", request.getEmail(), e.getMessage());
             throw e;
+=======
+                .token(jwtToken)
+                .build();
+        } catch (BadCredentialsException e) {
+            log.error("Invalid credentials for user: {}", request.getEmail());
+            throw new RuntimeException("Invalid credentials");
+>>>>>>> da99129625826e73133cdac6490346b8c8af8627
         }
     }
 } 

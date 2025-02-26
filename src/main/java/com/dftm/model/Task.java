@@ -2,11 +2,10 @@ package com.dftm.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.mongodb.core.mapping.FieldType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +29,7 @@ public class Task {
 
     @NotBlank(message = "Description is required")
     private String description;
+<<<<<<< HEAD
     private String descriptionTranslationId;
 
     @NotNull(message = "Status is required")
@@ -37,12 +37,24 @@ public class Task {
     private String statusDisplay; // För översatt status
 
     @NotNull(message = "Priority is required")
+=======
+    private String reporter;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private boolean assigned;
+    private TaskStatus status;
+    private Map<Language, String> titleTranslations;
+    private Map<Language, String> descriptionTranslations;
+    private String originalLanguage;
+    private String descriptionTranslationId;  // Referens till översättning
+>>>>>>> da99129625826e73133cdac6490346b8c8af8627
     private TaskPriority priority;
     private String priorityDisplay; // För översatt prioritet
 
     @NotBlank(message = "AssignedTo is required")
     private String assignedTo;    // Person som ska utföra uppgiften
     private String assigner;    // Admin som tilldelade uppgiften
+<<<<<<< HEAD
     private String reporter;    // Person som anmälde felet
 
     @NotNull(message = "DueDate is required")
@@ -50,6 +62,9 @@ public class Task {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+=======
+    private LocalDateTime dueDate;
+>>>>>>> da99129625826e73133cdac6490346b8c8af8627
     private List<Comment> comments;
     private boolean archived;
     @Builder.Default

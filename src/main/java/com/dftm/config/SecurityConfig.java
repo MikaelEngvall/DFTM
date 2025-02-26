@@ -1,5 +1,12 @@
 package com.dftm.config;
 
+<<<<<<< HEAD
+=======
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+>>>>>>> da99129625826e73133cdac6490346b8c8af8627
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -23,33 +30,50 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        log.info("Configuring security filter chain...");
+        return http
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+<<<<<<< HEAD
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/tasks/**").permitAll()
                 .requestMatchers("/api/v1/health").permitAll()
                 .anyRequest().authenticated()
             )
+=======
+            .authorizeHttpRequests(auth -> {
+                auth.requestMatchers("/api/v1/auth/**").permitAll()
+                    .requestMatchers("/api/v1/users/**").hasAnyAuthority("ADMIN", "SUPERADMIN")
+                    .requestMatchers("/api/v1/tasks/**").authenticated()
+                    .anyRequest().authenticated();
+                log.info("Security configuration completed. Endpoints configured with appropriate authorities.");
+            })
+>>>>>>> da99129625826e73133cdac6490346b8c8af8627
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+<<<<<<< HEAD
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
+=======
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // Lägg till frontend URL
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+>>>>>>> da99129625826e73133cdac6490346b8c8af8627
         configuration.setAllowCredentials(true);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

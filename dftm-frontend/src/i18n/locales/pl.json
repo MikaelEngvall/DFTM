@@ -1,0 +1,132 @@
+{
+  "calendar": {
+    "title": "LUTY 2025",
+    "showArchived": "POKAŻ ZARCHIWIZOWANE",
+    "newTask": "NOWE ZADANIE",
+    "assignedTo": "Przypisane do",
+    "priority": "Priorytet",
+    "showCompleted": "Pokaż zakończone",
+    "all": "Wszystkie",
+    "high": "Wysoki",
+    "medium": "Średni",
+    "low": "Niski",
+    "unassigned": "Nieprzypisane",
+    "weekdays": {
+      "monday": "PONIEDZIAŁEK",
+      "tuesday": "WTOREK",
+      "wednesday": "ŚRODA",
+      "thursday": "CZWARTEK",
+      "friday": "PIĄTEK",
+      "saturday": "SOBOTA",
+      "sunday": "NIEDZIELA"
+    }
+  },
+  "tasks": {
+    "count_one": "{{count}} zadanie",
+    "count_few": "{{count}} zadania",
+    "count_many": "{{count}} zadań"
+  },
+  "userManagement": {
+    "title": "Zarządzaj użytkownikami",
+    "name": "Imię",
+    "email": "E-mail",
+    "role": "Rola",
+    "status": "Status",
+    "actions": "Akcje",
+    "addUser": "Dodaj użytkownika",
+    "showInactive": "Pokaż nieaktywnych",
+    "active": "Aktywny",
+    "inactive": "Nieaktywny",
+    "loadError": "Nie udało się załadować użytkowników",
+    "updateError": "Nie udało się zaktualizować użytkownika",
+    "roles": {
+      "admin": "Administrator",
+      "superadmin": "Super Administrator",
+      "user": "Użytkownik"
+    }
+  },
+  "profile": {
+    "title": "Mój profil",
+    "name": "Imię",
+    "email": "E-mail",
+    "role": "Rola",
+    "currentPassword": "Aktualne hasło",
+    "newPassword": "Nowe hasło",
+    "edit": "Edytuj",
+    "loadError": "Nie udało się załadować profilu",
+    "updateError": "Nie udało się zaktualizować profilu",
+    "notFound": "Nie znaleziono profilu"
+  },
+  "modals": {
+    "createUser": {
+      "title": "Utwórz użytkownika",
+      "name": "Imię",
+      "email": "E-mail",
+      "password": "Hasło",
+      "confirmPassword": "Potwierdź hasło",
+      "role": "Rola",
+      "roles": {
+        "USER": "Użytkownik",
+        "ADMIN": "Administrator",
+        "SUPERADMIN": "Super Administrator"
+      },
+      "submit": "Utwórz",
+      "cancel": "Anuluj",
+      "creating": "Tworzenie...",
+      "passwordMismatch": "Hasła nie są zgodne",
+      "createError": "Nie udało się utworzyć użytkownika",
+      "preferredLanguage": "Preferowany język",
+      "languages": {
+        "SV": "Szwedzki",
+        "EN": "Angielski",
+        "PL": "Polski",
+        "UK": "Ukraiński"
+      }
+    },
+    "editUser": {
+      "title": "Edytuj użytkownika",
+      "name": "Imię",
+      "email": "E-mail",
+      "role": "Rola",
+      "roles": {
+        "USER": "Użytkownik",
+        "ADMIN": "Administrator",
+        "SUPERADMIN": "Super Administrator"
+      },
+      "submit": "Zapisz",
+      "cancel": "Anuluj",
+      "saving": "Zapisywanie...",
+      "preferredLanguage": "Preferowany język",
+      "languages": {
+        "SV": "Szwedzki",
+        "EN": "Angielski",
+        "PL": "Polski",
+        "UK": "Ukraiński"
+      }
+    }
+  },
+  "errors": {
+    "login": {
+      "invalidCredentials": "Nieprawidłowe dane logowania",
+      "serverError": "Nie można połączyć się z serwerem"
+    },
+    "users": {
+      "loadError": "Nie udało się załadować użytkowników",
+      "createError": "Nie udało się utworzyć użytkownika",
+      "updateError": "Nie udało się zaktualizować użytkownika",
+      "deleteError": "Nie udało się usunąć użytkownika",
+      "emailExists": "Email już istnieje",
+      "passwordMismatch": "Hasła nie są zgodne",
+      "invalidRole": "Nieprawidłowa rola",
+      "notFound": "Nie znaleziono użytkownika"
+    }
+  },
+  "success": {
+    "users": {
+      "created": "Użytkownik został utworzony",
+      "updated": "Użytkownik został zaktualizowany",
+      "deleted": "Użytkownik został usunięty",
+      "statusChanged": "Status użytkownika został zmieniony"
+    }
+  }
+} 

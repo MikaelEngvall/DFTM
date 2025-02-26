@@ -33,6 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
+        log.info("Request URL: {}", request.getRequestURL());
+        log.info("Request Method: {}", request.getMethod());
+        log.info("Auth header: {}", authHeader);
         final String jwt;
         final String userEmail;
 
@@ -45,18 +48,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.error("\033[0;31m No Bearer token found in request \033[0m");
+            log.error("No Bearer token found in request");
             filterChain.doFilter(request, response);
             return;
         }
 
         jwt = authHeader.substring(7);
+<<<<<<< HEAD
         log.debug("\033[0;33m JWT token found: {} \033[0m", jwt.substring(0, 10) + "...");
+=======
+        log.info("JWT token found: {}", jwt.substring(0, Math.min(jwt.length(), 20)));
+>>>>>>> da99129625826e73133cdac6490346b8c8af8627
         
         try {
             userEmail = jwtService.extractUsername(jwt);
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                log.info("User details loaded. Email: {}, Authorities: {}", userEmail, userDetails.getAuthorities());
                 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -66,13 +74,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+<<<<<<< HEAD
                     log.debug("\033[0;32m Authentication successful for user: {} \033[0m", userEmail);
                 } else {
                     log.error("\033[0;31m Token validation failed for user: {} \033[0m", userEmail);
+=======
+                    log.info("Authentication successful. User: {}, Authorities: {}", 
+                        userEmail, userDetails.getAuthorities());
+>>>>>>> da99129625826e73133cdac6490346b8c8af8627
                 }
             }
         } catch (Exception e) {
-            log.error("\033[0;31m JWT validation error: {} \033[0m", e.getMessage());
+            log.error("JWT validation error: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);

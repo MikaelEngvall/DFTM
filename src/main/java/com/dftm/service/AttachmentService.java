@@ -26,7 +26,7 @@ public class AttachmentService {
     public Attachment addAttachment(String taskId, MultipartFile file) {
         validateFile(file);
         
-        var task = taskRepository.findById(taskId)
+        taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
         
         try {
