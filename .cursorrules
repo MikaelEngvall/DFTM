@@ -119,3 +119,167 @@ Use is, has, can for booleans (isLoading, hasPermission).
 Use handle prefix for event handlers (handleClick, handleSubmit).
 Stay updated with the latest TypeScript, React, and Node.js best practices.
 Always work mobile centric or mobile first, responsivity is key.
+
+You are an expert in Java 21, Spring Boot, MongoDB (Mongoose), JWT authentication, and mobile backend development.
+
+## **Key Principles**
+- Write concise, technical responses with accurate Spring Boot and MongoDB examples.
+- Follow Java 21 best practices: records, virtual threads, and structured concurrency.
+- Prioritize secure, scalable, and maintainable backend development.
+- Design RESTful APIs optimized for mobile clients (low latency, efficient data transfer).
+- Implement robust error handling and logging.
+- Enforce security best practices for JWT authentication and data protection.
+
+## **Project Structure**
+- Use a modular package structure:
+com.example.app
+config/
+controllers/
+services/
+repositories/
+models/
+security/
+utils/
+markdown
+Copy
+Edit
+- Separate concerns: Controller (API), Service (Business Logic), Repository (Database).
+- Use DTOs for request/response objects to decouple API and entity layers.
+
+## **Spring Boot Guidelines**
+- Use Spring Boot 3.x with Java 21 features.
+- Use Spring Web for REST APIs.
+- Use `@RestController` with `@RequestMapping` for RESTful endpoints.
+- Use `ResponseEntity<T>` for standardized API responses.
+- Implement exception handling with `@ControllerAdvice` and `@ExceptionHandler`.
+- Use Spring’s built-in validation (`@Valid` and `@NotNull`).
+
+## **MongoDB (Mongoose) Guidelines**
+- Use Spring Data MongoDB (`MongoRepository` or `ReactiveMongoRepository`).
+- Define MongoDB documents using `@Document` annotation.
+- Use `@Indexed` for indexing critical fields.
+- Implement pagination with `Pageable` for efficient queries.
+- Use projection and aggregation pipelines for optimized queries.
+
+Example:
+```java
+@Document(collection = "users")
+public record User(
+  @Id String id,
+  @Indexed(unique = true) String email,
+  String name,
+  String passwordHash
+) {}
+JWT Authentication
+Use Spring Security with JWT for authentication.
+Implement stateless authentication using OncePerRequestFilter.
+Store secrets securely using environment variables.
+
+
+
+
+
+You said:
+in plain text please
+ChatGPT said:
+Sure! Here’s the .cursorrules file in plain text format:
+
+.cursorrules File for Java 21 Backend Development (Spring Boot, MongoDB, JWT, Mobile-Centric)
+
+diff
+Copy
+Edit
+You are an expert in Java 21, Spring Boot, MongoDB (Mongoose), JWT authentication, and mobile backend development.
+
+Key Principles  
+- Write concise, technical responses with accurate Spring Boot and MongoDB examples.  
+- Follow Java 21 best practices: records, virtual threads, and structured concurrency.  
+- Prioritize secure, scalable, and maintainable backend development.  
+- Design RESTful APIs optimized for mobile clients (low latency, efficient data transfer).  
+- Implement robust error handling and logging.  
+- Enforce security best practices for JWT authentication and data protection.  
+
+Project Structure  
+- Use a modular package structure:  
+com.example.app
+config/
+controllers/
+services/
+repositories/
+models/
+security/
+utils/
+markdown
+Copy
+Edit
+- Separate concerns: Controller (API), Service (Business Logic), Repository (Database).  
+- Use DTOs for request/response objects to decouple API and entity layers.  
+
+Spring Boot Guidelines  
+- Use Spring Boot 3.x with Java 21 features.  
+- Use Spring Web for REST APIs.  
+- Use `@RestController` with `@RequestMapping` for RESTful endpoints.  
+- Use `ResponseEntity<T>` for standardized API responses.  
+- Implement exception handling with `@ControllerAdvice` and `@ExceptionHandler`.  
+- Use Spring’s built-in validation (`@Valid` and `@NotNull`).  
+
+MongoDB (Mongoose) Guidelines  
+- Use Spring Data MongoDB (`MongoRepository` or `ReactiveMongoRepository`).  
+- Define MongoDB documents using `@Document` annotation.  
+- Use `@Indexed` for indexing critical fields.  
+- Implement pagination with `Pageable` for efficient queries.  
+- Use projection and aggregation pipelines for optimized queries.  
+
+Example:  
+```java
+@Document(collection = "users")
+public record User(
+  @Id String id,
+  @Indexed(unique = true) String email,
+  String name,
+  String passwordHash
+) {}
+JWT Authentication
+
+Use Spring Security with JWT for authentication.
+Implement stateless authentication using OncePerRequestFilter.
+Store secrets securely using environment variables.
+Use refresh tokens for long-lived sessions.
+Implement role-based access control (RBAC) with @PreAuthorize.
+Example:
+
+java
+Copy
+Edit
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws ServletException, IOException {
+        // Extract and validate JWT from Authorization header
+    }
+}
+Security Best Practices
+
+Use BCrypt for password hashing (BCryptPasswordEncoder).
+Implement CSRF and CORS protection.
+Validate all user input to prevent injection attacks.
+Use rate limiting to prevent brute-force attacks.
+Log authentication attempts and failures.
+Performance Optimization
+
+Use virtual threads for lightweight concurrency (Java 21).
+Implement caching with Redis for frequently accessed data.
+Optimize database queries with indexes and projections.
+Minimize API response payload size using selective field projection.
+Use asynchronous processing (@Async) where applicable.
+Testing Guidelines
+
+Write unit tests using JUnit 5 and Mockito.
+Use Testcontainers for MongoDB integration tests.
+Ensure API contract testing with Spring MockMvc.
+Mobile API Optimization
+
+Use efficient JSON serialization (Jackson) to reduce payload size.
+Implement WebSockets or Server-Sent Events (SSE) for real-time updates.
+Support offline mode by implementing sync strategies for mobile apps.
+Follow official Spring Boot, MongoDB, and JWT documentation for best practices and keep APIs secure, optimized, and mobile-friendly.
