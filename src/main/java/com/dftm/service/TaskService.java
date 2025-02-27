@@ -16,6 +16,7 @@ import com.dftm.model.TaskStatus;
 import com.dftm.model.Translation;
 import com.dftm.model.User;
 import com.dftm.repository.TaskRepository;
+import com.dftm.dto.TaskRequest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,67 +62,24 @@ public class TaskService {
             .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
     }
 
-    public List<Task> getAllTasks(Boolean archived, String assignedTo) {
-        log.debug("Fetching tasks with filters - archived: {}, assignedTo: {}", archived, assignedTo);
-        
-        if (archived != null && assignedTo != null) {
-            return taskRepository.findByArchivedAndAssignedTo(archived, assignedTo);
-        } else if (archived != null) {
-            return taskRepository.findByArchived(archived);
-        } else if (assignedTo != null) {
-            return taskRepository.findByAssignedTo(assignedTo);
-        }
-        
+    public List<Task> getAllTasks() {
+        log.debug("Fetching all tasks");
         return taskRepository.findAll();
     }
 
-    public Task getTaskById(String taskId) {
-        log.debug("Fetching task with ID: {}", taskId);
-        return taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+    public Task getTaskById(String id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
     }
 
-    public Task updateTask(String taskId, Task updatedTask) {
-        log.debug("Updating task with ID: {}", taskId);
-        
+    public Task updateTask(String taskId, TaskRequest request) {
         Task existingTask = getTaskById(taskId);
-        
-        // Kontrollera behörighet
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) auth.getPrincipal();
-        
-        if (!hasPermissionToEdit(currentUser, existingTask)) {
-            throw new UnauthorizedAccessException("You do not have permission to edit this task");
-        }
-
-        // Uppdatera översättningar om texten har ändrats
-        if (!existingTask.getTitle().equals(updatedTask.getTitle())) {
-            Translation titleTranslation = translationService.createTranslation(
-                updatedTask.getTitle(), 
-                updatedTask.getOriginalLanguage()
-            );
-            updatedTask.setTitleTranslationId(titleTranslation.getId());
-        }
-        
-        if (!existingTask.getDescription().equals(updatedTask.getDescription())) {
-            Translation descriptionTranslation = translationService.createTranslation(
-                updatedTask.getDescription(), 
-                updatedTask.getOriginalLanguage()
-            );
-            updatedTask.setDescriptionTranslationId(descriptionTranslation.getId());
-        }
-
-        // Uppdatera övriga fält
-        existingTask.setTitle(updatedTask.getTitle());
-        existingTask.setDescription(updatedTask.getDescription());
-        existingTask.setTitleTranslationId(updatedTask.getTitleTranslationId());
-        existingTask.setDescriptionTranslationId(updatedTask.getDescriptionTranslationId());
-        existingTask.setStatus(updatedTask.getStatus());
-        existingTask.setPriority(updatedTask.getPriority());
-        existingTask.setDueDate(updatedTask.getDueDate());
-        existingTask.setAssignedTo(updatedTask.getAssignedTo());
+        existingTask.setTitle(request.getTitle());
+        existingTask.setDescription(request.getDescription());
+        existingTask.setStatus(request.getStatus());
+        existingTask.setPriority(request.getPriority());
+        existingTask.setDueDate(request.getDueDate());
         existingTask.setUpdatedAt(LocalDateTime.now());
-        
         return taskRepository.save(existingTask);
     }
 
@@ -152,12 +110,11 @@ public class TaskService {
         return taskRepository.findByStatus(status);
     }
 
-    public void archiveTask(String taskId) {
-        log.debug("Archiving task with ID: {}", taskId);
+    public Task archiveTask(String taskId) {
         Task task = getTaskById(taskId);
         task.setArchived(true);
         task.setUpdatedAt(LocalDateTime.now());
-        taskRepository.save(task);
+        return taskRepository.save(task);
     }
 
     public Task approveTask(String taskId) {
@@ -173,33 +130,24 @@ public class TaskService {
         return task.getAssignedTo() != null && task.getAssignedTo().equals(userId);
     }
 
-    private boolean hasPermissionToEdit(User user, Task task) {
-        // ADMIN och SUPERADMIN kan redigera alla uppgifter
-        if (user.getRole() == Role.ROLE_ADMIN || user.getRole() == Role.ROLE_SUPERADMIN) {
-            return true;
-        }
-        
-        // Användare kan bara redigera uppgifter som är tilldelade till dem
-        return task.getAssignedTo() != null && task.getAssignedTo().equals(user.getId());
-    }
-
     // Ny metod för att hämta översatt uppgift
-    public Task getTranslatedTask(String taskId, Language language) {
-        Task task = getTaskById(taskId);
+    public Task getTranslatedTask(String taskId, Language targetLanguage) {
+        log.debug("Fetching task with id: {} and translating to language: {}", taskId, targetLanguage);
+        Task task = taskRepository.findById(taskId)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
         
-        // Om språket är samma som originalspråket, returnera uppgiften som den är
-        if (language == task.getOriginalLanguage()) {
+        if (targetLanguage == null || targetLanguage == task.getOriginalLanguage()) {
             return task;
         }
         
         // Hämta översättningar
         String translatedTitle = translationService.getTranslatedText(
             task.getTitleTranslationId(), 
-            language
+            targetLanguage
         );
         String translatedDescription = translationService.getTranslatedText(
             task.getDescriptionTranslationId(), 
-            language
+            targetLanguage
         );
         
         // Skapa en kopia av uppgiften med översatta texter
@@ -220,5 +168,28 @@ public class TaskService {
         translatedTask.setApproved(task.isApproved());
         
         return translatedTask;
+    }
+
+    public List<Task> getNonArchivedTasks() {
+        log.debug("Fetching non-archived tasks");
+        return taskRepository.findByArchived(false);
+    }
+
+    public Task updateTaskStatus(String taskId, TaskStatus status) {
+        Task task = taskRepository.findById(taskId)
+            .orElseThrow(() -> new RuntimeException("Task not found"));
+        task.setStatus(status);
+        return taskRepository.save(task);
+    }
+
+    public Task unarchiveTask(String taskId) {
+        Task task = taskRepository.findById(taskId)
+            .orElseThrow(() -> new RuntimeException("Task not found"));
+        task.setArchived(false);
+        return taskRepository.save(task);
+    }
+
+    public List<Task> getTasksByAssignedToAndArchived(String userId, Boolean archived) {
+        return taskRepository.findByArchivedAndAssignedTo(archived, userId);
     }
 } 

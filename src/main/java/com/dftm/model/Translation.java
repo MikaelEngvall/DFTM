@@ -1,5 +1,6 @@
 package com.dftm.model;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -23,6 +24,6 @@ public class Translation {
     private Language originalLanguage;
     @Builder.Default
     private Map<Language, String> translations = new HashMap<>();
-    @Builder.Default
-    private boolean active = true;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 } 

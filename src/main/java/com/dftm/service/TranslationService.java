@@ -11,6 +11,7 @@ import com.dftm.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,31 +70,14 @@ public class TranslationService {
         return translation.getTranslations().getOrDefault(language, translation.getOriginalText());
     }
 
-    public Translation createTranslation(String originalText, Language originalLanguage) {
-        log.debug("Creating new translation for text: {}", originalText);
-        
+    public Translation createTranslation(String text, Language language) {
         Translation translation = Translation.builder()
-                .originalText(originalText)
-                .originalLanguage(originalLanguage)
+                .originalText(text)
+                .originalLanguage(language)
                 .translations(new HashMap<>())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
-
-        // Lägg till översättningar för alla språk utom originalspråket
-        for (Language targetLang : Language.values()) {
-            if (targetLang != originalLanguage) {
-                try {
-                    String translatedText = googleTranslateClient.translate(
-                        originalText, 
-                        originalLanguage.getCode(), 
-                        targetLang.getCode()
-                    );
-                    translation.getTranslations().put(targetLang, translatedText);
-                } catch (Exception e) {
-                    log.error("Failed to translate text to {}: {}", targetLang, e.getMessage());
-                }
-            }
-        }
-
         return translationRepository.save(translation);
     }
 
@@ -102,16 +86,14 @@ public class TranslationService {
                 .orElseThrow(() -> new RuntimeException("Translation not found with id: " + id));
     }
 
-    public String getTranslatedText(String translationId, Language language) {
-        Translation translation = getTranslation(translationId);
-        
-        if (language == translation.getOriginalLanguage()) {
+    public String getTranslatedText(String translationId, Language targetLanguage) {
+        Translation translation = translationRepository.findById(translationId)
+                .orElseThrow(() -> new RuntimeException("Translation not found"));
+
+        if (targetLanguage == translation.getOriginalLanguage()) {
             return translation.getOriginalText();
         }
-        
-        return translation.getTranslations().getOrDefault(
-            language, 
-            translation.getOriginalText()  // Returnera originaltexten om ingen översättning finns
-        );
+
+        return translation.getTranslations().getOrDefault(targetLanguage, translation.getOriginalText());
     }
 } 

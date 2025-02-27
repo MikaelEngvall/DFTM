@@ -6,22 +6,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import com.dftm.model.User;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class JwtService {
-
-    private static final Logger log = LoggerFactory.getLogger(JwtService.class);
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -39,24 +39,17 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        String role = userDetails.getAuthorities().stream()
-                .findFirst()
-                .map(GrantedAuthority::getAuthority)
-                .orElse("USER");
-                
-        claims.put("role", role);
-        log.info("Generating token for user with role: {}", role);
-        
-        return generateToken(claims, userDetails);
+        Map<String, Object> extraClaims = new HashMap<>();
+        if (userDetails instanceof User) {
+            User user = (User) userDetails;
+            extraClaims.put("role", user.getRole().name());
+        }
+        return generateToken(extraClaims, userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>(extraClaims);
-        claims.put("role", userDetails.getAuthorities().stream().findFirst().orElseThrow().getAuthority());
-        return Jwts
-                .builder()
-                .setClaims(claims)
+        return Jwts.builder()
+                .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
@@ -87,13 +80,8 @@ public class JwtService {
     }
 
     private Key getSignInKey() {
-        try {
-            byte[] keyBytes = java.util.Base64.getDecoder().decode(secretKey);
-            return Keys.hmacShaKeyFor(keyBytes);
-        } catch (IllegalArgumentException e) {
-            // Om dekodningen misslyckas, prova med raw bytes
-            return Keys.hmacShaKeyFor(secretKey.getBytes());
-        }
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String extractRole(String token) {

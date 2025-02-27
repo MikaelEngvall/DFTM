@@ -3,6 +3,7 @@ package com.dftm.model;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -29,7 +30,6 @@ public class Task {
 
     @NotBlank(message = "Description is required")
     private String description;
-<<<<<<< HEAD
     private String descriptionTranslationId;
 
     @NotNull(message = "Status is required")
@@ -37,40 +37,39 @@ public class Task {
     private String statusDisplay; // För översatt status
 
     @NotNull(message = "Priority is required")
-=======
-    private String reporter;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private boolean assigned;
-    private TaskStatus status;
-    private Map<Language, String> titleTranslations;
-    private Map<Language, String> descriptionTranslations;
-    private String originalLanguage;
-    private String descriptionTranslationId;  // Referens till översättning
->>>>>>> da99129625826e73133cdac6490346b8c8af8627
     private TaskPriority priority;
     private String priorityDisplay; // För översatt prioritet
 
     @NotBlank(message = "AssignedTo is required")
     private String assignedTo;    // Person som ska utföra uppgiften
     private String assigner;    // Admin som tilldelade uppgiften
-<<<<<<< HEAD
     private String reporter;    // Person som anmälde felet
 
     @NotNull(message = "DueDate is required")
     private LocalDateTime dueDate;
 
+    private LocalDateTime completedDate;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-=======
-    private LocalDateTime dueDate;
->>>>>>> da99129625826e73133cdac6490346b8c8af8627
-    private List<Comment> comments;
-    private boolean archived;
+
+    @Builder.Default
+    private List<String> comments = new java.util.ArrayList<>();
+
+    @Builder.Default
+    private boolean archived = false;
     @Builder.Default
     private boolean approved = true;  // Standardvärde för approved är true
     @Builder.Default
     private Language originalLanguage = Language.SV;  // Standardspråk för uppgiften
+
+    private boolean assigned;
+
+    @Builder.Default
+    private Map<Language, String> titleTranslations = new HashMap<>();
+    
+    @Builder.Default
+    private Map<Language, String> descriptionTranslations = new HashMap<>();
 
     public static Task createNewTask(String title, String description, TaskStatus status, TaskPriority priority, String assignedTo, LocalDateTime dueDate) {
         return Task.builder()
@@ -125,7 +124,7 @@ public class Task {
         return this.description;
     }
 
-    public List<Comment> getComments() {
+    public List<String> getComments() {
         return this.comments;
     }
 

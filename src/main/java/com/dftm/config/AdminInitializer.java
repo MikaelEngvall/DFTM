@@ -1,7 +1,5 @@
 package com.dftm.config;
 
-import java.time.LocalDateTime;
-
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -25,19 +23,16 @@ public class AdminInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (!userRepository.existsByEmail("admin@dftm.com")) {
-            User admin = User.builder()
+            User adminUser = User.builder()
                     .name("Admin")
                     .email("admin@dftm.com")
                     .password(passwordEncoder.encode("admin123"))
-                    .role(Role.ADMIN)
+                    .role(Role.ROLE_ADMIN)
                     .preferredLanguage(Language.SV)
                     .active(true)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
                     .build();
-            
-            userRepository.save(admin);
-            log.info("Admin user created successfully");
+            userRepository.save(adminUser);
+            log.info("Admin user created");
         }
     }
 } 

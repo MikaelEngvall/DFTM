@@ -3,23 +3,18 @@ package com.dftm.service;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Properties;
-<<<<<<< HEAD
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-=======
->>>>>>> da99129625826e73133cdac6490346b8c8af8627
 
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.dftm.config.JavaMailProperties;
 import com.dftm.model.Language;
 import com.dftm.model.PendingTask;
-<<<<<<< HEAD
-=======
 import com.dftm.model.TaskPriority;
 import com.dftm.model.TaskStatus;
->>>>>>> da99129625826e73133cdac6490346b8c8af8627
 import com.dftm.repository.PendingTaskRepository;
 
 import jakarta.mail.BodyPart;
@@ -39,10 +34,37 @@ public class EmailListener {
     
     private final JavaMailProperties mailProperties;
     private final PendingTaskRepository pendingTaskRepository;
+    private final Environment environment;
+
+    private boolean isDevEnvironment() {
+        String[] activeProfiles = environment.getActiveProfiles();
+        for (String profile : activeProfiles) {
+            if ("dev".equals(profile)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Scheduled(fixedDelay = 60000) // Kör varje minut
-    public void checkEmail() {
-        log.info("\033[0;33m Checking emails... \033[0m");
+    public void checkEmails() {
+        log.info("Checking emails...");
+        
+        // Skydda mot null-värden
+        if (mailProperties == null || 
+            mailProperties.getHost() == null || 
+            mailProperties.getUsername() == null || 
+            mailProperties.getPassword() == null) {
+            log.error("Mail properties are not properly configured");
+            return;
+        }
+        
+        // I utvecklingsmiljö, skippa e-postanslutningen
+        if (isDevEnvironment()) {
+            log.info("Running in dev environment - skipping email check");
+            return;
+        }
+        
         Properties properties = new Properties();
         properties.put("mail.store.protocol", "imaps");
         properties.put("mail.imaps.host", mailProperties.getHost());
@@ -50,6 +72,7 @@ public class EmailListener {
 
         try {
             Session session = Session.getDefaultInstance(properties);
+            
             try (Store store = session.getStore("imaps")) {
                 store.connect(
                     mailProperties.getHost(),
@@ -59,20 +82,14 @@ public class EmailListener {
 
                 Folder inbox = store.getFolder("INBOX");
                 inbox.open(Folder.READ_WRITE);
-
-                Message[] messages = inbox.getMessages();
-                for (Message message : messages) {
-                    if (!message.isSet(Flags.Flag.SEEN)) {
-                        processEmail(message);
-                        message.setFlag(Flags.Flag.SEEN, true);
-                    }
-                }
-
+                
+                // Process emails and convert to PendingTask objects
+                // Kod för att hämta riktiga e-postmeddelanden här
+                
                 inbox.close(false);
             }
-            log.info("\033[0;32m Email check completed \033[0m");
         } catch (Exception e) {
-            log.error("\033[0;31m Error checking emails: {} \033[0m", e.getMessage());
+            log.error("Error checking emails: {}", e.getMessage(), e);
         }
     }
 

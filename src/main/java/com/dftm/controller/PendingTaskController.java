@@ -25,7 +25,6 @@ public class PendingTaskController {
     private final PendingTaskService pendingTaskService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<List<PendingTask>> getAllPendingTasks() {
         log.debug("Fetching all pending tasks");
         return ResponseEntity.ok(pendingTaskService.getAllPendingTasks());

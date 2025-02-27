@@ -3,8 +3,9 @@ package com.dftm.model;
 public enum Language {
     SV("sv", "Swedish"),
     EN("en", "English"),
-    PL("pl", "Polish"),
-    UK("uk", "Ukrainian");
+    FI("fi", "Finnish"),
+    NO("no", "Norwegian"),
+    DA("da", "Danish");
 
     private final String code;
     private final String displayName;

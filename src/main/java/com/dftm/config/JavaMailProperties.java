@@ -1,12 +1,13 @@
 package com.dftm.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
+
 import lombok.Data;
 
+@Configuration
+@ConfigurationProperties(prefix = "mail")
 @Data
-@Component
-@ConfigurationProperties(prefix = "spring.mail")
 public class JavaMailProperties {
     private String host;
     private int port;
