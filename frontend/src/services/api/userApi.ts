@@ -26,7 +26,11 @@ export const userApi = {
   getUsers: async (): Promise<User[]> => {
     try {
       const response = await axiosInstance.get('/users');
-      return response.data;
+      // Mappa 'active' från backend till 'isActive' i frontend
+      return response.data.map((user: { active: boolean } & Omit<User, 'isActive'>) => ({
+        ...user,
+        isActive: user.active
+      }));
     } catch (error) {
       console.error('Error fetching users:', error);
       throw error;
@@ -36,8 +40,17 @@ export const userApi = {
   // Uppdatera en användare
   updateUser: async (user: User): Promise<User> => {
     try {
-      const response = await axiosInstance.put(`/users/${user.id}`, user);
-      return response.data;
+      // Mappa 'isActive' från frontend till 'active' i backend
+      const backendUser = {
+        ...user,
+        active: user.isActive
+      };
+      const response = await axiosInstance.put(`/users/${user.id}`, backendUser);
+      // Mappa 'active' från backend till 'isActive' i frontend
+      return {
+        ...response.data,
+        isActive: response.data.active
+      };
     } catch (error) {
       console.error('Error updating user:', error);
       throw error;
