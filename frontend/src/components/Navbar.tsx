@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FiSun, FiMoon, FiLogIn, FiLogOut, FiUser, FiUsers } from 'react-icons/fi';
 import { GB, SE, PL, UA } from 'country-flag-icons/react/3x2';
 import { LoginModal } from './LoginModal';
 import { UserManagementTable } from './UserManagementTable';
 import { useTranslation } from 'react-i18next';
 import { User } from '../types/user';
+import { userApi } from '../services/api/userApi';
 
 interface NavbarProps {
   isLoggedIn?: boolean;
@@ -12,56 +13,69 @@ interface NavbarProps {
   onLogout?: () => void;
 }
 
-// Temporär testdata för användare
-const mockUsers: User[] = [
-  {
-    id: '1',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john@example.com',
-    role: 'admin',
-    isActive: true,
-    phoneNumber: '+46701234567',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane@example.com',
-    role: 'user',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
 export const Navbar = ({ onLogout }: NavbarProps) => {
   const { t, i18n } = useTranslation();
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [userFirstName, setUserFirstName] = useState<string>();
   const [isUserManagementVisible, setIsUserManagementVisible] = useState(false);
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (isUserManagementVisible) {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const fetchedUsers = await userApi.getUsers();
+          setUsers(fetchedUsers);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Ett fel uppstod vid hämtning av användare');
+          console.error('Error fetching users:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchUsers();
+  }, [isUserManagementVisible]);
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
     document.documentElement.classList.toggle('dark');
   };
 
-  const handleLogin = (email: string, password: string) => {
-    // Här implementerar vi login-logiken senare
-    console.log('Login attempt:', { email, password });
-    // Simulerar en lyckad inloggning
-    setUserFirstName('John'); // Detta ska komma från API:et senare
-    setIsLoginModalOpen(false);
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      await userApi.login(email, password);
+      // Här kan vi lägga till logik för att hämta användarinfo efter inloggning
+      setUserFirstName('John'); // Detta bör komma från API:et senare
+      setIsLoginModalOpen(false);
+    } catch (err) {
+      console.error('Login error:', err);
+      // Här kan vi lägga till felhantering/meddelanden
+    }
   };
 
-  const handleUserUpdate = (updatedUser: User) => {
-    setUsers(prevUsers =>
-      prevUsers.map(user => (user.id === updatedUser.id ? updatedUser : user))
-    );
+  const handleUserUpdate = async (updatedUser: User) => {
+    try {
+      const updated = await userApi.updateUser(updatedUser);
+      setUsers(prevUsers =>
+        prevUsers.map(user => (user.id === updated.id ? updated : user))
+      );
+    } catch (err) {
+      console.error('Error updating user:', err);
+      // Här kan vi lägga till felhantering/meddelanden
+    }
+  };
+
+  const handleLogout = () => {
+    userApi.logout();
+    setUserFirstName(undefined);
+    onLogout?.();
   };
 
   const languages = [
@@ -133,10 +147,7 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
                         <FiUsers className="w-5 h-5" />
                       </button>
                       <button
-                        onClick={() => {
-                          setUserFirstName(undefined);
-                          onLogout?.();
-                        }}
+                        onClick={handleLogout}
                         className="p-1.5 rounded-md text-white hover:bg-white/10"
                         title={t('navbar.auth.logout')}
                       >
@@ -167,7 +178,20 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
 
       {isUserManagementVisible && (
         <div className="container mx-auto px-4 py-8">
-          <UserManagementTable users={users} onUserUpdate={handleUserUpdate} />
+          {isLoading ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            </div>
+          ) : error ? (
+            <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded">
+              {error}
+            </div>
+          ) : (
+            <UserManagementTable 
+              users={users} 
+              onUserUpdate={handleUserUpdate}
+            />
+          )}
         </div>
       )}
     </>

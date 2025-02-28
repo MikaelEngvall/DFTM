@@ -7,7 +7,8 @@
     "auth": {
       "login": "Zaloguj się",
       "logout": "Wyloguj się",
-      "userTooltip": "Twój profil"
+      "userTooltip": "Twój profil",
+      "manageUsers": "Zarządzaj użytkownikami"
     }
   },
   "loginModal": {
@@ -22,6 +23,43 @@
     },
     "rememberMe": "Zapamiętaj mnie",
     "forgotPassword": "Zapomniałeś hasła?",
-    "submit": "Zaloguj się"
+    "submit": "Zaloguj się",
+    "loading": "Logowanie...",
+    "error": {
+      "invalidCredentials": "Nieprawidłowy email lub hasło"
+    }
+  },
+  "userManagement": {
+    "title": "Zarządzanie użytkownikami",
+    "table": {
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "email": "Email",
+      "role": "Rola",
+      "status": "Status",
+      "actions": "Akcje"
+    },
+    "status": {
+      "active": "Aktywny",
+      "inactive": "Nieaktywny"
+    },
+    "roles": {
+      "superadmin": "Super Administrator",
+      "admin": "Administrator",
+      "user": "Użytkownik"
+    },
+    "editUser": {
+      "title": "Edytuj użytkownika",
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "email": "Email",
+      "phoneNumber": "Numer telefonu",
+      "password": "Hasło",
+      "passwordHelp": "Pozostaw puste, aby zachować obecne hasło",
+      "role": "Rola",
+      "isActive": "Aktywny użytkownik",
+      "save": "Zapisz zmiany",
+      "cancel": "Anuluj"
+    }
   }
 } 

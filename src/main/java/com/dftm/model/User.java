@@ -28,8 +28,11 @@ public class User implements UserDetails {
     @Id
     private String id;
 
-    @NotBlank(message = "Name is required")
-    private String name;
+    @NotBlank(message = "First name is required")
+    private String firstName;
+
+    @NotBlank(message = "Last name is required")
+    private String lastName;
 
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
@@ -37,6 +40,8 @@ public class User implements UserDetails {
 
     @NotBlank(message = "Password is required")
     private String password;
+
+    private String phoneNumber;
 
     @NotNull(message = "Role is required")
     private Role role;
@@ -46,8 +51,8 @@ public class User implements UserDetails {
     private Language preferredLanguage;
 
     private boolean active;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdAt;
+    private String updatedAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -23,7 +23,11 @@
     },
     "rememberMe": "Kom ihåg mig",
     "forgotPassword": "Glömt lösenord?",
-    "submit": "Logga in"
+    "submit": "Logga in",
+    "loading": "Loggar in...",
+    "error": {
+      "invalidCredentials": "Felaktigt användarnamn eller lösenord"
+    }
   },
   "userManagement": {
     "title": "Användarhantering",

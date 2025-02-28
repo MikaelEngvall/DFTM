@@ -17,5 +17,5 @@ public interface UserRepository extends MongoRepository<User, String> {
     List<User> findByRole(Role role);
     List<User> findByPreferredLanguage(Language language);
     List<User> findByActiveTrue();
-    List<User> findByNameContainingIgnoreCase(String name);
+    List<User> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName, String lastName);
 } 

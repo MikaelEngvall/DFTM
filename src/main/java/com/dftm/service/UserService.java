@@ -48,9 +48,9 @@ public class UserService {
         return userRepository.findByActiveTrue();
     }
 
-    public List<User> getUsersByName(String name) {
-        log.debug("Fetching users with name containing: {}", name);
-        return userRepository.findByNameContainingIgnoreCase(name);
+    public List<User> searchUsersByName(String searchTerm) {
+        log.debug("Fetching users with name containing: {}", searchTerm);
+        return userRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm);
     }
 
     public List<User> getUsersByRole(Role role) {
@@ -82,8 +82,11 @@ public class UserService {
         }
 
         // Uppdatera fälten om de finns i requesten
-        if (request.getName() != null) {
-            userToUpdate.setName(request.getName());
+        if (request.getFirstName() != null) {
+            userToUpdate.setFirstName(request.getFirstName());
+        }
+        if (request.getLastName() != null) {
+            userToUpdate.setLastName(request.getLastName());
         }
         if (request.getEmail() != null) {
             userToUpdate.setEmail(request.getEmail());
@@ -106,7 +109,7 @@ public class UserService {
             userToUpdate.setActive(request.getActive());
         }
 
-        userToUpdate.setUpdatedAt(LocalDateTime.now());
+        userToUpdate.setUpdatedAt(LocalDateTime.now().toString());
         
         User updatedUser = userRepository.save(userToUpdate);
         log.debug("Successfully updated user: {}", updatedUser.getEmail());

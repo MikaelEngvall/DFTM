@@ -7,6 +7,9 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Cinzel', 'serif'],
+      },
       colors: {
         'nav-dark': '#1c2533',
         'bg-dark': '#1a1f2b',

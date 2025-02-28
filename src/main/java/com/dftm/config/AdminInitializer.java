@@ -1,5 +1,7 @@
 package com.dftm.config;
 
+import java.time.LocalDateTime;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -22,17 +24,46 @@ public class AdminInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (!userRepository.existsByEmail("admin@dftm.com")) {
-            User adminUser = User.builder()
-                    .name("Admin")
-                    .email("admin@dftm.com")
-                    .password(passwordEncoder.encode("admin123"))
-                    .role(Role.ROLE_ADMIN)
+        createUserIfNotExists(
+            "superadmin@dftm.com", 
+            "Super", 
+            "Admin", 
+            "superadmin123", 
+            Role.ROLE_SUPERADMIN
+        );
+        
+        createUserIfNotExists(
+            "admin@dftm.com", 
+            "Admin", 
+            "User", 
+            "admin123", 
+            Role.ROLE_ADMIN
+        );
+        
+        createUserIfNotExists(
+            "user@dftm.com", 
+            "Regular", 
+            "User", 
+            "user123", 
+            Role.ROLE_USER
+        );
+    }
+    
+    private void createUserIfNotExists(String email, String firstName, String lastName, String password, Role role) {
+        if (!userRepository.existsByEmail(email)) {
+            User user = User.builder()
+                    .firstName(firstName)
+                    .lastName(lastName)
+                    .email(email)
+                    .password(passwordEncoder.encode(password))
+                    .role(role)
                     .preferredLanguage(Language.SV)
                     .active(true)
+                    .createdAt(LocalDateTime.now().toString())
+                    .updatedAt(LocalDateTime.now().toString())
                     .build();
-            userRepository.save(adminUser);
-            log.info("Admin user created");
+            userRepository.save(user);
+            log.info("User created with role {}: {}", role.getValue(), email);
         }
     }
 } 

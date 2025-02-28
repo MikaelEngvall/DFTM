@@ -7,7 +7,8 @@
     "auth": {
       "login": "Log in",
       "logout": "Log out",
-      "userTooltip": "Your profile"
+      "userTooltip": "Your profile",
+      "manageUsers": "Manage users"
     }
   },
   "loginModal": {
@@ -22,6 +23,43 @@
     },
     "rememberMe": "Remember me",
     "forgotPassword": "Forgot password?",
-    "submit": "Log in"
+    "submit": "Log in",
+    "loading": "Logging in...",
+    "error": {
+      "invalidCredentials": "Invalid email or password"
+    }
+  },
+  "userManagement": {
+    "title": "User Management",
+    "table": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "roles": {
+      "superadmin": "Super Administrator",
+      "admin": "Administrator",
+      "user": "User"
+    },
+    "editUser": {
+      "title": "Edit User",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phoneNumber": "Phone Number",
+      "password": "Password",
+      "passwordHelp": "Leave empty to keep current password",
+      "role": "Role",
+      "isActive": "Active user",
+      "save": "Save changes",
+      "cancel": "Cancel"
+    }
   }
 } 

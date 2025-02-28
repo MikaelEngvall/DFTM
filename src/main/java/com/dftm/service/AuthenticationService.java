@@ -43,38 +43,51 @@ public class AuthenticationService {
         var hashedPassword = passwordEncoder.encode(request.getPassword());
         
         var user = User.builder()
-                .name(request.getName())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
                 .email(request.getEmail())
                 .password(hashedPassword)
                 .role(request.getRole() != null ? request.getRole() : Role.ROLE_USER)
                 .preferredLanguage(request.getPreferredLanguage())
                 .active(true)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now().toString())
+                .updatedAt(LocalDateTime.now().toString())
                 .build();
         
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
         log.debug("User saved to database");
         
-        var jwtToken = jwtService.generateToken(user);
+        var jwtToken = jwtService.generateToken(savedUser);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                request.getEmail(),
-                request.getPassword()
-            )
-        );
-        var user = userRepository.findByEmail(request.getEmail())
-            .orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        log.info("User attempting authentication. Email: {}, Role: {}", user.getEmail(), user.getRole());
-        return AuthenticationResponse.builder()
-            .token(jwtToken)
-            .build();
+        log.info("Attempting to authenticate user: {}", request.getEmail());
+        try {
+            authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    request.getEmail(),
+                    request.getPassword()
+                )
+            );
+            log.info("Authentication successful for user: {}", request.getEmail());
+            
+            var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            
+            log.info("User found: {}, Role: {}, Active: {}", user.getEmail(), user.getRole(), user.isActive());
+            
+            var jwtToken = jwtService.generateToken(user);
+            log.info("JWT token generated successfully");
+            
+            return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
+        } catch (Exception e) {
+            log.error("Authentication failed for user: {}, Error: {}", request.getEmail(), e.getMessage(), e);
+            throw e;
+        }
     }
 } 

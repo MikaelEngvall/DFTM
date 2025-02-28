@@ -82,9 +82,9 @@ public class UserController {
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
-    public ResponseEntity<List<User>> getUsersByName(@RequestParam String name) {
-        log.debug("GET request to fetch users with name containing: {}", name);
-        List<User> users = userService.getUsersByName(name).stream()
+    public ResponseEntity<List<User>> searchUsers(@RequestParam String query) {
+        log.debug("GET request to search users with query: {}", query);
+        List<User> users = userService.searchUsersByName(query).stream()
             .map(this::translateUser)
             .collect(Collectors.toList());
         return ResponseEntity.ok(users);

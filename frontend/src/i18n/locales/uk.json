@@ -7,7 +7,8 @@
     "auth": {
       "login": "Увійти",
       "logout": "Вийти",
-      "userTooltip": "Ваш профіль"
+      "userTooltip": "Ваш профіль",
+      "manageUsers": "Керування користувачами"
     }
   },
   "loginModal": {
@@ -22,6 +23,43 @@
     },
     "rememberMe": "Запам'ятати мене",
     "forgotPassword": "Забули пароль?",
-    "submit": "Увійти"
+    "submit": "Увійти",
+    "loading": "Вхід...",
+    "error": {
+      "invalidCredentials": "Невірна електронна пошта або пароль"
+    }
+  },
+  "userManagement": {
+    "title": "Керування користувачами",
+    "table": {
+      "firstName": "Ім'я",
+      "lastName": "Прізвище",
+      "email": "Електронна пошта",
+      "role": "Роль",
+      "status": "Статус",
+      "actions": "Дії"
+    },
+    "status": {
+      "active": "Активний",
+      "inactive": "Неактивний"
+    },
+    "roles": {
+      "superadmin": "Суперадміністратор",
+      "admin": "Адміністратор",
+      "user": "Користувач"
+    },
+    "editUser": {
+      "title": "Редагувати користувача",
+      "firstName": "Ім'я",
+      "lastName": "Прізвище",
+      "email": "Електронна пошта",
+      "phoneNumber": "Номер телефону",
+      "password": "Пароль",
+      "passwordHelp": "Залиште порожнім, щоб зберегти поточний пароль",
+      "role": "Роль",
+      "isActive": "Активний користувач",
+      "save": "Зберегти зміни",
+      "cancel": "Скасувати"
+    }
   }
 } 
