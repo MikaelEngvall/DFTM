@@ -11,6 +11,7 @@ public class UpdateUserRequest {
     private String lastName;
     private String email;
     private String password;
+    private String phoneNumber;
     private Role role;
     private Language preferredLanguage;
     private Boolean active;

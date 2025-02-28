@@ -43,9 +43,11 @@ export const userApi = {
       // Mappa 'isActive' från frontend till 'active' i backend
       const backendUser = {
         ...user,
-        active: user.isActive
+        active: user.isActive,
+        // Se till att phoneNumber skickas korrekt
+        phoneNumber: user.phoneNumber || null
       };
-      const response = await axiosInstance.put(`/users/${user.id}`, backendUser);
+      const response = await axiosInstance.patch(`/users/${user.id}`, backendUser);
       // Mappa 'active' från backend till 'isActive' i frontend
       return {
         ...response.data,

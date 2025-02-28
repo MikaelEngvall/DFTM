@@ -94,6 +94,9 @@ public class UserService {
         if (request.getPassword() != null) {
             userToUpdate.setPassword(passwordEncoder.encode(request.getPassword()));
         }
+        if (request.getPhoneNumber() != null) {
+            userToUpdate.setPhoneNumber(request.getPhoneNumber());
+        }
         if (request.getRole() != null) {
             // Extra kontroll för rolluppdateringar
             if (canChangeRole(currentUser, userToUpdate, request.getRole())) {
