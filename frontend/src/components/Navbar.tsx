@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { FiSun, FiMoon, FiLogIn, FiLogOut, FiUser } from 'react-icons/fi';
+import { FiSun, FiMoon, FiLogIn, FiLogOut, FiUser, FiUsers } from 'react-icons/fi';
 import { GB, SE, PL, UA } from 'country-flag-icons/react/3x2';
 import { LoginModal } from './LoginModal';
+import { UserManagementTable } from './UserManagementTable';
 import { useTranslation } from 'react-i18next';
+import { User } from '../types/user';
 
 interface NavbarProps {
   isLoggedIn?: boolean;
@@ -10,11 +12,38 @@ interface NavbarProps {
   onLogout?: () => void;
 }
 
+// Temporär testdata för användare
+const mockUsers: User[] = [
+  {
+    id: '1',
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john@example.com',
+    role: 'admin',
+    isActive: true,
+    phoneNumber: '+46701234567',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    firstName: 'Jane',
+    lastName: 'Smith',
+    email: 'jane@example.com',
+    role: 'user',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
 export const Navbar = ({ onLogout }: NavbarProps) => {
   const { t, i18n } = useTranslation();
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [userFirstName, setUserFirstName] = useState<string>();
+  const [isUserManagementVisible, setIsUserManagementVisible] = useState(false);
+  const [users, setUsers] = useState<User[]>(mockUsers);
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
@@ -27,6 +56,12 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
     // Simulerar en lyckad inloggning
     setUserFirstName('John'); // Detta ska komma från API:et senare
     setIsLoginModalOpen(false);
+  };
+
+  const handleUserUpdate = (updatedUser: User) => {
+    setUsers(prevUsers =>
+      prevUsers.map(user => (user.id === updatedUser.id ? updatedUser : user))
+    );
   };
 
   const languages = [
@@ -89,6 +124,14 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
                           {userFirstName}
                         </div>
                       </div>
+                      {/* User Management Icon */}
+                      <button
+                        onClick={() => setIsUserManagementVisible(!isUserManagementVisible)}
+                        className="p-1.5 rounded-md text-white hover:bg-white/10"
+                        title={t('navbar.auth.manageUsers')}
+                      >
+                        <FiUsers className="w-5 h-5" />
+                      </button>
                       <button
                         onClick={() => {
                           setUserFirstName(undefined);
@@ -121,6 +164,12 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
         onClose={() => setIsLoginModalOpen(false)}
         onLogin={handleLogin}
       />
+
+      {isUserManagementVisible && (
+        <div className="container mx-auto px-4 py-8">
+          <UserManagementTable users={users} onUserUpdate={handleUserUpdate} />
+        </div>
+      )}
     </>
   );
 }; 

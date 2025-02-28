@@ -7,7 +7,8 @@
     "auth": {
       "login": "Logga in",
       "logout": "Logga ut",
-      "userTooltip": "Din profil"
+      "userTooltip": "Din profil",
+      "manageUsers": "Hantera användare"
     }
   },
   "loginModal": {
@@ -23,5 +24,38 @@
     "rememberMe": "Kom ihåg mig",
     "forgotPassword": "Glömt lösenord?",
     "submit": "Logga in"
+  },
+  "userManagement": {
+    "title": "Användarhantering",
+    "table": {
+      "firstName": "Förnamn",
+      "lastName": "Efternamn",
+      "email": "E-post",
+      "role": "Roll",
+      "status": "Status",
+      "actions": "Åtgärder"
+    },
+    "status": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "roles": {
+      "superadmin": "Superadministratör",
+      "admin": "Administratör",
+      "user": "Användare"
+    },
+    "editUser": {
+      "title": "Redigera användare",
+      "firstName": "Förnamn",
+      "lastName": "Efternamn",
+      "email": "E-post",
+      "phoneNumber": "Telefonnummer",
+      "password": "Lösenord",
+      "passwordHelp": "Lämna tomt för att behålla nuvarande lösenord",
+      "role": "Roll",
+      "isActive": "Aktiv användare",
+      "save": "Spara ändringar",
+      "cancel": "Avbryt"
+    }
   }
 } 
