@@ -1,0 +1,27 @@
+{
+  "navbar": {
+    "theme": {
+      "light": "Przełącz na tryb jasny",
+      "dark": "Przełącz na tryb ciemny"
+    },
+    "auth": {
+      "login": "Zaloguj się",
+      "logout": "Wyloguj się",
+      "userTooltip": "Twój profil"
+    }
+  },
+  "loginModal": {
+    "title": "Zaloguj się",
+    "email": {
+      "label": "Email",
+      "placeholder": "twoj@email.com"
+    },
+    "password": {
+      "label": "Hasło",
+      "placeholder": "••••••••"
+    },
+    "rememberMe": "Zapamiętaj mnie",
+    "forgotPassword": "Zapomniałeś hasła?",
+    "submit": "Zaloguj się"
+  }
+} 

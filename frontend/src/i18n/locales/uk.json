@@ -1,0 +1,27 @@
+{
+  "navbar": {
+    "theme": {
+      "light": "Перемкнути на світлий режим",
+      "dark": "Перемкнути на темний режим"
+    },
+    "auth": {
+      "login": "Увійти",
+      "logout": "Вийти",
+      "userTooltip": "Ваш профіль"
+    }
+  },
+  "loginModal": {
+    "title": "Увійти",
+    "email": {
+      "label": "Електронна пошта",
+      "placeholder": "ваша@пошта.com"
+    },
+    "password": {
+      "label": "Пароль",
+      "placeholder": "••••••••"
+    },
+    "rememberMe": "Запам'ятати мене",
+    "forgotPassword": "Забули пароль?",
+    "submit": "Увійти"
+  }
+} 

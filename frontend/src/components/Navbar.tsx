@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FiSun, FiMoon, FiLogIn, FiLogOut, FiUser } from 'react-icons/fi';
 import { GB, SE, PL, UA } from 'country-flag-icons/react/3x2';
 import { LoginModal } from './LoginModal';
+import { useTranslation } from 'react-i18next';
 
 interface NavbarProps {
   isLoggedIn?: boolean;
@@ -9,9 +10,9 @@ interface NavbarProps {
   onLogout?: () => void;
 }
 
-export const Navbar = ({ isLoggedIn, userName, onLogout }: NavbarProps) => {
+export const Navbar = ({ onLogout }: NavbarProps) => {
+  const { t, i18n } = useTranslation();
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [currentLanguage, setCurrentLanguage] = useState('en');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [userFirstName, setUserFirstName] = useState<string>();
 
@@ -52,9 +53,9 @@ export const Navbar = ({ isLoggedIn, userName, onLogout }: NavbarProps) => {
                 {languages.map(({ code, flag: Flag, label }) => (
                   <button
                     key={code}
-                    onClick={() => setCurrentLanguage(code)}
+                    onClick={() => i18n.changeLanguage(code)}
                     className={`w-6 h-4 rounded-sm overflow-hidden transition-opacity ${
-                      currentLanguage === code ? 'opacity-100' : 'opacity-50 hover:opacity-75'
+                      i18n.language === code ? 'opacity-100' : 'opacity-50 hover:opacity-75'
                     }`}
                     title={label}
                   >
@@ -67,7 +68,7 @@ export const Navbar = ({ isLoggedIn, userName, onLogout }: NavbarProps) => {
               <button
                 onClick={toggleTheme}
                 className="p-1.5 rounded-md text-white hover:bg-white/10"
-                title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                title={t(isDarkMode ? 'navbar.theme.light' : 'navbar.theme.dark')}
               >
                 {isDarkMode ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
               </button>
@@ -80,7 +81,7 @@ export const Navbar = ({ isLoggedIn, userName, onLogout }: NavbarProps) => {
                       <div className="relative group">
                         <button
                           className="p-1.5 rounded-md text-white hover:bg-white/10"
-                          title={userFirstName}
+                          title={t('navbar.auth.userTooltip')}
                         >
                           <FiUser className="w-5 h-5" />
                         </button>
@@ -94,7 +95,7 @@ export const Navbar = ({ isLoggedIn, userName, onLogout }: NavbarProps) => {
                           onLogout?.();
                         }}
                         className="p-1.5 rounded-md text-white hover:bg-white/10"
-                        title="Logga ut"
+                        title={t('navbar.auth.logout')}
                       >
                         <FiLogOut className="w-5 h-5" />
                       </button>
@@ -104,7 +105,7 @@ export const Navbar = ({ isLoggedIn, userName, onLogout }: NavbarProps) => {
                   <button
                     onClick={() => setIsLoginModalOpen(true)}
                     className="p-1.5 rounded-md text-white hover:bg-white/10"
-                    title="Logga in"
+                    title={t('navbar.auth.login')}
                   >
                     <FiLogIn className="w-5 h-5" />
                   </button>

@@ -1,0 +1,27 @@
+{
+  "navbar": {
+    "theme": {
+      "light": "Switch to light mode",
+      "dark": "Switch to dark mode"
+    },
+    "auth": {
+      "login": "Log in",
+      "logout": "Log out",
+      "userTooltip": "Your profile"
+    }
+  },
+  "loginModal": {
+    "title": "Log in",
+    "email": {
+      "label": "Email",
+      "placeholder": "your@email.com"
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "••••••••"
+    },
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "submit": "Log in"
+  }
+} 

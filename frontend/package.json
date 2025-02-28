@@ -13,6 +13,7 @@
     "@headlessui/react": "^2.2.0",
     "axios": "^1.8.1",
     "country-flag-icons": "^1.5.18",
+    "i18n": "^0.15.1",
     "i18next": "^24.2.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
