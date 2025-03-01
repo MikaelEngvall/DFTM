@@ -28,7 +28,15 @@ export const userApi = {
   getCurrentUser: async (): Promise<User> => {
     try {
       const response = await axiosInstance.get('/auth/me');
-      return response.data;
+      const userData = response.data;
+      
+      // Konvertera från 'ROLE_ADMIN' till 'admin' om nödvändigt
+      if (userData.role && userData.role.startsWith('ROLE_')) {
+        const roleParts = userData.role.split('_');
+        userData.role = roleParts.length > 1 ? roleParts[1].toLowerCase() : userData.role.toLowerCase();
+      }
+      
+      return userData;
     } catch (error) {
       console.error('Error fetching current user:', error);
       throw error;

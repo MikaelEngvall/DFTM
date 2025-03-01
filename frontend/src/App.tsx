@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react'
 import { Navbar } from './components/Navbar'
 import { LandingPage } from './components/LandingPage'
 import { ProfilePage } from './components/ProfilePage'
+import { Calendar } from './components/Calendar'
+import { userApi } from './services/api/userApi'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState<string>('');
   const [userName, setUserName] = useState<string>();
   const [currentView, setCurrentView] = useState<string>('landing');
 
@@ -14,6 +17,7 @@ function App() {
     const token = localStorage.getItem('token');
     if (token) {
       setIsLoggedIn(true);
+      fetchUserData();
     }
 
     // Återställ vyn från local storage om den finns
@@ -23,6 +27,24 @@ function App() {
     }
   }, []);
 
+  // Hämta användarinformation
+  const fetchUserData = async () => {
+    try {
+      const user = await userApi.getCurrentUser();
+      if (user) {
+        setUserId(user.id);
+        setUserName(user.firstName);
+        
+        // Om användaren loggar in, visa kalender för vanliga användare
+        if (user.role === 'user' && currentView === 'landing') {
+          setCurrentView('calendar');
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching user data:', err);
+    }
+  };
+
   // Spara aktuell vy när den ändras
   useEffect(() => {
     localStorage.setItem('currentView', currentView);
@@ -31,6 +53,7 @@ function App() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUserName(undefined);
+    setUserId('');
     localStorage.removeItem('token');
     setCurrentView('landing');
   };
@@ -47,6 +70,8 @@ function App() {
         return <LandingPage />;
       case 'profile':
         return <ProfilePage />;
+      case 'calendar':
+        return userId ? <Calendar userId={userId} /> : <div>Laddar...</div>;
       default:
         return (
           <div className="container mx-auto px-4 py-8">

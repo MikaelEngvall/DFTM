@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiSun, FiMoon, FiLogIn, FiLogOut, FiUser, FiUsers } from 'react-icons/fi';
+import { FiSun, FiMoon, FiLogIn, FiLogOut, FiUser, FiUsers, FiCalendar } from 'react-icons/fi';
 import { GB, SE, PL, UA } from 'country-flag-icons/react/3x2';
 import { LoginModal } from './LoginModal';
 import { UserManagementTable } from './UserManagementTable';
@@ -23,6 +23,7 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>('');
 
   // Kontrollera tema vid start
   useEffect(() => {
@@ -47,6 +48,7 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
       const user = await userApi.getCurrentUser();
       if (user) {
         setUserFirstName(user.firstName);
+        setUserRole(user.role);
       }
     };
     
@@ -93,6 +95,7 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
       const user = await userApi.getCurrentUser();
       if (user) {
         setUserFirstName(user.firstName);
+        setUserRole(user.role);
       }
       setIsLoginModalOpen(false);
     } catch (err) {
@@ -126,6 +129,7 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
   const handleLogout = () => {
     userApi.logout();
     setUserFirstName(undefined);
+    setUserRole('');
     onLogout?.();
   };
 
@@ -141,6 +145,10 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
 
   const navigateToProfile = () => {
     handleNavigate('profile');
+  };
+
+  const navigateToCalendar = () => {
+    handleNavigate('calendar');
   };
 
   const languages = [
@@ -167,6 +175,18 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
 
             {/* Navigation Items */}
             <div className="flex items-center space-x-6">
+              {/* Calendar Link for Logged-in Users */}
+              {userFirstName && (
+                <button
+                  onClick={navigateToCalendar}
+                  className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10 flex items-center"
+                  title={t('navbar.calendar')}
+                >
+                  <FiCalendar className="w-5 h-5 mr-1" />
+                  <span className="text-sm font-medium">Kalender</span>
+                </button>
+              )}
+
               {/* Language Selector */}
               <div className="flex space-x-1">
                 {languages.map(({ code, flag: Flag, label }) => (
@@ -205,17 +225,20 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
                         <FiUser className="w-5 h-5 mr-1" />
                         <span className="text-sm font-medium">{userFirstName}</span>
                       </button>
-                      {/* User Management Icon */}
-                      <button
-                        onClick={() => {
-                          setIsUserManagementVisible(!isUserManagementVisible);
-                          handleNavigate('users');
-                        }}
-                        className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10"
-                        title={t('navbar.auth.manageUsers')}
-                      >
-                        <FiUsers className="w-5 h-5" />
-                      </button>
+                      {/* User Management Icon - Only for admins/superadmins */}
+                      {(userRole === 'admin' || userRole === 'superadmin' || 
+                        userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN') && (
+                        <button
+                          onClick={() => {
+                            setIsUserManagementVisible(!isUserManagementVisible);
+                            handleNavigate('users');
+                          }}
+                          className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10"
+                          title={t('navbar.auth.manageUsers')}
+                        >
+                          <FiUsers className="w-5 h-5" />
+                        </button>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10"
@@ -248,14 +271,13 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
 
       {isUserManagementVisible && (
         <div className="container mx-auto px-4 py-8">
+          <h2 className="text-2xl font-bold mb-4">Användarhantering</h2>
           {isLoading ? (
-            <div className="flex justify-center items-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground dark:border-white"></div>
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             </div>
           ) : error ? (
-            <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded">
-              {error}
-            </div>
+            <div className="text-destructive">{error}</div>
           ) : (
             <UserManagementTable 
               users={users} 

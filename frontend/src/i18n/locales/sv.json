@@ -12,7 +12,8 @@
     },
     "navigation": {
       "home": "Hem"
-    }
+    },
+    "calendar": "Kalender"
   },
   "loginModal": {
     "title": "Logga in",
@@ -141,6 +142,63 @@
       "preferredLanguage": "Föredraget språk",
       "save": "Skapa",
       "cancel": "Avbryt"
+    }
+  },
+  "calendar": {
+    "title": "Kalender",
+    "previousMonth": "Föregående månad",
+    "nextMonth": "Nästa månad",
+    "today": "Idag",
+    "weekdays": {
+      "monday": "Måndag",
+      "tuesday": "Tisdag",
+      "wednesday": "Onsdag",
+      "thursday": "Torsdag",
+      "friday": "Fredag",
+      "saturday": "Lördag",
+      "sunday": "Söndag"
+    },
+    "months": {
+      "january": "Januari",
+      "february": "Februari",
+      "march": "Mars",
+      "april": "April",
+      "may": "Maj",
+      "june": "Juni",
+      "july": "Juli",
+      "august": "Augusti",
+      "september": "September",
+      "october": "Oktober",
+      "november": "November",
+      "december": "December"
+    }
+  },
+  "task": {
+    "status": {
+      "pending": "Väntande",
+      "inProgress": "Pågående",
+      "completed": "Slutförd",
+      "approved": "Godkänd",
+      "rejected": "Avvisad"
+    },
+    "priority": {
+      "low": "Låg",
+      "medium": "Medel",
+      "high": "Hög",
+      "urgent": "Brådskande"
+    },
+    "details": {
+      "title": "Uppgiftsdetaljer",
+      "description": "Beskrivning",
+      "dueDate": "Förfallodatum",
+      "completedDate": "Slutförd datum",
+      "created": "Skapad",
+      "updated": "Senast uppdaterad",
+      "updateStatus": "Uppdatera status",
+      "comments": "Kommentarer",
+      "noComments": "Inga kommentarer ännu",
+      "addComment": "Lägg till kommentar",
+      "commentPlaceholder": "Skriv en kommentar..."
     }
   }
 } 

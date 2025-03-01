@@ -12,7 +12,8 @@
     },
     "navigation": {
       "home": "Home"
-    }
+    },
+    "calendar": "Calendar"
   },
   "loginModal": {
     "title": "Log in",
@@ -141,6 +142,63 @@
       "preferredLanguage": "Preferred Language",
       "save": "Create",
       "cancel": "Cancel"
+    }
+  },
+  "calendar": {
+    "title": "Calendar",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "today": "Today",
+    "weekdays": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    }
+  },
+  "task": {
+    "status": {
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "details": {
+      "title": "Task Details",
+      "description": "Description",
+      "dueDate": "Due Date",
+      "completedDate": "Completed Date",
+      "created": "Created",
+      "updated": "Last Updated",
+      "updateStatus": "Update Status",
+      "comments": "Comments",
+      "noComments": "No comments yet",
+      "addComment": "Add Comment",
+      "commentPlaceholder": "Write a comment..."
     }
   }
 } 
