@@ -82,7 +82,7 @@ function App() {
       case 'profile':
         return <ProfilePage />;
       case 'calendar':
-        return userId ? <Calendar userId={userId} /> : <div>Laddar...</div>;
+        return userId ? <Calendar userId={userId} userRole={userRole} /> : <div>Laddar...</div>;
       case 'admin':
         return isAdmin ? <AdminPanel /> : <div>Åtkomst nekad</div>;
       default:

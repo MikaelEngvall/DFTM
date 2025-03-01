@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Task, TaskStatus, taskApi } from '../services/api/taskApi';
 import { TaskDetailModal } from './TaskDetailModal';
+import { CreateTaskModal } from './CreateTaskModal';
 import { useTranslation } from 'react-i18next';
 
 interface CalendarProps {
   userId: string;
+  userRole?: string;
 }
 
-export const Calendar = ({ userId }: CalendarProps) => {
+export const Calendar = ({ userId, userRole }: CalendarProps) => {
   const { t } = useTranslation();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -15,6 +17,12 @@ export const Calendar = ({ userId }: CalendarProps) => {
   const [error, setError] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
+
+  // Kontrollera om användaren är admin (ROLE_ADMIN eller ROLE_SUPERADMIN)
+  const isAdmin = userRole && (userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN' || 
+                               userRole === 'admin' || userRole === 'superadmin');
 
   // Hämta uppgifter för inloggad användare
   useEffect(() => {
@@ -57,6 +65,19 @@ export const Calendar = ({ userId }: CalendarProps) => {
   const openTaskDetails = (task: Task) => {
     setSelectedTask(task);
     setIsTaskModalOpen(true);
+  };
+
+  // Funktion för att öppna skapa uppgift modal
+  const openCreateTaskModal = (date: Date) => {
+    if (isAdmin) {
+      setSelectedDate(date);
+      setIsCreateTaskModalOpen(true);
+    }
+  };
+
+  // Funktion för att hantera när en ny uppgift skapats
+  const handleTaskCreated = (task: Task) => {
+    setTasks(prevTasks => [...prevTasks, task]);
   };
 
   // Funktion för att uppdatera uppgiftsstatus
@@ -249,7 +270,10 @@ export const Calendar = ({ userId }: CalendarProps) => {
               key={index}
               className={`min-h-[100px] p-2 border border-border rounded-md ${
                 day.isCurrentMonth ? 'bg-card' : 'bg-muted/30'
-              } ${isToday ? 'ring-2 ring-primary' : ''}`}
+              } ${isToday ? 'ring-2 ring-primary' : ''} ${
+                isAdmin && day.date ? 'cursor-pointer hover:ring-1 hover:ring-primary/50' : ''
+              }`}
+              onClick={() => day.date && isAdmin ? openCreateTaskModal(day.date) : undefined}
             >
               {day.date && (
                 <>
@@ -263,7 +287,10 @@ export const Calendar = ({ userId }: CalendarProps) => {
                     {dayTasks.map(task => (
                       <div 
                         key={task.id}
-                        onClick={() => openTaskDetails(task)}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Förhindra att kalendercellen aktiveras
+                          openTaskDetails(task);
+                        }}
                         className={`text-xs p-1 rounded cursor-pointer truncate ${
                           task.priority === 'URGENT' 
                             ? 'bg-destructive/60 text-destructive-foreground' 
@@ -293,6 +320,17 @@ export const Calendar = ({ userId }: CalendarProps) => {
           task={selectedTask}
           onStatusUpdate={handleStatusUpdate}
           onAddComment={handleAddComment}
+        />
+      )}
+
+      {/* Modal för att skapa uppgift */}
+      {selectedDate && (
+        <CreateTaskModal
+          isOpen={isCreateTaskModalOpen}
+          onClose={() => setIsCreateTaskModalOpen(false)}
+          selectedDate={selectedDate}
+          onTaskCreated={handleTaskCreated}
+          currentUserId={userId}
         />
       )}
     </div>

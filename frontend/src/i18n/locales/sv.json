@@ -87,7 +87,8 @@
   "common": {
     "save": "Spara",
     "cancel": "Avbryt",
-    "loading": "Laddar..."
+    "loading": "Laddar...",
+    "saving": "Sparar..."
   },
   "userManagement": {
     "title": "Användarhantering",
@@ -199,6 +200,17 @@
       "noComments": "Inga kommentarer ännu",
       "addComment": "Lägg till kommentar",
       "commentPlaceholder": "Skriv en kommentar..."
+    },
+    "create": {
+      "title": "Skapa ny uppgift",
+      "titleLabel": "Titel",
+      "titlePlaceholder": "Ange en titel för uppgiften",
+      "descriptionLabel": "Beskrivning",
+      "descriptionPlaceholder": "Beskriv uppgiften i detalj",
+      "priorityLabel": "Prioritet",
+      "dueDateLabel": "Förfallodatum",
+      "assignedToLabel": "Tilldela till",
+      "assignToPlaceholder": "Välj användare"
     }
   }
 } 
