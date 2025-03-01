@@ -34,6 +34,33 @@ axiosInstance.interceptors.request.use((config) => {
 });
 
 export const userApi = {
+  // Hämta inloggad användare
+  getCurrentUser: async (): Promise<User | null> => {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    
+    try {
+      console.log('Fetching current user info');
+      // Använd /auth/me istället för att försöka hämta användaren baserat på JWT sub
+      const response = await axiosInstance.get('/auth/me');
+      console.log('Current user response:', response);
+      
+      // Konvertera från 'ROLE_ADMIN' till 'admin'
+      const user = response.data;
+      const roleParts = user.role.split('_');
+      const frontendRole = roleParts.length > 1 ? roleParts[1].toLowerCase() : user.role.toLowerCase();
+      
+      return {
+        ...user,
+        role: frontendRole as UserRole,
+        isActive: user.active
+      };
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+      return null;
+    }
+  },
+
   // Hämta alla användare
   getUsers: async (): Promise<User[]> => {
     try {

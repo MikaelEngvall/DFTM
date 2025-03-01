@@ -23,6 +23,18 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Hämta användarinformation från JWT vid start
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const user = await userApi.getCurrentUser();
+      if (user) {
+        setUserFirstName(user.firstName);
+      }
+    };
+    
+    fetchCurrentUser();
+  }, []);
+
   useEffect(() => {
     const fetchUsers = async () => {
       if (isUserManagementVisible) {
@@ -51,8 +63,11 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
   const handleLogin = async (email: string, password: string) => {
     try {
       await userApi.login(email, password);
-      // Här kan vi lägga till logik för att hämta användarinfo efter inloggning
-      setUserFirstName('John'); // Detta bör komma från API:et senare
+      // Hämta användarinfo efter inloggning
+      const user = await userApi.getCurrentUser();
+      if (user) {
+        setUserFirstName(user.firstName);
+      }
       setIsLoginModalOpen(false);
     } catch (err) {
       console.error('Login error:', err);

@@ -37,7 +37,8 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> {
-                auth.requestMatchers("/api/v1/auth/**").permitAll();
+                auth.requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register").permitAll();
+                auth.requestMatchers("/api/v1/auth/me").authenticated();
                 auth.requestMatchers("/api/v1/users").hasAnyRole("ADMIN", "SUPERADMIN", "USER");
                 auth.requestMatchers("/api/v1/users/**").hasAnyRole("ADMIN", "SUPERADMIN", "USER");
                 auth.requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("SUPERADMIN");

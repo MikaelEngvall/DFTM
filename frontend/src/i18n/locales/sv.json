@@ -30,10 +30,12 @@
       "firstName": "Förnamn",
       "lastName": "Efternamn",
       "email": "E-post",
+      "phoneNumber": "Telefonnummer",
       "role": "Roll",
       "status": "Status",
       "actions": "Åtgärder"
     },
+    "showInactive": "Visa inaktiva användare",
     "status": {
       "active": "Aktiv",
       "inactive": "Inaktiv"

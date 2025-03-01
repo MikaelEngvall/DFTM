@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiEdit2, FiUserPlus } from 'react-icons/fi';
+import { FiUserPlus } from 'react-icons/fi';
 import { User } from '../types/user';
 import { EditUserModal } from './EditUserModal';
 import { CreateUserModal } from './CreateUserModal';
@@ -16,6 +16,7 @@ export const UserManagementTable = ({ users, onUserUpdate, onUserCreate }: UserM
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [showInactive, setShowInactive] = useState(false);
 
   const handleEditUser = (user: User) => {
     setSelectedUser(user);
@@ -33,10 +34,29 @@ export const UserManagementTable = ({ users, onUserUpdate, onUserCreate }: UserM
     setIsCreateModalOpen(false);
   };
 
+  // Filtrera användare baserat på aktiv status
+  const filteredUsers = showInactive 
+    ? users 
+    : users.filter(user => user.isActive);
+
   return (
     <div className="bg-[#1c2533] rounded-lg shadow-xl overflow-hidden">
       <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-        <h3 className="text-lg font-medium leading-6 text-white">{t('userManagement.title')}</h3>
+        <div className="flex items-center space-x-4">
+          <h3 className="text-lg font-medium leading-6 text-white">{t('userManagement.title')}</h3>
+          <div className="flex items-center">
+            <input
+              id="showInactive"
+              type="checkbox"
+              checked={showInactive}
+              onChange={(e) => setShowInactive(e.target.checked)}
+              className="mr-2 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label htmlFor="showInactive" className="text-sm text-gray-300">
+              {t('userManagement.showInactive')}
+            </label>
+          </div>
+        </div>
         <button
           onClick={() => setIsCreateModalOpen(true)}
           className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md flex items-center gap-2"
@@ -56,51 +76,25 @@ export const UserManagementTable = ({ users, onUserUpdate, onUserCreate }: UserM
                 {t('userManagement.table.lastName')}
               </th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                {t('userManagement.table.email')}
+                {t('userManagement.table.phoneNumber')}
               </th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 {t('userManagement.table.role')}
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                {t('userManagement.table.status')}
-              </th>
-              <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
-                {t('userManagement.table.actions')}
-              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-700">
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <tr
                 key={user.id}
-                className="hover:bg-gray-700/50 cursor-pointer"
+                className={`hover:bg-gray-700/50 cursor-pointer ${!user.isActive ? 'opacity-50' : ''}`}
                 onClick={() => handleEditUser(user)}
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{user.firstName}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{user.lastName}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{user.email}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{user.phoneNumber || '-'}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                   {t(`userManagement.roles.${user.role}`)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    user.isActive
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {t(user.isActive ? 'userManagement.status.active' : 'userManagement.status.inactive')}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditUser(user);
-                    }}
-                    className="text-blue-400 hover:text-blue-300"
-                  >
-                    <FiEdit2 className="h-5 w-5" />
-                  </button>
                 </td>
               </tr>
             ))}

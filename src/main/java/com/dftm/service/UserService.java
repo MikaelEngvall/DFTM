@@ -2,6 +2,7 @@ package com.dftm.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -173,5 +174,10 @@ public class UserService {
         
         // USER kan inte ändra roller
         return false;
+    }
+
+    public Optional<User> findByEmail(String email) {
+        log.debug("Fetching user with email: {}", email);
+        return userRepository.findByEmail(email);
     }
 } 
