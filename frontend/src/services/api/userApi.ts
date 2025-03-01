@@ -18,20 +18,22 @@ interface BackendUser {
 // Konvertera backend-roll till frontend-roll
 const convertBackendRole = (role: string | null): UserRole => {
   if (!role) {
-    return 'user' as UserRole; // Default till user om role är null eller tom
+    return 'ROLE_USER' as UserRole; // Default till ROLE_USER om role är null eller tom
   }
 
   // Logga rollen för debugging
   console.log("Converting backend role:", role);
 
+  // Säkerställ att rollen har ROLE_-prefix
   if (role.startsWith('ROLE_')) {
-    const roleName = role.substring(5).toLowerCase();
-    console.log("Converted role (with prefix):", roleName);
-    return roleName as UserRole;
+    console.log("Role already has prefix:", role);
+    return role as UserRole;
   }
   
-  console.log("Using role as-is:", role);
-  return role as UserRole;
+  // Om rollen inte har ROLE_-prefix, lägg till det
+  const roleWithPrefix = `ROLE_${role.toUpperCase()}`;
+  console.log("Added prefix to role:", roleWithPrefix);
+  return roleWithPrefix as UserRole;
 };
 
 // Konvertera frontend-roll till backend-roll

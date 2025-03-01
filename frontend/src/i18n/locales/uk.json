@@ -12,7 +12,8 @@
     },
     "navigation": {
       "home": "Головна"
-    }
+    },
+    "calendar": "Календар"
   },
   "loginModal": {
     "title": "Увійти",
@@ -86,7 +87,8 @@
   "common": {
     "save": "Зберегти",
     "cancel": "Скасувати",
-    "loading": "Завантаження..."
+    "loading": "Завантаження...",
+    "saving": "Збереження..."
   },
   "userManagement": {
     "title": "Керування користувачами",
@@ -141,6 +143,74 @@
       "preferredLanguage": "Бажана мова",
       "save": "Створити",
       "cancel": "Скасувати"
+    }
+  },
+  "calendar": {
+    "title": "Календар",
+    "previousMonth": "Попередній місяць",
+    "nextMonth": "Наступний місяць",
+    "today": "Сьогодні",
+    "weekdays": {
+      "monday": "Понеділок",
+      "tuesday": "Вівторок",
+      "wednesday": "Середа",
+      "thursday": "Четвер",
+      "friday": "П'ятниця",
+      "saturday": "Субота",
+      "sunday": "Неділя"
+    },
+    "months": {
+      "january": "Січень",
+      "february": "Лютий",
+      "march": "Березень",
+      "april": "Квітень",
+      "may": "Травень",
+      "june": "Червень",
+      "july": "Липень",
+      "august": "Серпень",
+      "september": "Вересень",
+      "october": "Жовтень",
+      "november": "Листопад",
+      "december": "Грудень"
+    }
+  },
+  "task": {
+    "status": {
+      "pending": "Очікує",
+      "inProgress": "В процесі",
+      "completed": "Завершено",
+      "approved": "Схвалено",
+      "rejected": "Відхилено"
+    },
+    "priority": {
+      "low": "Низький",
+      "medium": "Середній",
+      "high": "Високий",
+      "urgent": "Терміновий"
+    },
+    "details": {
+      "title": "Деталі завдання",
+      "description": "Опис",
+      "dueDate": "Термін виконання",
+      "completedDate": "Дата завершення",
+      "created": "Створено",
+      "updated": "Останнє оновлення",
+      "updateStatus": "Оновити статус",
+      "comments": "Коментарі",
+      "noComments": "Ще немає коментарів",
+      "addComment": "Додати коментар",
+      "commentPlaceholder": "Напишіть коментар..."
+    },
+    "create": {
+      "title": "Створити нове завдання",
+      "titleLabel": "Назва",
+      "titlePlaceholder": "Введіть назву завдання",
+      "descriptionLabel": "Опис",
+      "descriptionPlaceholder": "Детально опишіть завдання",
+      "priorityLabel": "Пріоритет",
+      "dueDateLabel": "Термін виконання",
+      "assignedToLabel": "Призначити",
+      "assignToPlaceholder": "Виберіть користувача"
     }
   }
 } 

@@ -87,7 +87,8 @@
   "common": {
     "save": "Save",
     "cancel": "Cancel",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "saving": "Saving..."
   },
   "userManagement": {
     "title": "User Management",
@@ -199,6 +200,17 @@
       "noComments": "No comments yet",
       "addComment": "Add Comment",
       "commentPlaceholder": "Write a comment..."
+    },
+    "create": {
+      "title": "Create New Task",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Enter a title for the task",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe the task in detail",
+      "priorityLabel": "Priority",
+      "dueDateLabel": "Due Date",
+      "assignedToLabel": "Assign to",
+      "assignToPlaceholder": "Select user"
     }
   }
 } 

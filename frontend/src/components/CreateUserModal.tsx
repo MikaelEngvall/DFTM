@@ -18,7 +18,7 @@ export const CreateUserModal = ({ isOpen, onClose, onSave }: CreateUserModalProp
     phoneNumber: '',
     password: '',
     preferredLanguage: 'SV', // Default till svenska
-    role: 'user',
+    role: 'ROLE_USER',
     isActive: true
   });
 
@@ -152,9 +152,9 @@ export const CreateUserModal = ({ isOpen, onClose, onSave }: CreateUserModalProp
                       onChange={handleChange}
                       className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     >
-                      <option value="user">{t('userManagement.roles.user')}</option>
-                      <option value="admin">{t('userManagement.roles.admin')}</option>
-                      <option value="superadmin">{t('userManagement.roles.superadmin')}</option>
+                      <option value="ROLE_USER">{t('userManagement.roles.user')}</option>
+                      <option value="ROLE_ADMIN">{t('userManagement.roles.admin')}</option>
+                      <option value="ROLE_SUPERADMIN">{t('userManagement.roles.superadmin')}</option>
                     </select>
                   </div>
 

@@ -12,7 +12,8 @@
     },
     "navigation": {
       "home": "Strona główna"
-    }
+    },
+    "calendar": "Kalendarz"
   },
   "loginModal": {
     "title": "Zaloguj się",
@@ -83,7 +84,8 @@
   "common": {
     "save": "Zapisz",
     "cancel": "Anuluj",
-    "loading": "Ładowanie..."
+    "loading": "Ładowanie...",
+    "saving": "Zapisywanie..."
   },
   "userManagement": {
     "title": "Zarządzanie użytkownikami",
@@ -138,6 +140,74 @@
       "preferredLanguage": "Preferowany język",
       "save": "Utwórz",
       "cancel": "Anuluj"
+    }
+  },
+  "calendar": {
+    "title": "Kalendarz",
+    "previousMonth": "Poprzedni miesiąc",
+    "nextMonth": "Następny miesiąc",
+    "today": "Dzisiaj",
+    "weekdays": {
+      "monday": "Poniedziałek",
+      "tuesday": "Wtorek",
+      "wednesday": "Środa",
+      "thursday": "Czwartek",
+      "friday": "Piątek",
+      "saturday": "Sobota",
+      "sunday": "Niedziela"
+    },
+    "months": {
+      "january": "Styczeń",
+      "february": "Luty",
+      "march": "Marzec",
+      "april": "Kwiecień",
+      "may": "Maj",
+      "june": "Czerwiec",
+      "july": "Lipiec",
+      "august": "Sierpień",
+      "september": "Wrzesień",
+      "october": "Październik",
+      "november": "Listopad",
+      "december": "Grudzień"
+    }
+  },
+  "task": {
+    "status": {
+      "pending": "Oczekujące",
+      "inProgress": "W trakcie",
+      "completed": "Ukończone",
+      "approved": "Zatwierdzone",
+      "rejected": "Odrzucone"
+    },
+    "priority": {
+      "low": "Niski",
+      "medium": "Średni",
+      "high": "Wysoki",
+      "urgent": "Pilny"
+    },
+    "details": {
+      "title": "Szczegóły zadania",
+      "description": "Opis",
+      "dueDate": "Termin",
+      "completedDate": "Data ukończenia",
+      "created": "Utworzono",
+      "updated": "Ostatnia aktualizacja",
+      "updateStatus": "Aktualizuj status",
+      "comments": "Komentarze",
+      "noComments": "Brak komentarzy",
+      "addComment": "Dodaj komentarz",
+      "commentPlaceholder": "Napisz komentarz..."
+    },
+    "create": {
+      "title": "Utwórz nowe zadanie",
+      "titleLabel": "Tytuł",
+      "titlePlaceholder": "Wprowadź tytuł zadania",
+      "descriptionLabel": "Opis",
+      "descriptionPlaceholder": "Opisz zadanie szczegółowo",
+      "priorityLabel": "Priorytet",
+      "dueDateLabel": "Termin",
+      "assignedToLabel": "Przydziel do",
+      "assignToPlaceholder": "Wybierz użytkownika"
     }
   }
 } 

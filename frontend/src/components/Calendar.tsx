@@ -21,8 +21,7 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
 
   // Kontrollera om användaren är admin (ROLE_ADMIN eller ROLE_SUPERADMIN)
-  const isAdmin = userRole && (userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN' || 
-                               userRole === 'admin' || userRole === 'superadmin');
+  const isAdmin = userRole && (userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN');
 
   // Hämta uppgifter för inloggad användare
   useEffect(() => {

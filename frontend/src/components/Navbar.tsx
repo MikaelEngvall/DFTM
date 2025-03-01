@@ -161,7 +161,7 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
 
   // Hjälpfunktion för att kontrollera admin
   const isAdmin = () => {
-    return userRole?.toLowerCase().includes('admin');
+    return userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN';
   };
 
   return (

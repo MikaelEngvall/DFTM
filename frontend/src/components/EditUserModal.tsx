@@ -154,9 +154,9 @@ export const EditUserModal = ({ isOpen, onClose, user, onSave }: EditUserModalPr
                       onChange={handleChange}
                       className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      {(['superadmin', 'admin', 'user'] as UserRole[]).map((role) => (
+                      {(['ROLE_SUPERADMIN', 'ROLE_ADMIN', 'ROLE_USER'] as UserRole[]).map((role) => (
                         <option key={role} value={role}>
-                          {t(`userManagement.roles.${role}`)}
+                          {t(`userManagement.roles.${role.substring(5).toLowerCase()}`)}
                         </option>
                       ))}
                     </select>

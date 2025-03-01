@@ -72,8 +72,8 @@ function App() {
   const renderContent = () => {
     // Logga rollen för att debugga för admin-åtkomst
     console.log("Current user role:", userRole);
-    // Förenkla och normalisera adminåtkomstkontroll
-    const isAdmin = userRole?.toLowerCase().includes('admin');
+    // Kontrollera specifikt för ROLE_ADMIN och ROLE_SUPERADMIN
+    const isAdmin = userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN';
     console.log("Is admin?", isAdmin);
     
     switch (currentView) {
