@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "create-example-tasks": "ts-node src/scripts/createExampleTasks.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
@@ -33,6 +34,7 @@
     "globals": "^15.15.0",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0"

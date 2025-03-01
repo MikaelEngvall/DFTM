@@ -1,69 +1,51 @@
-import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import blackLogo from '../assets/Transparent Logo Black Text.png';
-import whiteLogo from '../assets/Transparent Logo White Text.png';
 
 export const LandingPage = () => {
   const { t } = useTranslation();
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    // Kontrollera om dark mode är aktiverat
-    const checkDarkMode = () => {
-      const isDark = document.documentElement.classList.contains('dark');
-      setIsDarkMode(isDark);
-    };
-
-    // Kontrollera initialt tema
-    checkDarkMode();
-
-    // Skapa en MutationObserver för att lyssna på ändringar i dokumentets class-attribut
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (
-          mutation.type === 'attributes' &&
-          mutation.attributeName === 'class'
-        ) {
-          checkDarkMode();
-        }
-      });
-    });
-
-    // Starta observationen
-    observer.observe(document.documentElement, { attributes: true });
-
-    // Rensa upp observern när komponenten avmonteras
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
+  
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] p-4">
-      <div className="max-w-4xl w-full text-center">
-        <div className="mb-8 flex justify-center">
-          <img
-            src={isDarkMode ? whiteLogo : blackLogo}
-            alt="DFTASKS Logo"
-            className="max-w-xs md:max-w-sm lg:max-w-md h-auto"
-          />
-        </div>
-        
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+    <div className="container mx-auto px-4 py-12">
+      <div className="max-w-4xl mx-auto text-center">
+        <h1 className="text-4xl font-bold mb-6">
           {t('landingPage.title', 'Välkommen till DFTASKS')}
         </h1>
-        
-        <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-          {t('landingPage.description', 'En modern uppgiftshanterare för effektivt samarbete och projektledning.')}
+        <p className="text-xl mb-8">
+          {t('landingPage.subtitle', 'Det enkla sättet att hantera uppgifter och samarbeta med ditt team.')}
         </p>
         
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button className="px-6 py-3 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors">
-            {t('landingPage.buttons.getStarted', 'Kom igång')}
-          </button>
-          <button className="px-6 py-3 bg-secondary text-secondary-foreground rounded-md font-medium hover:bg-secondary/90 transition-colors">
-            {t('landingPage.buttons.learnMore', 'Läs mer')}
-          </button>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+          <div className="bg-card p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-3">
+              {t('landingPage.features.tasks.title', 'Uppgiftshantering')}
+            </h3>
+            <p>
+              {t('landingPage.features.tasks.description', 'Skapa, tilldela och spåra uppgifter enkelt och effektivt.')}
+            </p>
+          </div>
+          
+          <div className="bg-card p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-3">
+              {t('landingPage.features.calendar.title', 'Kalendervy')}
+            </h3>
+            <p>
+              {t('landingPage.features.calendar.description', 'Se alla dina uppgifter i en tydlig kalendervy för enkel planering.')}
+            </p>
+          </div>
+          
+          <div className="bg-card p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-3">
+              {t('landingPage.features.collaboration.title', 'Samarbete')}
+            </h3>
+            <p>
+              {t('landingPage.features.collaboration.description', 'Samarbeta smidigt med ditt team genom kommentarer och statusuppdateringar.')}
+            </p>
+          </div>
+        </div>
+        
+        <div className="mt-16">
+          <p className="text-muted-foreground">
+            {t('landingPage.loginPrompt', 'Logga in för att komma igång.')}
+          </p>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ The user's shell is C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe
 
 VERY IMPORTANT NEVER FORGET
 The user's frontend directory is /c%3A/Users/mikae/Code/DFTM/frontend
+Alla roller har ROLE_ prfix, dvs USER är ROLE_USER osv ...
 
 You are an expert in TypeScript, React (Next.js, React Native), and Node.js (Express, NestJS). Your goal is to provide concise, technically accurate, and best-practice-driven TypeScript solutions.
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiSun, FiMoon, FiLogIn, FiLogOut, FiUser, FiUsers, FiCalendar } from 'react-icons/fi';
+import { FiSun, FiMoon, FiLogIn, FiLogOut, FiUser, FiUsers, FiCalendar, FiSettings } from 'react-icons/fi';
 import { GB, SE, PL, UA } from 'country-flag-icons/react/3x2';
 import { LoginModal } from './LoginModal';
 import { UserManagementTable } from './UserManagementTable';
@@ -184,6 +184,19 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
                 >
                   <FiCalendar className="w-5 h-5 mr-1" />
                   <span className="text-sm font-medium">Kalender</span>
+                </button>
+              )}
+
+              {/* Admin Link - Only for admins/superadmins */}
+              {(userRole === 'admin' || userRole === 'superadmin' || 
+                userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN') && (
+                <button
+                  onClick={() => handleNavigate('admin')}
+                  className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10 flex items-center"
+                  title="Administratörspanel"
+                >
+                  <FiSettings className="w-5 h-5 mr-1" />
+                  <span className="text-sm font-medium">Admin</span>
                 </button>
               )}
 

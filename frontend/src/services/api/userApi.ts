@@ -1,17 +1,35 @@
 import { User, UserRole } from '../../types/user';
 import { axiosInstance } from './axiosConfig';
 
-// Typ för backend-användare
+// Backend User interface
 interface BackendUser {
+  id: string;
+  username: string;
   firstName: string;
   lastName: string;
   email: string;
+  phoneNumber: string;
   role: string;
   active: boolean;
-  phoneNumber: string | null;
-  preferredLanguage?: string;
-  password?: string;
+  preferredLanguage: string;
 }
+
+// Konvertera backend-roll till frontend-roll
+const convertBackendRole = (role: string): UserRole => {
+  if (role.startsWith('ROLE_')) {
+    const roleName = role.substring(5).toLowerCase();
+    return roleName as UserRole;
+  }
+  return role as UserRole;
+};
+
+// Konvertera frontend-roll till backend-roll
+const convertToBackendRole = (role: string): string => {
+  if (!role.startsWith('ROLE_')) {
+    return `ROLE_${role.toUpperCase()}`;
+  }
+  return role;
+};
 
 // Interceptor för att lägga till JWT token i headers
 axiosInstance.interceptors.request.use((config) => {
@@ -30,12 +48,8 @@ export const userApi = {
       const response = await axiosInstance.get('/auth/me');
       const userData = response.data;
       
-      // Konvertera från 'ROLE_ADMIN' till 'admin' om nödvändigt
-      if (userData.role && userData.role.startsWith('ROLE_')) {
-        const roleParts = userData.role.split('_');
-        userData.role = roleParts.length > 1 ? roleParts[1].toLowerCase() : userData.role.toLowerCase();
-      }
-      
+      // Behåll den ursprungliga rollen som kommer från backend
+      // Vi gör inte längre konvertering här, utan applikationen hanterar båda formaten
       return userData;
     } catch (error) {
       console.error('Error fetching current user:', error);
@@ -79,7 +93,7 @@ export const userApi = {
   // Ändra en användares lösenord
   changePassword: async (currentPassword: string, newPassword: string): Promise<void> => {
     try {
-      await axiosInstance.post('/api/v1/auth/change-password', {
+      await axiosInstance.post('/auth/change-password', {
         currentPassword,
         newPassword
       });
@@ -90,11 +104,10 @@ export const userApi = {
   },
 
   // Begär ändring av e-post
-  requestEmailChange: async (newEmail: string, password: string): Promise<void> => {
+  requestEmailChange: async (newEmail: string): Promise<void> => {
     try {
-      await axiosInstance.post('/api/v1/auth/request-email-change', {
-        newEmail,
-        password
+      await axiosInstance.post('/auth/request-email-change', {
+        newEmail
       });
     } catch (error) {
       console.error('Error requesting email change:', error);
@@ -106,19 +119,17 @@ export const userApi = {
   getUsers: async (): Promise<User[]> => {
     try {
       const response = await axiosInstance.get('/users');
-      
-      // Mappa data från backend till frontend-format
-      return response.data.map((user: { active: boolean, role: string } & Omit<User, 'isActive' | 'role'>) => {
-        // Konvertera från 'ROLE_ADMIN' till 'admin'
-        const roleParts = user.role.split('_');
-        const frontendRole = roleParts.length > 1 ? roleParts[1].toLowerCase() : user.role.toLowerCase();
-        
-        return {
-          ...user,
-          role: frontendRole as UserRole, // Konvertera rollen från 'ROLE_USER' till 'user'
-          isActive: user.active
-        };
-      });
+      return response.data.map((user: BackendUser) => ({
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        role: convertBackendRole(user.role),
+        isActive: user.active,
+        preferredLanguage: user.preferredLanguage
+      }));
     } catch (error) {
       console.error('Error fetching users:', error);
       throw error;

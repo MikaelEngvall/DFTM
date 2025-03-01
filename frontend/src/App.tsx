@@ -3,6 +3,7 @@ import { Navbar } from './components/Navbar'
 import { LandingPage } from './components/LandingPage'
 import { ProfilePage } from './components/ProfilePage'
 import { Calendar } from './components/Calendar'
+import { AdminPanel } from './components/AdminPanel'
 import { userApi } from './services/api/userApi'
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
   const [userId, setUserId] = useState<string>('');
   const [userName, setUserName] = useState<string>();
   const [currentView, setCurrentView] = useState<string>('landing');
+  const [userRole, setUserRole] = useState<string>('');
 
   // Återställ sidans tillstånd vid laddning
   useEffect(() => {
@@ -34,9 +36,10 @@ function App() {
       if (user) {
         setUserId(user.id);
         setUserName(user.firstName);
+        setUserRole(user.role);
         
         // Om användaren loggar in, visa kalender för vanliga användare
-        if (user.role === 'user' && currentView === 'landing') {
+        if ((user.role === 'user' || user.role === 'ROLE_USER') && currentView === 'landing') {
           setCurrentView('calendar');
         }
       }
@@ -54,6 +57,7 @@ function App() {
     setIsLoggedIn(false);
     setUserName(undefined);
     setUserId('');
+    setUserRole('');
     localStorage.removeItem('token');
     setCurrentView('landing');
   };
@@ -72,6 +76,11 @@ function App() {
         return <ProfilePage />;
       case 'calendar':
         return userId ? <Calendar userId={userId} /> : <div>Laddar...</div>;
+      case 'admin':
+        return (userRole === 'admin' || userRole === 'superadmin' || 
+                userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN') 
+                ? <AdminPanel /> 
+                : <div>Åtkomst nekad</div>;
       default:
         return (
           <div className="container mx-auto px-4 py-8">

@@ -17,7 +17,7 @@ export enum TaskStatus {
   REJECTED = 'REJECTED'
 }
 
-// Gränssnittstyp för uppgifter
+// Gränssnittstyp för uppgifter (frontend)
 export interface Task {
   id: string;
   title: string;
@@ -32,6 +32,21 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   comments?: string[];
+  archived: boolean;
+  approved: boolean;
+}
+
+// Gränssnittstyp för uppgifter (backend)
+interface BackendTask {
+  title: string;
+  description: string;
+  status: string;
+  priority: string;
+  assignedTo: string;
+  assigner?: string;
+  reporter?: string;
+  dueDate: string;
+  completedDate?: string;
   archived: boolean;
   approved: boolean;
 }
@@ -114,6 +129,97 @@ export const taskApi = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching comments for task ${taskId}:`, error);
+      throw error;
+    }
+  },
+
+  // Skapa en ny uppgift
+  createTask: async (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<Task> => {
+    try {
+      // Transformera uppgift till backend-format
+      const backendTask: BackendTask = {
+        title: task.title,
+        description: task.description,
+        status: String(task.status),
+        priority: String(task.priority),
+        assignedTo: task.assignedTo,
+        assigner: task.assigner,
+        reporter: task.reporter,
+        dueDate: task.dueDate,
+        completedDate: task.completedDate,
+        archived: task.archived,
+        approved: task.approved
+      };
+      
+      console.log('Sending task creation request:', backendTask);
+      const response = await axiosInstance.post('/tasks', backendTask);
+      console.log('Task creation response:', response);
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error creating task:', error);
+      throw error;
+    }
+  },
+
+  // Skapa exempeluppgifter där Mikael Engvall tilldelar uppgifter till en vanlig användare
+  createExampleTasks: async (assignerId: string, assignedToId: string): Promise<void> => {
+    try {
+      console.log('Skapar exempeluppgifter...');
+
+      // Uppgift med dagens datum
+      const today = new Date();
+      const formattedToday = today.toISOString().split('T')[0];
+
+      await taskApi.createTask({
+        title: 'Granska dokumentation',
+        description: 'Granska den tekniska dokumentationen för backend-systemet före publicering.',
+        status: TaskStatus.PENDING,
+        priority: TaskPriority.MEDIUM,
+        assignedTo: assignedToId,
+        assigner: assignerId,
+        dueDate: formattedToday,
+        archived: false,
+        approved: false
+      });
+
+      // Uppgift med datum nästa vecka
+      const nextWeek = new Date();
+      nextWeek.setDate(today.getDate() + 7);
+      const formattedNextWeek = nextWeek.toISOString().split('T')[0];
+
+      await taskApi.createTask({
+        title: 'Implementera JWT-autentisering',
+        description: 'Integrera JWT-autentisering i frontend-applikationen och testa mot backend-API:et.',
+        status: TaskStatus.PENDING,
+        priority: TaskPriority.HIGH,
+        assignedTo: assignedToId,
+        assigner: assignerId,
+        dueDate: formattedNextWeek,
+        archived: false,
+        approved: false
+      });
+
+      // Uppgift med datum förra veckan (försenad)
+      const lastWeek = new Date();
+      lastWeek.setDate(today.getDate() - 7);
+      const formattedLastWeek = lastWeek.toISOString().split('T')[0];
+
+      await taskApi.createTask({
+        title: 'Uppdatera användarhandboken',
+        description: 'Uppdatera användarhandboken med de senaste funktionerna som implementerats.',
+        status: TaskStatus.IN_PROGRESS,
+        priority: TaskPriority.URGENT,
+        assignedTo: assignedToId,
+        assigner: assignerId,
+        dueDate: formattedLastWeek,
+        archived: false,
+        approved: false
+      });
+
+      console.log('Alla exempeluppgifter har skapats framgångsrikt!');
+    } catch (error) {
+      console.error('Fel vid skapande av exempeluppgifter:', error);
       throw error;
     }
   }
