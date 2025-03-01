@@ -9,6 +9,9 @@
       "logout": "Logga ut",
       "userTooltip": "Din profil",
       "manageUsers": "Hantera användare"
+    },
+    "navigation": {
+      "home": "Hem"
     }
   },
   "loginModal": {
@@ -22,7 +25,24 @@
       "placeholder": "Ditt lösenord"
     },
     "button": "Logga in",
-    "error": "Fel e-post eller lösenord"
+    "submit": "Logga in",
+    "error": {
+      "invalidCredentials": "Fel e-post eller lösenord"
+    },
+    "rememberMe": "Kom ihåg mig",
+    "forgotPassword": "Glömt lösenord?",
+    "loading": "Laddar..."
+  },
+  "error": {
+    "invalidCredentials": "Fel e-post eller lösenord"
+  },
+  "landingPage": {
+    "title": "Välkommen till DFTASKS",
+    "description": "En modern uppgiftshanterare för effektivt samarbete och projektledning.",
+    "buttons": {
+      "getStarted": "Kom igång",
+      "learnMore": "Läs mer"
+    }
   },
   "userManagement": {
     "title": "Användarhantering",

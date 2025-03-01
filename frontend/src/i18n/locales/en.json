@@ -9,6 +9,9 @@
       "logout": "Log out",
       "userTooltip": "Your profile",
       "manageUsers": "Manage users"
+    },
+    "navigation": {
+      "home": "Home"
     }
   },
   "loginModal": {
@@ -22,7 +25,24 @@
       "placeholder": "Your password"
     },
     "button": "Log in",
-    "error": "Invalid email or password"
+    "submit": "Log in",
+    "error": {
+      "invalidCredentials": "Invalid email or password"
+    },
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "loading": "Loading..."
+  },
+  "error": {
+    "invalidCredentials": "Invalid email or password"
+  },
+  "landingPage": {
+    "title": "Welcome to DFTASKS",
+    "description": "A modern task manager for efficient collaboration and project management.",
+    "buttons": {
+      "getStarted": "Get Started",
+      "learnMore": "Learn More"
+    }
   },
   "userManagement": {
     "title": "User Management",
@@ -30,10 +50,12 @@
       "firstName": "First Name",
       "lastName": "Last Name",
       "email": "Email",
+      "phoneNumber": "Phone Number",
       "role": "Role",
       "status": "Status",
       "actions": "Actions"
     },
+    "showInactive": "Show inactive users",
     "status": {
       "active": "Active",
       "inactive": "Inactive"

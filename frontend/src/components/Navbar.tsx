@@ -11,17 +11,35 @@ interface NavbarProps {
   isLoggedIn?: boolean;
   userName?: string;
   onLogout?: () => void;
+  onNavigate?: (view: string) => void;
 }
 
-export const Navbar = ({ onLogout }: NavbarProps) => {
+export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
   const { t, i18n } = useTranslation();
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [userFirstName, setUserFirstName] = useState<string>();
   const [isUserManagementVisible, setIsUserManagementVisible] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Kontrollera tema vid start
+  useEffect(() => {
+    // Kontrollera om dark mode är aktiverat i systemet eller om användaren har valt det tidigare
+    const isDark = document.documentElement.classList.contains('dark') || 
+                  window.matchMedia('(prefers-color-scheme: dark)').matches ||
+                  localStorage.getItem('theme') === 'dark';
+    
+    setIsDarkMode(isDark);
+    
+    // Applicera tema
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
 
   // Hämta användarinformation från JWT vid start
   useEffect(() => {
@@ -56,8 +74,16 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
   }, [isUserManagementVisible]);
 
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
   };
 
   const handleLogin = async (email: string, password: string) => {
@@ -103,6 +129,20 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
     onLogout?.();
   };
 
+  const handleNavigate = (view: string) => {
+    // Dölj användarhantering om vi navigerar bort
+    if (view !== 'users') {
+      setIsUserManagementVisible(false);
+    }
+    
+    // Anropa navigeringsfunktionen från props
+    onNavigate?.(view);
+  };
+
+  const navigateToProfile = () => {
+    handleNavigate('profile');
+  };
+
   const languages = [
     { code: 'en', flag: GB, label: 'English' },
     { code: 'sv', flag: SE, label: 'Svenska' },
@@ -112,12 +152,17 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
 
   return (
     <>
-      <nav className="bg-[#1c2533] text-white">
+      <nav className="bg-background border-b border-border dark:bg-[#1c2533] dark:text-white">
         <div className="max-w-[1920px] mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
-            <div className="flex-shrink-0">
-              <span className="text-xl font-bold">DFTASKS</span>
+            <div className="flex items-center space-x-4">
+              <span 
+                className="text-xl font-bold cursor-pointer" 
+                onClick={() => handleNavigate('landing')}
+              >
+                DFTASKS
+              </span>
             </div>
 
             {/* Navigation Items */}
@@ -141,7 +186,7 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-1.5 rounded-md text-white hover:bg-white/10"
+                className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10"
                 title={t(isDarkMode ? 'navbar.theme.light' : 'navbar.theme.dark')}
               >
                 {isDarkMode ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
@@ -152,28 +197,28 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
                 {userFirstName ? (
                   <>
                     <div className="flex items-center space-x-2">
-                      <div className="relative group">
-                        <button
-                          className="p-1.5 rounded-md text-white hover:bg-white/10"
-                          title={t('navbar.auth.userTooltip')}
-                        >
-                          <FiUser className="w-5 h-5" />
-                        </button>
-                        <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                          {userFirstName}
-                        </div>
-                      </div>
+                      <button
+                        onClick={navigateToProfile}
+                        className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10 flex items-center"
+                        title={t('navbar.auth.profile')}
+                      >
+                        <FiUser className="w-5 h-5 mr-1" />
+                        <span className="text-sm font-medium">{userFirstName}</span>
+                      </button>
                       {/* User Management Icon */}
                       <button
-                        onClick={() => setIsUserManagementVisible(!isUserManagementVisible)}
-                        className="p-1.5 rounded-md text-white hover:bg-white/10"
+                        onClick={() => {
+                          setIsUserManagementVisible(!isUserManagementVisible);
+                          handleNavigate('users');
+                        }}
+                        className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10"
                         title={t('navbar.auth.manageUsers')}
                       >
                         <FiUsers className="w-5 h-5" />
                       </button>
                       <button
                         onClick={handleLogout}
-                        className="p-1.5 rounded-md text-white hover:bg-white/10"
+                        className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10"
                         title={t('navbar.auth.logout')}
                       >
                         <FiLogOut className="w-5 h-5" />
@@ -183,7 +228,7 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
                 ) : (
                   <button
                     onClick={() => setIsLoginModalOpen(true)}
-                    className="p-1.5 rounded-md text-white hover:bg-white/10"
+                    className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10"
                     title={t('navbar.auth.login')}
                   >
                     <FiLogIn className="w-5 h-5" />
@@ -205,10 +250,10 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
         <div className="container mx-auto px-4 py-8">
           {isLoading ? (
             <div className="flex justify-center items-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground dark:border-white"></div>
             </div>
           ) : error ? (
-            <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded">
+            <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded">
               {error}
             </div>
           ) : (

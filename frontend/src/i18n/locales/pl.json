@@ -9,20 +9,37 @@
       "logout": "Wyloguj się",
       "userTooltip": "Twój profil",
       "manageUsers": "Zarządzaj użytkownikami"
+    },
+    "navigation": {
+      "home": "Strona główna"
     }
   },
   "loginModal": {
     "title": "Zaloguj się",
     "email": {
       "label": "Email",
-      "placeholder": "twoj@email.com"
+      "placeholder": "twój@email.com"
     },
     "password": {
       "label": "Hasło",
       "placeholder": "Twoje hasło"
     },
     "button": "Zaloguj się",
-    "error": "Nieprawidłowy email lub hasło"
+    "submit": "Zaloguj się",
+    "rememberMe": "Zapamiętaj mnie",
+    "forgotPassword": "Zapomniałeś hasła?",
+    "loading": "Ładowanie..."
+  },
+  "error": {
+    "invalidCredentials": "Nieprawidłowy email lub hasło"
+  },
+  "landingPage": {
+    "title": "Witamy w DFTASKS",
+    "description": "Nowoczesny menedżer zadań do efektywnej współpracy i zarządzania projektami.",
+    "buttons": {
+      "getStarted": "Rozpocznij",
+      "learnMore": "Dowiedz się więcej"
+    }
   },
   "userManagement": {
     "title": "Zarządzanie użytkownikami",
@@ -30,10 +47,12 @@
       "firstName": "Imię",
       "lastName": "Nazwisko",
       "email": "Email",
+      "phoneNumber": "Numer telefonu",
       "role": "Rola",
       "status": "Status",
       "actions": "Akcje"
     },
+    "showInactive": "Pokaż nieaktywnych użytkowników",
     "status": {
       "active": "Aktywny",
       "inactive": "Nieaktywny"

@@ -23,7 +23,7 @@ export const LoginModal = ({ isOpen, onClose, onLogin }: LoginModalProps) => {
     try {
       await onLogin(email, password)
     } catch (err) {
-      setError(t('loginModal.error.invalidCredentials'))
+      setError(t('error.invalidCredentials'))
       console.error('Login error:', err)
     } finally {
       setIsLoading(false)
@@ -56,35 +56,35 @@ export const LoginModal = ({ isOpen, onClose, onLogin }: LoginModalProps) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-lg bg-[#1c2533] p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-lg bg-card text-card-foreground dark:bg-[#1c2533] dark:text-white p-6 text-left align-middle shadow-xl transition-all">
                 <Dialog.Title
                   as="h3"
-                  className="text-xl font-semibold leading-6 text-white mb-4"
+                  className="text-xl font-semibold leading-6 mb-4"
                 >
                   {t('loginModal.title')}
                 </Dialog.Title>
 
                 {error && (
-                  <div className="mb-4 p-3 bg-red-500/10 border border-red-500 text-red-500 rounded">
+                  <div className="mb-4 p-3 bg-destructive/10 border border-destructive text-destructive rounded">
                     {error}
                   </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+                    <label htmlFor="email" className="block text-sm font-medium text-muted-foreground dark:text-gray-300">
                       {t('loginModal.email.label')}
                     </label>
                     <div className="mt-1 relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FiMail className="h-5 w-5 text-gray-400" />
+                        <FiMail className="h-5 w-5 text-muted-foreground dark:text-gray-400" />
                       </div>
                       <input
                         type="email"
                         id="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="block w-full pl-10 pr-3 py-2 border border-input rounded-md bg-background dark:bg-gray-700 dark:text-white placeholder-muted-foreground dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         placeholder={t('loginModal.email.placeholder')}
                         required
                         disabled={isLoading}
@@ -93,19 +93,19 @@ export const LoginModal = ({ isOpen, onClose, onLogin }: LoginModalProps) => {
                   </div>
 
                   <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+                    <label htmlFor="password" className="block text-sm font-medium text-muted-foreground dark:text-gray-300">
                       {t('loginModal.password.label')}
                     </label>
                     <div className="mt-1 relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FiLock className="h-5 w-5 text-gray-400" />
+                        <FiLock className="h-5 w-5 text-muted-foreground dark:text-gray-400" />
                       </div>
                       <input
                         type="password"
                         id="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="block w-full pl-10 pr-3 py-2 border border-input rounded-md bg-background dark:bg-gray-700 dark:text-white placeholder-muted-foreground dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         placeholder={t('loginModal.password.placeholder')}
                         required
                         disabled={isLoading}
@@ -119,17 +119,17 @@ export const LoginModal = ({ isOpen, onClose, onLogin }: LoginModalProps) => {
                         id="remember-me"
                         name="remember-me"
                         type="checkbox"
-                        className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-800"
+                        className="h-4 w-4 rounded border-input bg-background dark:border-gray-600 dark:bg-gray-700 text-primary focus:ring-primary dark:focus:ring-offset-gray-800"
                         disabled={isLoading}
                       />
-                      <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-300">
+                      <label htmlFor="remember-me" className="ml-2 block text-sm text-muted-foreground dark:text-gray-300">
                         {t('loginModal.rememberMe')}
                       </label>
                     </div>
 
                     <button
                       type="button"
-                      className="text-sm font-medium text-blue-400 hover:text-blue-300"
+                      className="text-sm font-medium text-primary hover:text-primary/80 dark:text-blue-400 dark:hover:text-blue-300"
                       disabled={isLoading}
                     >
                       {t('loginModal.forgotPassword')}
@@ -139,12 +139,12 @@ export const LoginModal = ({ isOpen, onClose, onLogin }: LoginModalProps) => {
                   <div className="mt-6">
                     <button
                       type="submit"
-                      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-500"
                       disabled={isLoading}
                     >
                       {isLoading ? (
                         <div className="flex items-center">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-foreground mr-2"></div>
                           {t('loginModal.loading')}
                         </div>
                       ) : (
