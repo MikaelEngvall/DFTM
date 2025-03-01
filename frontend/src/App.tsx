@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Navbar } from './components/Navbar'
 import { LandingPage } from './components/LandingPage'
+import { ProfilePage } from './components/ProfilePage'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -44,11 +45,12 @@ function App() {
     switch (currentView) {
       case 'landing':
         return <LandingPage />;
+      case 'profile':
+        return <ProfilePage />;
       default:
         return (
           <div className="container mx-auto px-4 py-8">
             <h2 className="text-2xl font-bold mb-4">{currentView}</h2>
-            <p>Innehåll kommer att visas här.</p>
           </div>
         );
     }

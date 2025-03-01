@@ -44,6 +44,50 @@
       "learnMore": "Läs mer"
     }
   },
+  "profile": {
+    "title": "Min profil",
+    "fields": {
+      "firstName": "Förnamn",
+      "lastName": "Efternamn",
+      "email": "E-post",
+      "phoneNumber": "Telefonnummer",
+      "currentPassword": "Nuvarande lösenord",
+      "newPassword": "Nytt lösenord",
+      "confirmPassword": "Bekräfta lösenord"
+    },
+    "emailChangeWarning": "Om du ändrar din e-post kommer en bekräftelselänk att skickas till den nya adressen. Du måste klicka på länken inom en timme för att slutföra ändringen.",
+    "passwordChangeWarning": "Om du ändrar ditt lösenord kommer du att loggas ut och behöva logga in igen med ditt nya lösenord.",
+    "passwordChange": {
+      "sectionTitle": "Ändra lösenord",
+      "title": "Lösenordsändring begärd",
+      "description": "En bekräftelselänk har skickats till din e-post.",
+      "instruction": "Klicka på länken i e-postmeddelandet för att slutföra lösenordsändringen. Länken är giltig i en timme."
+    },
+    "emailChange": {
+      "title": "E-postadressändring begärd",
+      "description": "En bekräftelselänk har skickats till din nya e-postadress.",
+      "instruction": "Klicka på länken i e-postmeddelandet för att slutföra ändringen av e-postadress. Länken är giltig i en timme."
+    },
+    "error": {
+      "fetch": "Kunde inte hämta profilinformation",
+      "updateFailed": "Kunde inte uppdatera profilen",
+      "requiredFields": "Alla obligatoriska fält måste fyllas i",
+      "invalidEmail": "Ogiltig e-postadress",
+      "currentPasswordRequired": "Nuvarande lösenord krävs för att ändra lösenord",
+      "passwordTooShort": "Lösenordet måste vara minst 6 tecken",
+      "passwordMismatch": "Lösenorden matchar inte"
+    },
+    "success": {
+      "profileUpdated": "Profilen har uppdaterats",
+      "emailChangeRequested": "En bekräftelselänk har skickats till din nya e-postadress",
+      "passwordChangeRequested": "En bekräftelselänk har skickats till din e-postadress"
+    }
+  },
+  "common": {
+    "save": "Spara",
+    "cancel": "Avbryt",
+    "loading": "Laddar..."
+  },
   "userManagement": {
     "title": "Användarhantering",
     "table": {

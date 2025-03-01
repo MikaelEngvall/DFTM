@@ -1,16 +1,5 @@
-import axios from 'axios';
 import { User, UserRole } from '../../types/user';
-
-const API_BASE_URL = 'http://localhost:8080/api/v1';
-
-const axiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  }
-});
+import { axiosInstance } from './axiosConfig';
 
 // Typ för backend-användare
 interface BackendUser {
@@ -33,31 +22,75 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
+// User API service
 export const userApi = {
-  // Hämta inloggad användare
-  getCurrentUser: async (): Promise<User | null> => {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    
+  // Hämta den inloggade användaren
+  getCurrentUser: async (): Promise<User> => {
     try {
-      console.log('Fetching current user info');
-      // Använd /auth/me istället för att försöka hämta användaren baserat på JWT sub
       const response = await axiosInstance.get('/auth/me');
-      console.log('Current user response:', response);
-      
-      // Konvertera från 'ROLE_ADMIN' till 'admin'
-      const user = response.data;
-      const roleParts = user.role.split('_');
-      const frontendRole = roleParts.length > 1 ? roleParts[1].toLowerCase() : user.role.toLowerCase();
-      
-      return {
-        ...user,
-        role: frontendRole as UserRole,
-        isActive: user.active
-      };
+      return response.data;
     } catch (error) {
       console.error('Error fetching current user:', error);
-      return null;
+      throw error;
+    }
+  },
+
+  // Hämta en lista över alla användare
+  getAllUsers: async (): Promise<User[]> => {
+    try {
+      const response = await axiosInstance.get('/api/v1/users');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      throw error;
+    }
+  },
+
+  // Hämta en specifik användare med ID
+  getUserById: async (id: string): Promise<User> => {
+    try {
+      const response = await axiosInstance.get(`/api/v1/users/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching user ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // Uppdatera en användare
+  updateUser: async (userData: User): Promise<User> => {
+    try {
+      const response = await axiosInstance.put(`/api/v1/users/${userData.id}`, userData);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
+  },
+
+  // Ändra en användares lösenord
+  changePassword: async (currentPassword: string, newPassword: string): Promise<void> => {
+    try {
+      await axiosInstance.post('/api/v1/auth/change-password', {
+        currentPassword,
+        newPassword
+      });
+    } catch (error) {
+      console.error('Error changing password:', error);
+      throw error;
+    }
+  },
+
+  // Begär ändring av e-post
+  requestEmailChange: async (newEmail: string, password: string): Promise<void> => {
+    try {
+      await axiosInstance.post('/api/v1/auth/request-email-change', {
+        newEmail,
+        password
+      });
+    } catch (error) {
+      console.error('Error requesting email change:', error);
+      throw error;
     }
   },
 
@@ -80,41 +113,6 @@ export const userApi = {
       });
     } catch (error) {
       console.error('Error fetching users:', error);
-      throw error;
-    }
-  },
-
-  // Uppdatera en användare
-  updateUser: async (user: User): Promise<User> => {
-    try {
-      // Mappa 'isActive' från frontend till 'active' i backend
-      // och konvertera från 'superadmin' till 'ROLE_SUPERADMIN'
-      const backendUser: BackendUser = {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: `ROLE_${user.role.toUpperCase()}`, // Konverterar från t.ex. 'admin' till 'ROLE_ADMIN'
-        active: user.isActive,
-        phoneNumber: user.phoneNumber || null,
-        preferredLanguage: user.preferredLanguage
-      };
-      
-      // Om lösenord är angivet, skicka med det
-      if (user.password) {
-        backendUser.password = user.password;
-      }
-      
-      console.log('Sending user update request:', backendUser);
-      const response = await axiosInstance.patch(`/users/${user.id}`, backendUser);
-      console.log('User update response:', response);
-      
-      // Mappa 'active' från backend till 'isActive' i frontend
-      return {
-        ...response.data,
-        isActive: response.data.active
-      };
-    } catch (error) {
-      console.error('Error updating user:', error);
       throw error;
     }
   },
@@ -159,16 +157,9 @@ export const userApi = {
   ): Promise<{ token: string }> => {
     try {
       console.log('Attempting registration with:', { firstName, lastName, email });
-      const response = await axios.post(
-        `${API_BASE_URL}/auth/register`,
-        { firstName, lastName, email, password },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          withCredentials: true
-        }
+      const response = await axiosInstance.post(
+        '/auth/register',
+        { firstName, lastName, email, password }
       );
       console.log('Registration response:', response);
       const { token } = response.data;
@@ -188,15 +179,8 @@ export const userApi = {
   login: async (email: string, password: string): Promise<void> => {
     try {
       console.log('Attempting login with:', { email, password });
-      const response = await axios.post(`${API_BASE_URL}/auth/authenticate`, 
-        { email, password },
-        { 
-          headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          withCredentials: true 
-        }
+      const response = await axiosInstance.post('/auth/authenticate', 
+        { email, password }
       );
       console.log('Login response:', response);
       const { token } = response.data;

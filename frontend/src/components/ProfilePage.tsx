@@ -62,16 +62,18 @@ export const ProfilePage = () => {
       setLoading(true);
       try {
         const userData = await userApi.getCurrentUser();
-        setUser(userData);
-        setFormData({
-          firstName: userData.firstName || '',
-          lastName: userData.lastName || '',
-          email: userData.email || '',
-          phoneNumber: userData.phoneNumber || '',
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: '',
-        });
+        if (userData) {
+          setUser(userData);
+          setFormData({
+            firstName: userData.firstName || '',
+            lastName: userData.lastName || '',
+            email: userData.email || '',
+            phoneNumber: userData.phoneNumber || '',
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: '',
+          });
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : t('profile.error.fetch'));
         console.error('Error fetching user profile:', err);

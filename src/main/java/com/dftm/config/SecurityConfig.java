@@ -39,10 +39,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> {
                 auth.requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register").permitAll();
                 auth.requestMatchers("/api/v1/auth/me").authenticated();
-                auth.requestMatchers("/api/v1/users").hasAnyRole("ADMIN", "SUPERADMIN", "USER");
-                auth.requestMatchers("/api/v1/users/**").hasAnyRole("ADMIN", "SUPERADMIN", "USER");
-                auth.requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("SUPERADMIN");
-                auth.requestMatchers("/api/v1/tasks/**").hasAnyRole("ADMIN", "SUPERADMIN", "USER");
+                auth.requestMatchers("/api/v1/users").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERADMIN", "ROLE_USER");
+                auth.requestMatchers("/api/v1/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERADMIN", "ROLE_USER");
+                auth.requestMatchers(HttpMethod.POST, "/api/v1/users").hasAuthority("ROLE_SUPERADMIN");
+                auth.requestMatchers("/api/v1/tasks/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERADMIN", "ROLE_USER");
                 auth.requestMatchers("/api/v1/health").permitAll();
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                 auth.anyRequest().authenticated();

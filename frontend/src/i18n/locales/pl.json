@@ -41,6 +41,50 @@
       "learnMore": "Dowiedz się więcej"
     }
   },
+  "profile": {
+    "title": "Mój profil",
+    "fields": {
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "email": "Email",
+      "phoneNumber": "Numer telefonu",
+      "currentPassword": "Obecne hasło",
+      "newPassword": "Nowe hasło",
+      "confirmPassword": "Potwierdź hasło"
+    },
+    "emailChangeWarning": "Jeśli zmienisz swój email, link potwierdzający zostanie wysłany na nowy adres. Musisz kliknąć link w ciągu godziny, aby zakończyć zmianę.",
+    "passwordChangeWarning": "Jeśli zmienisz hasło, zostaniesz wylogowany i będziesz musiał zalogować się ponownie używając nowego hasła.",
+    "passwordChange": {
+      "sectionTitle": "Zmień hasło",
+      "title": "Zmiana hasła została zlecona",
+      "description": "Link potwierdzający został wysłany na Twój adres email.",
+      "instruction": "Kliknij link w wiadomości email, aby zakończyć zmianę hasła. Link jest ważny przez godzinę."
+    },
+    "emailChange": {
+      "title": "Zmiana adresu email została zlecona",
+      "description": "Link potwierdzający został wysłany na Twój nowy adres email.",
+      "instruction": "Kliknij link w wiadomości email, aby zakończyć zmianę adresu email. Link jest ważny przez godzinę."
+    },
+    "error": {
+      "fetch": "Nie udało się pobrać informacji o profilu",
+      "updateFailed": "Nie udało się zaktualizować profilu",
+      "requiredFields": "Wszystkie wymagane pola muszą być wypełnione",
+      "invalidEmail": "Nieprawidłowy adres email",
+      "currentPasswordRequired": "Obecne hasło jest wymagane do zmiany hasła",
+      "passwordTooShort": "Hasło musi mieć co najmniej 6 znaków",
+      "passwordMismatch": "Hasła nie pasują do siebie"
+    },
+    "success": {
+      "profileUpdated": "Profil został zaktualizowany",
+      "emailChangeRequested": "Link potwierdzający został wysłany na Twój nowy adres email",
+      "passwordChangeRequested": "Link potwierdzający został wysłany na Twój adres email"
+    }
+  },
+  "common": {
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "loading": "Ładowanie..."
+  },
   "userManagement": {
     "title": "Zarządzanie użytkownikami",
     "table": {

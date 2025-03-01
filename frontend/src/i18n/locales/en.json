@@ -44,6 +44,50 @@
       "learnMore": "Learn More"
     }
   },
+  "profile": {
+    "title": "My Profile",
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phoneNumber": "Phone Number",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password"
+    },
+    "emailChangeWarning": "If you change your email, a confirmation link will be sent to the new address. You must click the link within one hour to complete the change.",
+    "passwordChangeWarning": "If you change your password, you will be logged out and need to log in again with your new password.",
+    "passwordChange": {
+      "sectionTitle": "Change Password",
+      "title": "Password Change Requested",
+      "description": "A confirmation link has been sent to your email.",
+      "instruction": "Click the link in the email to complete the password change. The link is valid for one hour."
+    },
+    "emailChange": {
+      "title": "Email Change Requested",
+      "description": "A confirmation link has been sent to your new email address.",
+      "instruction": "Click the link in the email to complete the email change. The link is valid for one hour."
+    },
+    "error": {
+      "fetch": "Could not fetch profile information",
+      "updateFailed": "Could not update profile",
+      "requiredFields": "All required fields must be filled in",
+      "invalidEmail": "Invalid email address",
+      "currentPasswordRequired": "Current password is required to change password",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "passwordMismatch": "Passwords do not match"
+    },
+    "success": {
+      "profileUpdated": "Profile has been updated",
+      "emailChangeRequested": "A confirmation link has been sent to your new email address",
+      "passwordChangeRequested": "A confirmation link has been sent to your email address"
+    }
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading..."
+  },
   "userManagement": {
     "title": "User Management",
     "table": {

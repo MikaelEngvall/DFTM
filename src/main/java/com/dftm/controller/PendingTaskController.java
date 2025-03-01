@@ -31,7 +31,7 @@ public class PendingTaskController {
     }
 
     @PutMapping("/{id}/approve")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<PendingTask> approvePendingTask(
             @PathVariable String id,
             @RequestParam String assignedToUserId,

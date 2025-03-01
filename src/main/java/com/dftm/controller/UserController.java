@@ -47,14 +47,14 @@ public class UserController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('SUPERADMIN','ADMIN') or hasAnyAuthority('ROLE_SUPERADMIN','ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_SUPERADMIN','ROLE_ADMIN')")
     public ResponseEntity<List<User>> getAllUsers() {
         log.debug("GET request to fetch all users");
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/{userId}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN') or #userId == authentication.principal.id")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<User> getUserById(@PathVariable String userId) {
         log.debug("GET request to fetch user with ID: {}", userId);
         User user = userService.getUserById(userId);
@@ -62,7 +62,7 @@ public class UserController {
     }
 
     @GetMapping("/language/{language}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<List<User>> getUsersByLanguage(@PathVariable Language language) {
         log.debug("GET request to fetch users with language: {}", language);
         List<User> users = userService.getUsersByLanguage(language).stream()
@@ -72,7 +72,7 @@ public class UserController {
     }
 
     @GetMapping("/active")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<List<User>> getActiveUsers() {
         log.debug("GET request to fetch active users");
         List<User> users = userService.getActiveUsers().stream()
@@ -82,7 +82,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<List<User>> searchUsers(@RequestParam String query) {
         log.debug("GET request to search users with query: {}", query);
         List<User> users = userService.searchUsersByName(query).stream()
@@ -92,7 +92,7 @@ public class UserController {
     }
 
     @GetMapping("/role/{role}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<List<User>> getUsersByRole(@PathVariable Role role) {
         log.debug("GET request to fetch users with role: {}", role);
         List<User> users = userService.getUsersByRole(role).stream()
@@ -102,7 +102,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERADMIN') or #userId == authentication.principal.id")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<User> updateUser(
             @PathVariable String userId,
             @Valid @RequestBody UpdateUserRequest request) {
@@ -114,7 +114,7 @@ public class UserController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ROLE_SUPERADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_SUPERADMIN')")
     public ResponseEntity<User> createUser(@Valid @RequestBody UpdateUserRequest request) {
         log.debug("POST request to create new user");
         User createdUser = userService.createUser(request);
