@@ -35,65 +35,66 @@ export const UserManagementTable = ({ users, onUserUpdate, onUserCreate }: UserM
   };
 
   // Filtrera användare baserat på aktiv status
-  const filteredUsers = showInactive 
-    ? users 
+  const filteredUsers = showInactive
+    ? users
     : users.filter(user => user.isActive);
 
   return (
-    <div className="bg-[#1c2533] rounded-lg shadow-xl overflow-hidden">
-      <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+    <div className="bg-card rounded-lg shadow-xl overflow-hidden">
+      <div className="px-4 py-5 sm:px-6 flex justify-between items-center border-b border-border">
         <div className="flex items-center space-x-4">
-          <h3 className="text-lg font-medium leading-6 text-white">{t('userManagement.title')}</h3>
+          <h3 className="text-lg font-medium leading-6 text-card-foreground">{t('userManagement.title')}</h3>
+
           <div className="flex items-center">
             <input
               id="showInactive"
               type="checkbox"
               checked={showInactive}
               onChange={(e) => setShowInactive(e.target.checked)}
-              className="mr-2 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="mr-2 h-4 w-4 rounded border-input text-primary focus:ring-primary"
             />
-            <label htmlFor="showInactive" className="text-sm text-gray-300">
+            <label htmlFor="showInactive" className="text-sm text-muted-foreground">
               {t('userManagement.showInactive')}
             </label>
           </div>
         </div>
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md flex items-center gap-2"
+          className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-md flex items-center gap-2"
         >
           <FiUserPlus className="h-5 w-5" />
           {t('userManagement.createUser.button')}
         </button>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-700">
-          <thead className="bg-gray-800">
+        <table className="min-w-full divide-y divide-border">
+          <thead className="bg-muted">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 {t('userManagement.table.firstName')}
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 {t('userManagement.table.lastName')}
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 {t('userManagement.table.phoneNumber')}
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 {t('userManagement.table.role')}
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700">
+          <tbody className="divide-y divide-border bg-card">
             {filteredUsers.map((user) => (
               <tr
                 key={user.id}
-                className={`hover:bg-gray-700/50 cursor-pointer ${!user.isActive ? 'opacity-50' : ''}`}
+                className={`hover:bg-muted/50 cursor-pointer ${!user.isActive ? 'opacity-50' : ''}`}
                 onClick={() => handleEditUser(user)}
               >
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{user.firstName}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{user.lastName}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{user.phoneNumber || '-'}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-card-foreground">{user.firstName}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-card-foreground">{user.lastName}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-card-foreground">{user.phoneNumber || '-'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-card-foreground">
                   {t(`userManagement.roles.${user.role}`)}
                 </td>
               </tr>
