@@ -15,19 +15,14 @@
     "title": "Logga in",
     "email": {
       "label": "E-post",
-      "placeholder": "din@email.com"
+      "placeholder": "din@epost.se"
     },
     "password": {
       "label": "Lösenord",
-      "placeholder": "••••••••"
+      "placeholder": "Ditt lösenord"
     },
-    "rememberMe": "Kom ihåg mig",
-    "forgotPassword": "Glömt lösenord?",
-    "submit": "Logga in",
-    "loading": "Loggar in...",
-    "error": {
-      "invalidCredentials": "Felaktigt användarnamn eller lösenord"
-    }
+    "button": "Logga in",
+    "error": "Fel e-post eller lösenord"
   },
   "userManagement": {
     "title": "Användarhantering",
@@ -44,9 +39,15 @@
       "inactive": "Inaktiv"
     },
     "roles": {
-      "superadmin": "Superadministratör",
+      "user": "Användare",
       "admin": "Administratör",
-      "user": "Användare"
+      "superadmin": "Superadministratör"
+    },
+    "languages": {
+      "sv": "Svenska",
+      "en": "Engelska",
+      "pl": "Polska",
+      "uk": "Ukrainska"
     },
     "editUser": {
       "title": "Redigera användare",
@@ -55,10 +56,24 @@
       "email": "E-post",
       "phoneNumber": "Telefonnummer",
       "password": "Lösenord",
-      "passwordHelp": "Lämna tomt för att behålla nuvarande lösenord",
+      "passwordHelp": "Lämna tomt för att behålla nuvarande",
       "role": "Roll",
-      "isActive": "Aktiv användare",
-      "save": "Spara ändringar",
+      "isActive": "Aktiv",
+      "save": "Spara",
+      "cancel": "Avbryt"
+    },
+    "createUser": {
+      "title": "Skapa ny användare",
+      "button": "Skapa användare",
+      "firstName": "Förnamn",
+      "lastName": "Efternamn",
+      "email": "E-post",
+      "phoneNumber": "Telefonnummer",
+      "password": "Lösenord",
+      "role": "Roll",
+      "isActive": "Aktiv",
+      "preferredLanguage": "Föredraget språk",
+      "save": "Skapa",
       "cancel": "Avbryt"
     }
   }

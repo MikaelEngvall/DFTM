@@ -19,15 +19,10 @@
     },
     "password": {
       "label": "Hasło",
-      "placeholder": "••••••••"
+      "placeholder": "Twoje hasło"
     },
-    "rememberMe": "Zapamiętaj mnie",
-    "forgotPassword": "Zapomniałeś hasła?",
-    "submit": "Zaloguj się",
-    "loading": "Logowanie...",
-    "error": {
-      "invalidCredentials": "Nieprawidłowy email lub hasło"
-    }
+    "button": "Zaloguj się",
+    "error": "Nieprawidłowy email lub hasło"
   },
   "userManagement": {
     "title": "Zarządzanie użytkownikami",
@@ -44,9 +39,15 @@
       "inactive": "Nieaktywny"
     },
     "roles": {
-      "superadmin": "Super Administrator",
+      "user": "Użytkownik",
       "admin": "Administrator",
-      "user": "Użytkownik"
+      "superadmin": "Super Administrator"
+    },
+    "languages": {
+      "sv": "Szwedzki",
+      "en": "Angielski",
+      "pl": "Polski",
+      "uk": "Ukraiński"
     },
     "editUser": {
       "title": "Edytuj użytkownika",
@@ -55,10 +56,24 @@
       "email": "Email",
       "phoneNumber": "Numer telefonu",
       "password": "Hasło",
-      "passwordHelp": "Pozostaw puste, aby zachować obecne hasło",
+      "passwordHelp": "Pozostaw puste, aby zachować obecne",
       "role": "Rola",
-      "isActive": "Aktywny użytkownik",
-      "save": "Zapisz zmiany",
+      "isActive": "Aktywny",
+      "save": "Zapisz",
+      "cancel": "Anuluj"
+    },
+    "createUser": {
+      "title": "Utwórz nowego użytkownika",
+      "button": "Utwórz użytkownika",
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "email": "Email",
+      "phoneNumber": "Numer telefonu",
+      "password": "Hasło",
+      "role": "Rola",
+      "isActive": "Aktywny",
+      "preferredLanguage": "Preferowany język",
+      "save": "Utwórz",
       "cancel": "Anuluj"
     }
   }

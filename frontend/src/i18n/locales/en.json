@@ -19,15 +19,10 @@
     },
     "password": {
       "label": "Password",
-      "placeholder": "••••••••"
+      "placeholder": "Your password"
     },
-    "rememberMe": "Remember me",
-    "forgotPassword": "Forgot password?",
-    "submit": "Log in",
-    "loading": "Logging in...",
-    "error": {
-      "invalidCredentials": "Invalid email or password"
-    }
+    "button": "Log in",
+    "error": "Invalid email or password"
   },
   "userManagement": {
     "title": "User Management",
@@ -44,9 +39,15 @@
       "inactive": "Inactive"
     },
     "roles": {
-      "superadmin": "Super Administrator",
+      "user": "User",
       "admin": "Administrator",
-      "user": "User"
+      "superadmin": "Super Administrator"
+    },
+    "languages": {
+      "sv": "Swedish",
+      "en": "English",
+      "pl": "Polish",
+      "uk": "Ukrainian"
     },
     "editUser": {
       "title": "Edit User",
@@ -55,10 +56,24 @@
       "email": "Email",
       "phoneNumber": "Phone Number",
       "password": "Password",
-      "passwordHelp": "Leave empty to keep current password",
+      "passwordHelp": "Leave empty to keep current",
       "role": "Role",
-      "isActive": "Active user",
-      "save": "Save changes",
+      "isActive": "Active",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "createUser": {
+      "title": "Create New User",
+      "button": "Create User",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phoneNumber": "Phone Number",
+      "password": "Password",
+      "role": "Role",
+      "isActive": "Active",
+      "preferredLanguage": "Preferred Language",
+      "save": "Create",
       "cancel": "Cancel"
     }
   }

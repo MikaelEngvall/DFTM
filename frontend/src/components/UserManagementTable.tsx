@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiEdit2 } from 'react-icons/fi';
+import { FiEdit2, FiUserPlus } from 'react-icons/fi';
 import { User } from '../types/user';
 import { EditUserModal } from './EditUserModal';
+import { CreateUserModal } from './CreateUserModal';
 
 interface UserManagementTableProps {
   users: User[];
   onUserUpdate: (user: User) => void;
+  onUserCreate: (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => void;
 }
 
-export const UserManagementTable = ({ users, onUserUpdate }: UserManagementTableProps) => {
+export const UserManagementTable = ({ users, onUserUpdate, onUserCreate }: UserManagementTableProps) => {
   const { t } = useTranslation();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const handleEditUser = (user: User) => {
     setSelectedUser(user);
@@ -25,10 +28,22 @@ export const UserManagementTable = ({ users, onUserUpdate }: UserManagementTable
     setSelectedUser(null);
   };
 
+  const handleCreateUser = (newUser: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => {
+    onUserCreate(newUser);
+    setIsCreateModalOpen(false);
+  };
+
   return (
     <div className="bg-[#1c2533] rounded-lg shadow-xl overflow-hidden">
-      <div className="px-4 py-5 sm:px-6">
+      <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
         <h3 className="text-lg font-medium leading-6 text-white">{t('userManagement.title')}</h3>
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md flex items-center gap-2"
+        >
+          <FiUserPlus className="h-5 w-5" />
+          {t('userManagement.createUser.button')}
+        </button>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-700">
@@ -104,6 +119,12 @@ export const UserManagementTable = ({ users, onUserUpdate }: UserManagementTable
           onSave={handleUpdateUser}
         />
       )}
+
+      <CreateUserModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSave={handleCreateUser}
+      />
     </div>
   );
 }; 

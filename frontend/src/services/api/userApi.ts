@@ -12,6 +12,18 @@ const axiosInstance = axios.create({
   }
 });
 
+// Typ för backend-användare
+interface BackendUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  active: boolean;
+  phoneNumber: string | null;
+  preferredLanguage?: string;
+  password?: string;
+}
+
 // Interceptor för att lägga till JWT token i headers
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
@@ -26,11 +38,19 @@ export const userApi = {
   getUsers: async (): Promise<User[]> => {
     try {
       const response = await axiosInstance.get('/users');
-      // Mappa 'active' från backend till 'isActive' i frontend
-      return response.data.map((user: { active: boolean } & Omit<User, 'isActive'>) => ({
-        ...user,
-        isActive: user.active
-      }));
+      
+      // Mappa data från backend till frontend-format
+      return response.data.map((user: { active: boolean, role: string } & Omit<User, 'isActive' | 'role'>) => {
+        // Konvertera från 'ROLE_ADMIN' till 'admin'
+        const roleParts = user.role.split('_');
+        const frontendRole = roleParts.length > 1 ? roleParts[1].toLowerCase() : user.role.toLowerCase();
+        
+        return {
+          ...user,
+          role: frontendRole as any, // Konvertera rollen från 'ROLE_USER' till 'user'
+          isActive: user.active
+        };
+      });
     } catch (error) {
       console.error('Error fetching users:', error);
       throw error;
@@ -41,13 +61,26 @@ export const userApi = {
   updateUser: async (user: User): Promise<User> => {
     try {
       // Mappa 'isActive' från frontend till 'active' i backend
-      const backendUser = {
-        ...user,
+      // och konvertera från 'superadmin' till 'ROLE_SUPERADMIN'
+      const backendUser: BackendUser = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: `ROLE_${user.role.toUpperCase()}`, // Konverterar från t.ex. 'admin' till 'ROLE_ADMIN'
         active: user.isActive,
-        // Se till att phoneNumber skickas korrekt
-        phoneNumber: user.phoneNumber || null
+        phoneNumber: user.phoneNumber || null,
+        preferredLanguage: user.preferredLanguage
       };
+      
+      // Om lösenord är angivet, skicka med det
+      if (user.password) {
+        backendUser.password = user.password;
+      }
+      
+      console.log('Sending user update request:', backendUser);
       const response = await axiosInstance.patch(`/users/${user.id}`, backendUser);
+      console.log('User update response:', response);
+      
       // Mappa 'active' från backend till 'isActive' i frontend
       return {
         ...response.data,
@@ -60,10 +93,30 @@ export const userApi = {
   },
 
   // Skapa en ny användare
-  createUser: async (user: Omit<User, 'id'>): Promise<User> => {
+  createUser: async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> => {
     try {
-      const response = await axiosInstance.post('/users', user);
-      return response.data;
+      // Mappa 'isActive' från frontend till 'active' i backend
+      // och konvertera från 'superadmin' till 'ROLE_SUPERADMIN'
+      const backendUser: BackendUser = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        password: user.password,
+        role: `ROLE_${user.role.toUpperCase()}`, // Konverterar från t.ex. 'superadmin' till 'ROLE_SUPERADMIN'
+        active: user.isActive,
+        phoneNumber: user.phoneNumber || null,
+        preferredLanguage: user.preferredLanguage || 'SV'
+      };
+      
+      console.log('Sending user creation request:', backendUser);
+      const response = await axiosInstance.post('/users', backendUser);
+      console.log('User creation response:', response);
+      
+      // Mappa 'active' från backend till 'isActive' i frontend
+      return {
+        ...response.data,
+        isActive: response.data.active
+      };
     } catch (error) {
       console.error('Error creating user:', error);
       throw error;

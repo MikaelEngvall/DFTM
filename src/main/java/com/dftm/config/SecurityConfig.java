@@ -38,8 +38,10 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> {
                 auth.requestMatchers("/api/v1/auth/**").permitAll();
-                auth.requestMatchers("/api/v1/users/**").hasAnyRole("ADMIN", "SUPERADMIN");
-                auth.requestMatchers("/api/v1/tasks/**").hasAnyRole("ADMIN", "SUPERADMIN");
+                auth.requestMatchers("/api/v1/users").hasAnyRole("ADMIN", "SUPERADMIN", "USER");
+                auth.requestMatchers("/api/v1/users/**").hasAnyRole("ADMIN", "SUPERADMIN", "USER");
+                auth.requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("SUPERADMIN");
+                auth.requestMatchers("/api/v1/tasks/**").hasAnyRole("ADMIN", "SUPERADMIN", "USER");
                 auth.requestMatchers("/api/v1/health").permitAll();
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                 auth.anyRequest().authenticated();

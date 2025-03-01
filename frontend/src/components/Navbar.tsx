@@ -72,6 +72,16 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
     }
   };
 
+  const handleUserCreate = async (newUser: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      const created = await userApi.createUser(newUser);
+      setUsers(prevUsers => [...prevUsers, created]);
+    } catch (err) {
+      console.error('Error creating user:', err);
+      // Här kan vi lägga till felhantering/meddelanden
+    }
+  };
+
   const handleLogout = () => {
     userApi.logout();
     setUserFirstName(undefined);
@@ -190,6 +200,7 @@ export const Navbar = ({ onLogout }: NavbarProps) => {
             <UserManagementTable 
               users={users} 
               onUserUpdate={handleUserUpdate}
+              onUserCreate={handleUserCreate}
             />
           )}
         </div>

@@ -6,6 +6,8 @@ export interface User {
   lastName: string;
   email: string;
   phoneNumber?: string;
+  password?: string;
+  preferredLanguage?: string;
   role: UserRole;
   isActive: boolean;
   createdAt: string;

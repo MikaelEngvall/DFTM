@@ -120,6 +120,31 @@ public class UserService {
         return updatedUser;
     }
 
+    public User createUser(UpdateUserRequest request) {
+        log.debug("Creating new user with email: {}", request.getEmail());
+        
+        // Kontrollera om e-postadressen redan finns
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+        
+        // Skapa användaren med uppgifterna från requesten
+        User newUser = User.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .email(request.getEmail())
+                .phoneNumber(request.getPhoneNumber())
+                .role(request.getRole() != null ? request.getRole() : Role.ROLE_USER)
+                .preferredLanguage(request.getPreferredLanguage() != null ? request.getPreferredLanguage() : Language.SV)
+                .active(request.getActive() != null ? request.getActive() : true)
+                .password(request.getPassword() != null ? passwordEncoder.encode(request.getPassword()) : passwordEncoder.encode("tempPassword123"))
+                .createdAt(LocalDateTime.now().toString())
+                .updatedAt(LocalDateTime.now().toString())
+                .build();
+        
+        return userRepository.save(newUser);
+    }
+
     private boolean hasPermissionToEdit(User editor, User target) {
         // SUPERADMIN kan redigera alla
         if (editor.getRole() == Role.ROLE_SUPERADMIN) {
