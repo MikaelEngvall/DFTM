@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User } from '../../types/user';
+import { User, UserRole } from '../../types/user';
 
 const API_BASE_URL = 'http://localhost:8080/api/v1';
 
@@ -47,7 +47,7 @@ export const userApi = {
         
         return {
           ...user,
-          role: frontendRole as any, // Konvertera rollen från 'ROLE_USER' till 'user'
+          role: frontendRole as UserRole, // Konvertera rollen från 'ROLE_USER' till 'user'
           isActive: user.active
         };
       });
