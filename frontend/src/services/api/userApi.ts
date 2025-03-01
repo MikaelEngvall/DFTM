@@ -4,27 +4,38 @@ import { axiosInstance } from './axiosConfig';
 // Backend User interface
 interface BackendUser {
   id: string;
-  username: string;
+  username?: string;
   firstName: string;
   lastName: string;
   email: string;
-  phoneNumber: string;
-  role: string;
-  active: boolean;
-  preferredLanguage: string;
+  phoneNumber?: string | null;
+  role: string | null;
+  active: boolean | null;
+  preferredLanguage?: string | null;
+  password?: string;
 }
 
 // Konvertera backend-roll till frontend-roll
-const convertBackendRole = (role: string): UserRole => {
+const convertBackendRole = (role: string | null): UserRole => {
+  if (!role) {
+    return 'user' as UserRole; // Default till user om role är null eller tom
+  }
+
+  // Logga rollen för debugging
+  console.log("Converting backend role:", role);
+
   if (role.startsWith('ROLE_')) {
     const roleName = role.substring(5).toLowerCase();
+    console.log("Converted role (with prefix):", roleName);
     return roleName as UserRole;
   }
+  
+  console.log("Using role as-is:", role);
   return role as UserRole;
 };
 
 // Konvertera frontend-roll till backend-roll
-const convertToBackendRole = (role: string): string => {
+export const convertToBackendRole = (role: string): string => {
   if (!role.startsWith('ROLE_')) {
     return `ROLE_${role.toUpperCase()}`;
   }
@@ -47,10 +58,20 @@ export const userApi = {
     try {
       const response = await axiosInstance.get('/auth/me');
       const userData = response.data;
-      
-      // Behåll den ursprungliga rollen som kommer från backend
-      // Vi gör inte längre konvertering här, utan applikationen hanterar båda formaten
-      return userData;
+
+      // Säkerställ att userData.role är en sträng och existerar
+      const roleString = typeof userData.role === 'string' ? userData.role : 'ROLE_USER';
+      console.log("Backend returned role:", roleString);
+
+      // Konvertera backend-roll till frontend-roll och säkerställ korrekt format
+      const convertedRole = convertBackendRole(roleString) as UserRole;
+      console.log("Final converted role:", convertedRole);
+
+      return {
+        ...userData,
+        role: convertedRole,
+        isActive: userData.active || false // Hantera fall där active kan vara null
+      };
     } catch (error) {
       console.error('Error fetching current user:', error);
       throw error;
@@ -141,7 +162,7 @@ export const userApi = {
     try {
       // Mappa 'isActive' från frontend till 'active' i backend
       // och konvertera från 'superadmin' till 'ROLE_SUPERADMIN'
-      const backendUser: BackendUser = {
+      const backendUser: Omit<BackendUser, 'id'> = {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,

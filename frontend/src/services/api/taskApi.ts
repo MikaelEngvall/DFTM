@@ -180,7 +180,7 @@ export const taskApi = {
         assigner: assignerId,
         dueDate: formattedToday,
         archived: false,
-        approved: false
+        approved: true
       });
 
       // Uppgift med datum nästa vecka
@@ -197,7 +197,7 @@ export const taskApi = {
         assigner: assignerId,
         dueDate: formattedNextWeek,
         archived: false,
-        approved: false
+        approved: true
       });
 
       // Uppgift med datum förra veckan (försenad)
@@ -214,7 +214,7 @@ export const taskApi = {
         assigner: assignerId,
         dueDate: formattedLastWeek,
         archived: false,
-        approved: false
+        approved: true
       });
 
       console.log('Alla exempeluppgifter har skapats framgångsrikt!');

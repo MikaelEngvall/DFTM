@@ -49,6 +49,7 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
       if (user) {
         setUserFirstName(user.firstName);
         setUserRole(user.role);
+        console.log("Navbar received user role:", user.role);
       }
     };
     
@@ -158,9 +159,14 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
     { code: 'uk', flag: UA, label: 'Українська' },
   ];
 
+  // Hjälpfunktion för att kontrollera admin
+  const isAdmin = () => {
+    return userRole?.toLowerCase().includes('admin');
+  };
+
   return (
     <>
-      <nav className="bg-background border-b border-border dark:bg-[#1c2533] dark:text-white">
+      <nav className="bg-background border-b border-border dark:bg-card dark:text-card-foreground">
         <div className="max-w-[1920px] mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
@@ -179,7 +185,7 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
               {userFirstName && (
                 <button
                   onClick={navigateToCalendar}
-                  className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10 flex items-center"
+                  className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
                   title={t('navbar.calendar')}
                 >
                   <FiCalendar className="w-5 h-5 mr-1" />
@@ -188,11 +194,10 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
               )}
 
               {/* Admin Link - Only for admins/superadmins */}
-              {(userRole === 'admin' || userRole === 'superadmin' || 
-                userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN') && (
+              {isAdmin() && (
                 <button
                   onClick={() => handleNavigate('admin')}
-                  className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10 flex items-center"
+                  className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
                   title="Administratörspanel"
                 >
                   <FiSettings className="w-5 h-5 mr-1" />
@@ -219,7 +224,7 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10"
+                className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10"
                 title={t(isDarkMode ? 'navbar.theme.light' : 'navbar.theme.dark')}
               >
                 {isDarkMode ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
@@ -232,21 +237,20 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={navigateToProfile}
-                        className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10 flex items-center"
+                        className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
                         title={t('navbar.auth.userTooltip')}
                       >
                         <FiUser className="w-5 h-5 mr-1" />
                         <span className="text-sm font-medium">{userFirstName}</span>
                       </button>
                       {/* User Management Icon - Only for admins/superadmins */}
-                      {(userRole === 'admin' || userRole === 'superadmin' || 
-                        userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN') && (
+                      {isAdmin() && (
                         <button
                           onClick={() => {
                             setIsUserManagementVisible(!isUserManagementVisible);
                             handleNavigate('users');
                           }}
-                          className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10"
+                          className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10"
                           title={t('navbar.auth.manageUsers')}
                         >
                           <FiUsers className="w-5 h-5" />
@@ -254,7 +258,7 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
                       )}
                       <button
                         onClick={handleLogout}
-                        className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10"
+                        className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10"
                         title={t('navbar.auth.logout')}
                       >
                         <FiLogOut className="w-5 h-5" />
@@ -264,7 +268,7 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
                 ) : (
                   <button
                     onClick={() => setIsLoginModalOpen(true)}
-                    className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-white/10"
+                    className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10"
                     title={t('navbar.auth.login')}
                   >
                     <FiLogIn className="w-5 h-5" />

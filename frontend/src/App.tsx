@@ -37,7 +37,8 @@ function App() {
         setUserId(user.id);
         setUserName(user.firstName);
         setUserRole(user.role);
-        
+        console.log("App received user role:", user.role);
+
         // Om användaren loggar in, visa kalender för vanliga användare
         if ((user.role === 'user' || user.role === 'ROLE_USER') && currentView === 'landing') {
           setCurrentView('calendar');
@@ -69,6 +70,12 @@ function App() {
 
   // Rendera rätt innehåll baserat på aktuell vy
   const renderContent = () => {
+    // Logga rollen för att debugga för admin-åtkomst
+    console.log("Current user role:", userRole);
+    // Förenkla och normalisera adminåtkomstkontroll
+    const isAdmin = userRole?.toLowerCase().includes('admin');
+    console.log("Is admin?", isAdmin);
+    
     switch (currentView) {
       case 'landing':
         return <LandingPage />;
@@ -77,10 +84,7 @@ function App() {
       case 'calendar':
         return userId ? <Calendar userId={userId} /> : <div>Laddar...</div>;
       case 'admin':
-        return (userRole === 'admin' || userRole === 'superadmin' || 
-                userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN') 
-                ? <AdminPanel /> 
-                : <div>Åtkomst nekad</div>;
+        return isAdmin ? <AdminPanel /> : <div>Åtkomst nekad</div>;
       default:
         return (
           <div className="container mx-auto px-4 py-8">

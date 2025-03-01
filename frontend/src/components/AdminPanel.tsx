@@ -3,6 +3,7 @@ import { Button } from './ui/Button';
 import { taskApi } from '../services/api/taskApi';
 import { userApi } from '../services/api/userApi';
 import { User } from '../types/user';
+import axios, { AxiosError } from 'axios';
 
 export const AdminPanel = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -55,12 +56,47 @@ export const AdminPanel = () => {
     setSuccessMessage(null);
     setErrorMessage(null);
     
+    // Visa vem som försöker skapa uppgifterna för debugging
     try {
+      const currentUser = await userApi.getCurrentUser();
+      console.log('Nuvarande användare:', currentUser);
+      console.log('Användarroll:', currentUser.role);
+      console.log('Försöker skapa uppgifter som:', selectedAssigner, 'till:', selectedAssigned);
+      
       await taskApi.createExampleTasks(selectedAssigner, selectedAssigned);
       setSuccessMessage('Exempeluppgifter har skapats framgångsrikt!');
     } catch (error) {
       console.error('Fel vid skapande av exempeluppgifter:', error);
-      setErrorMessage('Ett fel uppstod vid skapande av exempeluppgifter. Vänligen försök igen.');
+      
+      // Mer detaljerad felhantering
+      let errorMsg = 'Ett fel uppstod vid skapande av exempeluppgifter.';
+      
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError;
+        // Server svarade med en statuskod utanför 2xx intervallet
+        if (axiosError.response) {
+          console.error('Server svarade med felkod:', axiosError.response.status);
+          console.error('Felmeddelande från server:', axiosError.response.data);
+          
+          if (axiosError.response.status === 403) {
+            errorMsg = 'Åtkomst nekad. Du saknar behörighet att skapa uppgifter.';
+          } else if (axiosError.response.status === 401) {
+            errorMsg = 'Du är inte autentiserad. Vänligen logga in igen.';
+          } else {
+            // Säker hantering av response.data
+            const responseData = axiosError.response.data as Record<string, unknown>;
+            const errorMessage = responseData && typeof responseData === 'object' && 'message' in responseData 
+              ? String(responseData.message)
+              : 'Okänt fel';
+            errorMsg = `Serverfel (${axiosError.response.status}): ${errorMessage}`;
+          }
+        } else if (axiosError.request) {
+          // Begäran gjordes men inget svar mottogs
+          errorMsg = 'Ingen respons från servern. Kontrollera din internetanslutning.';
+        }
+      }
+      
+      setErrorMessage(errorMsg);
     } finally {
       setIsLoading(false);
     }
