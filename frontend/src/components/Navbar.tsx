@@ -225,21 +225,32 @@ export const Navbar = ({
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Navigation Items */}
-            <div className="flex items-center space-x-6">
-              {/* Calendar Link for Logged-in Users */}
+              
+              {/* Calendar Icon - Moved next to language flags */}
               {userFirstName && (
                 <button
                   onClick={navigateToCalendar}
-                  className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
+                  className="p-1.5 ml-4 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
                   title={t('navbar.calendar')}
                 >
                   <FiCalendar className="w-5 h-5" />
                 </button>
               )}
+              
+              {/* User Management Icon - Moved next to calendar icon */}
+              {userFirstName && canManageUsers && (
+                <button
+                  onClick={navigateToUserManagement}
+                  className="p-1.5 ml-2 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
+                  title={t('navbar.tooltips.manageUsers')}
+                >
+                  <FiUsers className="w-5 h-5" />
+                </button>
+              )}
+            </div>
 
+            {/* Navigation Items */}
+            <div className="flex items-center space-x-6">
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
@@ -254,16 +265,7 @@ export const Navbar = ({
                 {userFirstName ? (
                   <>
                     <div className="flex items-center space-x-2">
-                      {/* Användarhanteringsikon för admin/superadmin */}
-                      {canManageUsers && (
-                        <button
-                          onClick={navigateToUserManagement}
-                          className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
-                          title={t('navbar.tooltips.manageUsers')}
-                        >
-                          <FiUsers className="w-5 h-5" />
-                        </button>
-                      )}
+                      {/* Ta bort användarhanteringsikonen härifrån eftersom den flyttats till vänster sida */}
                       
                       <button
                         onClick={navigateToProfile}
