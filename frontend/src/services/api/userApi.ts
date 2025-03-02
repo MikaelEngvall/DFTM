@@ -20,20 +20,22 @@ const convertBackendRole = (role: string | null): UserRole => {
   if (!role) {
     return 'ROLE_USER' as UserRole; // Default till ROLE_USER om role är null eller tom
   }
-
-  // Logga rollen för debugging
-  console.log("Converting backend role:", role);
-
-  // Säkerställ att rollen har ROLE_-prefix
-  if (role.startsWith('ROLE_')) {
-    console.log("Role already has prefix:", role);
+  
+  // Godkänn endast giltiga roller direkt
+  if (role === 'ROLE_USER' || role === 'ROLE_ADMIN' || role === 'ROLE_SUPERADMIN') {
     return role as UserRole;
   }
   
-  // Om rollen inte har ROLE_-prefix, lägg till det
-  const roleWithPrefix = `ROLE_${role.toUpperCase()}`;
-  console.log("Added prefix to role:", roleWithPrefix);
-  return roleWithPrefix as UserRole;
+  // Om rollen mot förmodan saknar prefix, lägg till det för bakåtkompatibilitet
+  if (!role.startsWith('ROLE_')) {
+    const roleWithPrefix = `ROLE_${role.toUpperCase()}`;
+    console.warn("Konverterade roll från oväntad format:", role, "till:", roleWithPrefix);
+    return roleWithPrefix as UserRole;
+  }
+  
+  // Fallback om det är en annan roll med ROLE_-prefix
+  console.warn("Okänd roll:", role, "använder ROLE_USER");
+  return 'ROLE_USER' as UserRole;
 };
 
 // Konvertera frontend-roll till backend-roll
@@ -61,18 +63,20 @@ export const userApi = {
       const response = await axiosInstance.get('/auth/me');
       const userData = response.data;
 
-      // Säkerställ att userData.role är en sträng och existerar
-      const roleString = typeof userData.role === 'string' ? userData.role : 'ROLE_USER';
-      console.log("Backend returned role:", roleString);
-
-      // Konvertera backend-roll till frontend-roll och säkerställ korrekt format
-      const convertedRole = convertBackendRole(roleString) as UserRole;
-      console.log("Final converted role:", convertedRole);
+      // Säkerställ att userData.role är en giltig roll eller använd ROLE_USER som default
+      let userRole: UserRole = 'ROLE_USER';
+      if (userData.role) {
+        if (['ROLE_USER', 'ROLE_ADMIN', 'ROLE_SUPERADMIN'].includes(userData.role)) {
+          userRole = userData.role as UserRole;
+        } else {
+          console.warn(`Okänd roll från servern: ${userData.role}, använder ROLE_USER`);
+        }
+      }
 
       return {
         ...userData,
-        role: convertedRole,
-        isActive: userData.active || false // Hantera fall där active kan vara null
+        role: userRole,
+        isActive: userData.active || false
       };
     } catch (error) {
       console.error('Error fetching current user:', error);
@@ -162,14 +166,18 @@ export const userApi = {
   // Skapa en ny användare
   createUser: async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> => {
     try {
+      // Hantera rollen enkelt utan överdrivet komplex logik
+      const role = user.role && user.role.startsWith('ROLE_') ? user.role : `ROLE_${user.role.toUpperCase()}`;
+      
+      console.log('Skapar användare med roll:', role);
+      
       // Mappa 'isActive' från frontend till 'active' i backend
-      // och konvertera från 'superadmin' till 'ROLE_SUPERADMIN'
       const backendUser: Omit<BackendUser, 'id'> = {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
         password: user.password,
-        role: `ROLE_${user.role.toUpperCase()}`, // Konverterar från t.ex. 'superadmin' till 'ROLE_SUPERADMIN'
+        role: role,
         active: user.isActive,
         phoneNumber: user.phoneNumber || null,
         preferredLanguage: user.preferredLanguage || 'SV'
@@ -240,5 +248,64 @@ export const userApi = {
   // Logga ut
   logout: () => {
     localStorage.removeItem('token');
-  }
+  },
+
+  // Validera befintlig token och visa detaljerad information
+  validateToken: () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('Ingen token hittades i localStorage');
+      return { valid: false, reason: 'Token saknas' };
+    }
+    
+    try {
+      // Analysera token för att kontrollera om den är giltig
+      // JWT består av 3 delar: header.payload.signature, vi kollar bara payload
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        console.error('Token har felaktigt format');
+        return { valid: false, reason: 'Felaktigt format' };
+      }
+      
+      // Avkoda payload (del 2 av token)
+      const payload = JSON.parse(atob(parts[1]));
+      
+      // Kontrollera om token har gått ut
+      const expiryTime = payload.exp * 1000; // JS använder millisekunder
+      const currentTime = Date.now();
+      const isExpired = currentTime > expiryTime;
+      
+      // Logga information om token
+      console.log('Token information:', {
+        subject: payload.sub,
+        role: payload.role,
+        issuedAt: new Date(payload.iat * 1000).toLocaleString(),
+        expires: new Date(expiryTime).toLocaleString(),
+        expired: isExpired,
+        timeLeft: isExpired ? 'Utgången' : `${Math.floor((expiryTime - currentTime) / 60000)} minuter kvar`
+      });
+      
+      if (isExpired) {
+        console.error('Token har gått ut');
+        return { valid: false, reason: 'Token har utgått' };
+      }
+      
+      // Kontrollera om rollen är korrekt format
+      if (!payload.role || !payload.role.startsWith('ROLE_')) {
+        console.error('Token har ogiltig roll:', payload.role);
+        return { valid: false, reason: 'Ogiltig roll' };
+      }
+      
+      // Token är giltig
+      return { 
+        valid: true, 
+        role: payload.role,
+        subject: payload.sub,
+        expires: new Date(expiryTime).toLocaleString()
+      };
+    } catch (error) {
+      console.error('Fel vid validering av token:', error);
+      return { valid: false, reason: 'Kunde inte avkoda token' };
+    }
+  },
 }; 

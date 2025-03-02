@@ -18,7 +18,7 @@ export const CreateUserModal = ({ isOpen, onClose, onSave }: CreateUserModalProp
     phoneNumber: '',
     password: '',
     preferredLanguage: 'SV', // Default till svenska
-    role: 'ROLE_USER',
+    role: 'ROLE_USER', // Använd korrekt prefix
     isActive: true
   });
 

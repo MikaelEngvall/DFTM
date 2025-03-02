@@ -1,5 +1,14 @@
 import { useState, useEffect } from 'react';
-import { FiSun, FiMoon, FiLogIn, FiLogOut, FiUser, FiUsers, FiCalendar, FiSettings } from 'react-icons/fi';
+import {
+  FiMenu,
+  FiX,
+  FiSun,
+  FiMoon,
+  FiChevronDown,
+  FiUser,
+  FiLogOut,
+  FiCalendar,
+} from 'react-icons/fi';
 import { GB, SE, PL, UA } from 'country-flag-icons/react/3x2';
 import { LoginModal } from './LoginModal';
 import { UserManagementTable } from './UserManagementTable';
@@ -7,18 +16,21 @@ import { useTranslation } from 'react-i18next';
 import { User } from '../types/user';
 import { userApi } from '../services/api/userApi';
 
-interface NavbarProps {
-  isLoggedIn?: boolean;
+export const Navbar = ({
+  isLoggedIn,
+  userName,
+  onLogout,
+  onNavigate,
+}: {
+  isLoggedIn: boolean;
   userName?: string;
   onLogout?: () => void;
   onNavigate?: (view: string) => void;
-}
-
-export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
+}) => {
   const { t, i18n } = useTranslation();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [userFirstName, setUserFirstName] = useState<string>();
+  const [userFirstName, setUserFirstName] = useState(userName);
   const [isUserManagementVisible, setIsUserManagementVisible] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -119,6 +131,22 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
 
   const handleUserCreate = async (newUser: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
+      // Validera token innan vi försöker skapa användaren
+      const tokenStatus = userApi.validateToken();
+      console.log('Token status innan försök att skapa användare:', tokenStatus);
+      
+      if (!tokenStatus.valid) {
+        console.error(`Kan inte skapa användare - ogiltigt token: ${tokenStatus.reason}`);
+        // Här kan man implementera ett visuellt felmeddelande till användaren
+        return;
+      }
+      
+      if (tokenStatus.role !== 'ROLE_SUPERADMIN') {
+        console.error(`Kan inte skapa användare - fel roll: ${tokenStatus.role}, endast ROLE_SUPERADMIN kan skapa användare`);
+        // Här kan man implementera ett visuellt felmeddelande till användaren
+        return;
+      }
+      
       const created = await userApi.createUser(newUser);
       setUsers(prevUsers => [...prevUsers, created]);
     } catch (err) {
@@ -152,17 +180,12 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
     handleNavigate('calendar');
   };
 
+  // Språkalternativ
   const languages = [
-    { code: 'en', flag: GB, label: 'English' },
     { code: 'sv', flag: SE, label: 'Svenska' },
-    { code: 'pl', flag: PL, label: 'Polski' },
+    { code: 'en', flag: GB, label: 'English' },
     { code: 'uk', flag: UA, label: 'Українська' },
   ];
-
-  // Hjälpfunktion för att kontrollera admin
-  const isAdmin = () => {
-    return userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN';
-  };
 
   return (
     <>
@@ -190,18 +213,6 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
                 >
                   <FiCalendar className="w-5 h-5 mr-1" />
                   <span className="text-sm font-medium">Kalender</span>
-                </button>
-              )}
-
-              {/* Admin Link - Only for admins/superadmins */}
-              {isAdmin() && (
-                <button
-                  onClick={() => handleNavigate('admin')}
-                  className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
-                  title="Administratörspanel"
-                >
-                  <FiSettings className="w-5 h-5 mr-1" />
-                  <span className="text-sm font-medium">Admin</span>
                 </button>
               )}
 
@@ -243,19 +254,6 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
                         <FiUser className="w-5 h-5 mr-1" />
                         <span className="text-sm font-medium">{userFirstName}</span>
                       </button>
-                      {/* User Management Icon - Only for admins/superadmins */}
-                      {isAdmin() && (
-                        <button
-                          onClick={() => {
-                            setIsUserManagementVisible(!isUserManagementVisible);
-                            handleNavigate('users');
-                          }}
-                          className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10"
-                          title={t('navbar.auth.manageUsers')}
-                        >
-                          <FiUsers className="w-5 h-5" />
-                        </button>
-                      )}
                       <button
                         onClick={handleLogout}
                         className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10"
@@ -271,7 +269,7 @@ export const Navbar = ({ onLogout, onNavigate }: NavbarProps) => {
                     className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10"
                     title={t('navbar.auth.login')}
                   >
-                    <FiLogIn className="w-5 h-5" />
+                    <FiUser className="w-5 h-5" />
                   </button>
                 )}
               </div>
