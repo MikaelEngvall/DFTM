@@ -101,7 +101,7 @@ export const taskApi = {
   // Uppdatera en uppgifts status
   updateTaskStatus: async (taskId: string, status: TaskStatus): Promise<Task> => {
     try {
-      const response = await axiosInstance.put(`/tasks/${taskId}/status`, { status });
+      const response = await axiosInstance.patch(`/tasks/${taskId}/status`, { status });
       return response.data;
     } catch (error) {
       console.error(`Error updating task status for ${taskId}:`, error);
@@ -123,7 +123,7 @@ export const taskApi = {
   // Uppdatera en uppgift
   updateTask: async (taskId: string, taskData: Partial<Task>): Promise<Task> => {
     try {
-      const response = await axiosInstance.put(`/tasks/${taskId}`, taskData);
+      const response = await axiosInstance.patch(`/tasks/${taskId}`, taskData);
       return response.data;
     } catch (error) {
       console.error(`Error updating task ${taskId}:`, error);
@@ -134,7 +134,7 @@ export const taskApi = {
   // Tilldela uppgift till användare
   assignTask: async (taskId: string, userId: string): Promise<Task> => {
     try {
-      const response = await axiosInstance.put(`/tasks/${taskId}/assign`, { userId });
+      const response = await axiosInstance.patch(`/tasks/${taskId}/assign`, { userId });
       return response.data;
     } catch (error) {
       console.error(`Error assigning task ${taskId} to user ${userId}:`, error);
@@ -145,7 +145,7 @@ export const taskApi = {
   // Uppdatera uppgiftsprioritet
   updateTaskPriority: async (taskId: string, priority: TaskPriority): Promise<Task> => {
     try {
-      const response = await axiosInstance.put(`/tasks/${taskId}/priority`, { priority });
+      const response = await axiosInstance.patch(`/tasks/${taskId}/priority`, { priority });
       return response.data;
     } catch (error) {
       console.error(`Error updating priority for task ${taskId}:`, error);

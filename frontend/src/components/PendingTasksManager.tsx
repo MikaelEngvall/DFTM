@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiEdit2, FiCheck, FiX } from 'react-icons/fi';
 import { userApi } from '../services/api/userApi';
 import { taskApi } from '../services/api/taskApi';
 import { Task, TaskStatus, TaskPriority } from '../types/task';
@@ -26,8 +25,6 @@ export const PendingTasksManager = () => {
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isPriorityModalOpen, setIsPriorityModalOpen] = useState(false);
-  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
-  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   
   // Form state
   const [editedTitle, setEditedTitle] = useState('');
@@ -79,13 +76,6 @@ export const PendingTasksManager = () => {
     }
   };
 
-  const handleEditTask = (task: Task) => {
-    setSelectedTask(task);
-    setEditedTitle(task.title);
-    setEditedDescription(task.description || '');
-    setIsEditModalOpen(true);
-  };
-
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
     setEditedTitle(task.title);
@@ -114,16 +104,6 @@ export const PendingTasksManager = () => {
     setIsPriorityModalOpen(true);
   };
 
-  const handleApproveTask = (task: Task) => {
-    setSelectedTask(task);
-    setIsApproveModalOpen(true);
-  };
-
-  const handleRejectTask = (task: Task) => {
-    setSelectedTask(task);
-    setIsRejectModalOpen(true);
-  };
-
   const saveEditedTask = async () => {
     if (!selectedTask) return;
     
@@ -137,11 +117,6 @@ export const PendingTasksManager = () => {
         priority: selectedPriority
       });
       
-      // Om användaren har tilldelats, uppdatera det också
-      if (selectedUserId && (selectedTask.assignedTo?.id !== selectedUserId)) {
-        await taskApi.assignTask(selectedTask.id, selectedUserId);
-      }
-      
       // Uppdatera listan med uppgifter
       setTasks(prevTasks => {
         // Om uppgiftens status är APPROVED eller REJECTED, ta bort den från listan
@@ -152,17 +127,35 @@ export const PendingTasksManager = () => {
         return prevTasks.map(task => 
           task.id === updatedTask.id ? {
             ...updatedTask,
-            // Om vi har tilldelat en användare, uppdatera den också i vår lokala uppgift
-            assignedTo: selectedUserId ? users.find(u => u.id === selectedUserId) : task.assignedTo
+            assignedTo: task.assignedTo // Behåll den befintliga tilldelningen tillsvidare
           } : task
         );
       });
       
+      // Om användaren har tilldelats, försök uppdatera det separat
+      // Detta ger oss möjlighet att hantera fel med tilldelningen utan att påverka de andra ändringarna
+      if (selectedUserId && (selectedTask.assignedTo?.id !== selectedUserId)) {
+        try {
+          const taskWithAssignedUser = await taskApi.assignTask(selectedTask.id, selectedUserId);
+          
+          // Uppdatera bara tilldelningen om det lyckas
+          setTasks(prevTasks => prevTasks.map(task => 
+            task.id === taskWithAssignedUser.id ? {
+              ...task,
+              assignedTo: users.find(u => u.id === selectedUserId)
+            } : task
+          ));
+        } catch (assignErr) {
+          console.error('Failed to assign task:', assignErr);
+          // Visa felmeddelande om tilldelning misslyckades men resten av ändringarna gick igenom
+          alert(t('errors.assignmentFailed'));
+        }
+      }
+      
       setIsEditModalOpen(false);
-      // Visa bekräftelsemeddelande eller notification här om det behövs
     } catch (err) {
       console.error('Failed to update task:', err);
-      // Visa felmeddelande här om det behövs
+      alert(t('errors.updateFailed'));
     }
   };
 
@@ -216,38 +209,6 @@ export const PendingTasksManager = () => {
       // Visa bekräftelsemeddelande
     } catch (err) {
       console.error('Failed to update task priority:', err);
-      // Visa felmeddelande
-    }
-  };
-
-  const approveTask = async () => {
-    if (!selectedTask) return;
-    
-    try {
-      const updatedTask = await taskApi.updateTaskStatus(selectedTask.id, TaskStatus.APPROVED);
-      
-      setTasks(prevTasks => prevTasks.filter(task => task.id !== updatedTask.id));
-      
-      setIsApproveModalOpen(false);
-      // Visa bekräftelsemeddelande
-    } catch (err) {
-      console.error('Failed to approve task:', err);
-      // Visa felmeddelande
-    }
-  };
-
-  const rejectTask = async () => {
-    if (!selectedTask) return;
-    
-    try {
-      const updatedTask = await taskApi.updateTaskStatus(selectedTask.id, TaskStatus.REJECTED);
-      
-      setTasks(prevTasks => prevTasks.filter(task => task.id !== updatedTask.id));
-      
-      setIsRejectModalOpen(false);
-      // Visa bekräftelsemeddelande
-    } catch (err) {
-      console.error('Failed to reject task:', err);
       // Visa felmeddelande
     }
   };
@@ -346,9 +307,6 @@ export const PendingTasksManager = () => {
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     {t('tasks.assignedTo')}
                   </th>
-                  <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    {t('common.actions')}
-                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border bg-card">
@@ -370,45 +328,6 @@ export const PendingTasksManager = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-card-foreground">
                       {task.assignedTo ? `${task.assignedTo.firstName} ${task.assignedTo.lastName}` : t('tasks.notAssigned')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex justify-center space-x-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditTask(task);
-                          }}
-                          title={t('pendingTasks.editTask')}
-                        >
-                          <FiEdit2 className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleApproveTask(task);
-                          }}
-                          title={t('pendingTasks.approve')}
-                        >
-                          <FiCheck className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRejectTask(task);
-                          }}
-                          title={t('pendingTasks.reject')}
-                        >
-                          <FiX className="w-4 h-4" />
-                        </Button>
-                      </div>
                     </td>
                   </tr>
                 ))}
@@ -470,7 +389,7 @@ export const PendingTasksManager = () => {
                   className="w-full"
                 >
                   <option value={TaskStatus.PENDING}>{t('tasks.statuses.pending')}</option>
-                  <option value={TaskStatus.IN_PROGRESS}>{t('tasks.statuses.inProgress')}</option>
+                  <option value={TaskStatus.IN_PROGRESS}>{t('tasks.statuses.inprogress')}</option>
                   <option value={TaskStatus.COMPLETED}>{t('tasks.statuses.completed')}</option>
                 </Select>
                 <Button 
@@ -548,30 +467,6 @@ export const PendingTasksManager = () => {
               </Button>
             </div>
           </div>
-          {selectedTask && (
-            <div className="pt-4 border-t mt-4">
-              <div className="flex justify-between">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20"
-                  onClick={approveTask}
-                >
-                  <FiCheck className="w-4 h-4 mr-2" />
-                  {t('pendingTasks.approve')}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                  onClick={rejectTask}
-                >
-                  <FiX className="w-4 h-4 mr-2" />
-                  {t('pendingTasks.reject')}
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
       </Dialog>
       
@@ -682,57 +577,6 @@ export const PendingTasksManager = () => {
             <option value={TaskPriority.URGENT}>{t('tasks.priorities.urgent')}</option>
           </Select>
         </div>
-      </Dialog>
-      
-      {/* Approve Task Confirmation */}
-      <Dialog
-        isOpen={isApproveModalOpen}
-        onClose={() => setIsApproveModalOpen(false)}
-        title={t('pendingTasks.approve')}
-        footer={
-          <>
-            <Button
-              variant="outline"
-              onClick={() => setIsApproveModalOpen(false)}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button 
-              variant="default"
-              className="bg-green-600 hover:bg-green-700"
-              onClick={approveTask}
-            >
-              {t('pendingTasks.approve')}
-            </Button>
-          </>
-        }
-      >
-        <p>{t('pendingTasks.confirmApprove')}</p>
-      </Dialog>
-      
-      {/* Reject Task Confirmation */}
-      <Dialog
-        isOpen={isRejectModalOpen}
-        onClose={() => setIsRejectModalOpen(false)}
-        title={t('pendingTasks.reject')}
-        footer={
-          <>
-            <Button
-              variant="outline"
-              onClick={() => setIsRejectModalOpen(false)}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button 
-              variant="destructive"
-              onClick={rejectTask}
-            >
-              {t('pendingTasks.reject')}
-            </Button>
-          </>
-        }
-      >
-        <p>{t('pendingTasks.confirmReject')}</p>
       </Dialog>
     </div>
   );

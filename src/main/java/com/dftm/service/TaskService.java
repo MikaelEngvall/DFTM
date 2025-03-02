@@ -3,20 +3,16 @@ package com.dftm.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.dftm.dto.TaskRequest;
 import com.dftm.exception.ResourceNotFoundException;
-import com.dftm.exception.UnauthorizedAccessException;
 import com.dftm.model.Language;
-import com.dftm.model.Role;
 import com.dftm.model.Task;
+import com.dftm.model.TaskPriority;
 import com.dftm.model.TaskStatus;
 import com.dftm.model.Translation;
-import com.dftm.model.User;
 import com.dftm.repository.TaskRepository;
-import com.dftm.dto.TaskRequest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -121,6 +117,13 @@ public class TaskService {
         log.debug("Approving task with ID: {}", taskId);
         Task task = getTaskById(taskId);
         task.setApproved(true);
+        task.setUpdatedAt(LocalDateTime.now());
+        return taskRepository.save(task);
+    }
+
+    public Task updateTaskPriority(String taskId, TaskPriority priority) {
+        Task task = getTaskById(taskId);
+        task.setPriority(priority);
         task.setUpdatedAt(LocalDateTime.now());
         return taskRepository.save(task);
     }

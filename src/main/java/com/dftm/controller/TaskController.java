@@ -2,6 +2,7 @@ package com.dftm.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.context.MessageSource;
@@ -12,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -105,6 +107,18 @@ public class TaskController {
                 .body(updatedTask);
     }
     
+    @PatchMapping("/{taskId}")
+    public ResponseEntity<Task> patchUpdateTask(
+            @PathVariable String taskId,
+            @Valid @RequestBody TaskRequest taskRequest) {
+        
+        log.debug("PATCH request to update task with ID: {}", taskId);
+        Task updatedTask = taskService.updateTask(taskId, taskRequest);
+        return ResponseEntity.ok()
+                .header("X-Message", getMessage("task.updated"))
+                .body(updatedTask);
+    }
+    
     @PutMapping("/{taskId}/status/{status}")
     public ResponseEntity<Task> updateTaskStatus(
             @PathVariable String taskId,
@@ -114,6 +128,49 @@ public class TaskController {
         Task updatedTask = taskService.updateTaskStatus(taskId, status);
         return ResponseEntity.ok()
                 .header("X-Message", getMessage("task.status.updated"))
+                .body(updatedTask);
+    }
+    
+    @PatchMapping("/{taskId}/status")
+    public ResponseEntity<Task> patchUpdateTaskStatus(
+            @PathVariable String taskId,
+            @RequestBody Map<String, String> statusMap) {
+            
+        TaskStatus status = TaskStatus.valueOf(statusMap.get("status"));
+        log.debug("PATCH request to update task status, ID: {}, new status: {}", taskId, status);
+        Task updatedTask = taskService.updateTaskStatus(taskId, status);
+        return ResponseEntity.ok()
+                .header("X-Message", getMessage("task.status.updated"))
+                .body(updatedTask);
+    }
+    
+    @PatchMapping("/{taskId}/assign")
+    public ResponseEntity<Task> assignTask(
+            @PathVariable String taskId,
+            @RequestBody Map<String, String> assignMap) {
+        
+        String userId = assignMap.get("userId");
+        log.debug("PATCH request to assign task, ID: {}, to user: {}", taskId, userId);
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String assigner = authentication.getName();
+        
+        Task updatedTask = taskService.assignTask(taskId, userId, assigner);
+        return ResponseEntity.ok()
+                .header("X-Message", getMessage("task.assigned"))
+                .body(updatedTask);
+    }
+    
+    @PatchMapping("/{taskId}/priority")
+    public ResponseEntity<Task> updateTaskPriority(
+            @PathVariable String taskId,
+            @RequestBody Map<String, String> priorityMap) {
+            
+        TaskPriority priority = TaskPriority.valueOf(priorityMap.get("priority"));
+        log.debug("PATCH request to update task priority, ID: {}, new priority: {}", taskId, priority);
+        Task updatedTask = taskService.updateTaskPriority(taskId, priority);
+        return ResponseEntity.ok()
+                .header("X-Message", getMessage("task.priority.updated"))
                 .body(updatedTask);
     }
     
