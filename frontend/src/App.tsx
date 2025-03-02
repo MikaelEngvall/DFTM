@@ -3,10 +3,11 @@ import { Navbar } from './components/Navbar'
 import { LandingPage } from './components/LandingPage'
 import { ProfilePage } from './components/ProfilePage'
 import { Calendar } from './components/Calendar'
+import { UserManagementPage } from './components/UserManagementPage'
 import { userApi } from './services/api/userApi'
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // Vi behöver inte isLoggedIn eftersom vi kan använda userName för att avgöra inloggningsstatus
   const [userId, setUserId] = useState<string>('');
   const [userName, setUserName] = useState<string>();
   const [currentView, setCurrentView] = useState<string>('landing');
@@ -17,7 +18,6 @@ function App() {
     // Kolla om användaren är inloggad
     const token = localStorage.getItem('token');
     if (token) {
-      setIsLoggedIn(true);
       fetchUserData();
     }
 
@@ -44,7 +44,6 @@ function App() {
         }
       } else {
         // Om användaren inte är inloggad eller token är ogiltig
-        setIsLoggedIn(false);
         setUserName(undefined);
         setUserId('');
         setUserRole('');
@@ -54,7 +53,6 @@ function App() {
     } catch (err) {
       console.error('Error fetching user data:', err);
       // Vid fel, rensa användardata
-      setIsLoggedIn(false);
       setUserName(undefined);
       setUserId('');
       setUserRole('');
@@ -69,7 +67,6 @@ function App() {
   }, [currentView]);
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
     setUserName(undefined);
     setUserId('');
     setUserRole('');
@@ -94,6 +91,15 @@ function App() {
         return <ProfilePage />;
       case 'calendar':
         return userId ? <Calendar userId={userId} userRole={userRole} /> : <div>Laddar...</div>;
+      case 'users':
+        // Kontrollera om användaren har behörighet att se användarhantering
+        if (userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN') {
+          return <UserManagementPage />;
+        } else {
+          // Omdirigera till kalendern om användaren inte har behörighet
+          setCurrentView('calendar');
+          return <div>Omdirigerar...</div>;
+        }
       default:
         return (
           <div className="container mx-auto px-4 py-8">
@@ -106,7 +112,6 @@ function App() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar
-        isLoggedIn={isLoggedIn}
         userName={userName}
         onLogout={handleLogout}
         onNavigate={navigateTo}

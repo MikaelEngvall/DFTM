@@ -9,9 +9,7 @@ import {
 } from 'react-icons/fi';
 import { GB, SE, PL, UA } from 'country-flag-icons/react/3x2';
 import { LoginModal } from './LoginModal';
-import { UserManagementTable } from './UserManagementTable';
 import { useTranslation } from 'react-i18next';
-import { User } from '../types/user';
 import { userApi } from '../services/api/userApi';
 
 export const Navbar = ({
@@ -27,12 +25,6 @@ export const Navbar = ({
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [userFirstName, setUserFirstName] = useState(userName);
-  const [isUserManagementVisible, setIsUserManagementVisible] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  // Vi använder _ för att förhindra lintervarning men behåller setUserRole för funktionalitet
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [userRole, setUserRole] = useState<string>('');
 
   // Kontrollera tema vid start
@@ -76,26 +68,6 @@ export const Navbar = ({
     fetchCurrentUser();
   }, []);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      if (isUserManagementVisible) {
-        setIsLoading(true);
-        setError(null);
-        try {
-          const fetchedUsers = await userApi.getUsers();
-          setUsers(fetchedUsers);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : 'Ett fel uppstod vid hämtning av användare');
-          console.error('Error fetching users:', err);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchUsers();
-  }, [isUserManagementVisible]);
-
   const toggleTheme = () => {
     const newDarkMode = !isDarkMode;
     setIsDarkMode(newDarkMode);
@@ -125,44 +97,6 @@ export const Navbar = ({
     }
   };
 
-  const handleUserUpdate = async (updatedUser: User) => {
-    try {
-      const updated = await userApi.updateUser(updatedUser);
-      setUsers(prevUsers =>
-        prevUsers.map(user => (user.id === updated.id ? updated : user))
-      );
-    } catch (err) {
-      console.error('Error updating user:', err);
-      // Här kan vi lägga till felhantering/meddelanden
-    }
-  };
-
-  const handleUserCreate = async (newUser: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => {
-    try {
-      // Validera token innan vi försöker skapa användaren
-      const tokenStatus = userApi.validateToken();
-      console.log('Token status innan försök att skapa användare:', tokenStatus);
-      
-      if (!tokenStatus.valid) {
-        console.error(`Kan inte skapa användare - ogiltigt token: ${tokenStatus.reason}`);
-        // Här kan man implementera ett visuellt felmeddelande till användaren
-        return;
-      }
-      
-      if (tokenStatus.role !== 'ROLE_SUPERADMIN') {
-        console.error(`Kan inte skapa användare - fel roll: ${tokenStatus.role}, endast ROLE_SUPERADMIN kan skapa användare`);
-        // Här kan man implementera ett visuellt felmeddelande till användaren
-        return;
-      }
-      
-      const created = await userApi.createUser(newUser);
-      setUsers(prevUsers => [...prevUsers, created]);
-    } catch (err) {
-      console.error('Error creating user:', err);
-      // Här kan vi lägga till felhantering/meddelanden
-    }
-  };
-
   const handleLogout = () => {
     userApi.logout();
     setUserFirstName(undefined);
@@ -171,11 +105,6 @@ export const Navbar = ({
   };
 
   const handleNavigate = (view: string) => {
-    // Dölj användarhantering om vi navigerar bort
-    if (view !== 'users') {
-      setIsUserManagementVisible(false);
-    }
-    
     // Anropa navigeringsfunktionen från props
     onNavigate?.(view);
   };
@@ -186,6 +115,10 @@ export const Navbar = ({
 
   const navigateToCalendar = () => {
     handleNavigate('calendar');
+  };
+
+  const navigateToUserManagement = () => {
+    handleNavigate('users');
   };
 
   // Språkalternativ
@@ -256,9 +189,9 @@ export const Navbar = ({
                   <>
                     <div className="flex items-center space-x-2">
                       {/* Användarhanteringsikon för admin/superadmin */}
-                      {userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN' && (
+                      {(userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN') && (
                         <button
-                          onClick={() => setIsUserManagementVisible(!isUserManagementVisible)}
+                          onClick={navigateToUserManagement}
                           className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
                           title={t('navbar.manageUsers')}
                         >
@@ -303,25 +236,6 @@ export const Navbar = ({
         onClose={() => setIsLoginModalOpen(false)}
         onLogin={handleLogin}
       />
-
-      {isUserManagementVisible && (
-        <div className="container mx-auto px-4 py-8">
-          <h2 className="text-2xl font-bold mb-4">Användarhantering</h2>
-          {isLoading ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            </div>
-          ) : error ? (
-            <div className="text-destructive">{error}</div>
-          ) : (
-            <UserManagementTable 
-              users={users} 
-              onUserUpdate={handleUserUpdate}
-              onUserCreate={handleUserCreate}
-            />
-          )}
-        </div>
-      )}
     </>
   );
 }; 
