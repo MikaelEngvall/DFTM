@@ -77,12 +77,13 @@
     "auth": {
       "login": "Logga in",
       "logout": "Logga ut",
-      "register": "Registrera dig",
+      "register": "Registrera",
       "userTooltip": "Din profil"
     },
     "manageUsers": "Hantera användare",
     "tooltips": {
-      "manageUsers": "Hantera användare"
+      "manageUsers": "Hantera användare",
+      "pendingTasks": "Väntande uppgifter"
     }
   },
   "calendar": {
@@ -318,5 +319,24 @@
       "commentPlaceholder": "Skriv din kommentar här...",
       "addComment": "Lägg till kommentar"
     }
+  },
+  "pendingTasks": {
+    "title": "Väntande uppgifter",
+    "subtitle": "Hantera uppgifter som väntar på godkännande",
+    "emptyState": "Inga väntande uppgifter hittades",
+    "assignTo": "Tilldela till",
+    "editTask": "Redigera uppgift",
+    "approve": "Godkänn",
+    "reject": "Avvisa",
+    "updateStatus": "Uppdatera status",
+    "updatePriority": "Uppdatera prioritet",
+    "taskUpdated": "Uppgiften har uppdaterats",
+    "assignSuccess": "Uppgiften har tilldelats",
+    "statusChanged": "Uppgiftens status har ändrats",
+    "priorityChanged": "Uppgiftens prioritet har ändrats",
+    "confirmApprove": "Är du säker på att du vill godkänna denna uppgift?",
+    "confirmReject": "Är du säker på att du vill avvisa denna uppgift?",
+    "search": "Sök väntande uppgifter",
+    "filter": "Filtrera uppgifter"
   }
 } 

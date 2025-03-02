@@ -1,4 +1,6 @@
 import { axiosInstance } from './axiosConfig';
+import { api } from './api';
+import { Task, TaskStatus, TaskPriority } from '../../types/task';
 
 // Uppgifternas prioritetsnivåer
 export enum TaskPriority {
@@ -77,9 +79,7 @@ export const taskApi = {
   // Hämta uppgifter för en specifik användare
   getTasksByUser: async (userId: string, archived: boolean = false): Promise<Task[]> => {
     try {
-      const response = await axiosInstance.get(`/tasks/user/${userId}`, {
-        params: { archived }
-      });
+      const response = await axiosInstance.get(`/tasks/user/${userId}?archived=${archived}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching tasks for user ${userId}:`, error);
@@ -101,20 +101,62 @@ export const taskApi = {
   // Uppdatera en uppgifts status
   updateTaskStatus: async (taskId: string, status: TaskStatus): Promise<Task> => {
     try {
-      const response = await axiosInstance.put(`/tasks/${taskId}/status/${status}`);
+      const response = await axiosInstance.put(`/tasks/${taskId}/status`, { status });
       return response.data;
     } catch (error) {
-      console.error(`Error updating status for task ${taskId}:`, error);
+      console.error(`Error updating task status for ${taskId}:`, error);
+      throw error;
+    }
+  },
+
+  // Hämta väntande uppgifter
+  getPendingTasks: async (): Promise<Task[]> => {
+    try {
+      const response = await axiosInstance.get('/tasks/pending');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching pending tasks:', error);
+      throw error;
+    }
+  },
+
+  // Uppdatera en uppgift
+  updateTask: async (taskId: string, taskData: Partial<Task>): Promise<Task> => {
+    try {
+      const response = await axiosInstance.put(`/tasks/${taskId}`, taskData);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating task ${taskId}:`, error);
+      throw error;
+    }
+  },
+
+  // Tilldela uppgift till användare
+  assignTask: async (taskId: string, userId: string): Promise<Task> => {
+    try {
+      const response = await axiosInstance.put(`/tasks/${taskId}/assign`, { userId });
+      return response.data;
+    } catch (error) {
+      console.error(`Error assigning task ${taskId} to user ${userId}:`, error);
+      throw error;
+    }
+  },
+
+  // Uppdatera uppgiftsprioritet
+  updateTaskPriority: async (taskId: string, priority: TaskPriority): Promise<Task> => {
+    try {
+      const response = await axiosInstance.put(`/tasks/${taskId}/priority`, { priority });
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating priority for task ${taskId}:`, error);
       throw error;
     }
   },
 
   // Lägg till en kommentar till en uppgift
-  addComment: async (taskId: string, text: string): Promise<Comment> => {
+  addComment: async (taskId: string, text: string): Promise<Task> => {
     try {
-      const response = await axiosInstance.post(`/tasks/${taskId}/comments`, {
-        text
-      });
+      const response = await axiosInstance.post(`/tasks/${taskId}/comments`, { text });
       return response.data;
     } catch (error) {
       console.error(`Error adding comment to task ${taskId}:`, error);

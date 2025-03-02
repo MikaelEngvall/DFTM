@@ -5,7 +5,8 @@ import {
   FiUser,
   FiLogOut,
   FiCalendar,
-  FiUsers
+  FiUsers,
+  FiClock
 } from 'react-icons/fi';
 import { GB, SE, PL, UA } from 'country-flag-icons/react/3x2';
 import { LoginModal } from './LoginModal';
@@ -175,6 +176,15 @@ export const Navbar = ({
     handleNavigate('users');
   };
 
+  const navigateToPendingTasks = () => {
+    if (!userFirstName) {
+      console.warn("Försöker navigera till väntande uppgifter när användaren inte är inloggad");
+      setIsLoginModalOpen(true);
+      return;
+    }
+    handleNavigate('pendingTasks');
+  };
+
   // Språkalternativ
   const languages = [
     { code: 'sv', flag: SE, label: 'Svenska' },
@@ -184,6 +194,7 @@ export const Navbar = ({
   ];
 
   const canManageUsers = userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN';
+  const canManageTasks = userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN' || userRole === 'ROLE_MANAGER';
 
   // Uppdatera för att hantera språkbyte och spara i localStorage
   const handleLanguageChange = (langCode: string) => {
@@ -245,6 +256,17 @@ export const Navbar = ({
                   title={t('navbar.tooltips.manageUsers')}
                 >
                   <FiUsers className="w-5 h-5" />
+                </button>
+              )}
+              
+              {/* Pending Tasks Icon */}
+              {userFirstName && canManageTasks && (
+                <button
+                  onClick={navigateToPendingTasks}
+                  className="p-1.5 ml-2 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
+                  title={t('navbar.tooltips.pendingTasks')}
+                >
+                  <FiClock className="w-5 h-5" />
                 </button>
               )}
             </div>

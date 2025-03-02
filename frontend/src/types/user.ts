@@ -5,11 +5,11 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  phoneNumber?: string;
-  password?: string;
+  role: string;
   preferredLanguage?: string;
-  role: UserRole;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  phoneNumber?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  lastLogin?: string;
+  active?: boolean;
 } 

@@ -4,6 +4,7 @@ import { LandingPage } from './components/LandingPage'
 import { ProfilePage } from './components/ProfilePage'
 import { Calendar } from './components/Calendar'
 import { UserManagementPage } from './components/UserManagementPage'
+import { PendingTasksManager } from './components/PendingTasksManager'
 import { userApi } from './services/api/userApi'
 
 function App() {
@@ -102,12 +103,17 @@ function App() {
     setCurrentView(view);
   };
 
+  // Funktion för att kontrollera om användaren har behörighet att hantera uppgifter
+  const canManageTasks = () => {
+    return userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN' || userRole === 'ROLE_MANAGER';
+  };
+
   // Rendera rätt innehåll baserat på aktuell vy
   const renderContent = () => {
     console.log("Rendering view:", currentView, "with user role:", userRole);
     
     // Om vi inte har ett användarID för vyer som kräver inloggning, visa landningssidan
-    if (!userId && (currentView === 'calendar' || currentView === 'profile' || currentView === 'users')) {
+    if (!userId && (currentView === 'calendar' || currentView === 'profile' || currentView === 'users' || currentView === 'pendingTasks')) {
       console.log("Missing userId for protected view, redirecting to landing");
       // Sätt tillbaka tillståndet till landing utan delay
       setCurrentView('landing');
@@ -132,6 +138,21 @@ function App() {
           return <UserManagementPage />;
         } else {
           console.log("Unauthorized access to users page, redirecting to calendar");
+          // Sätt tillbaka tillståndet till calendar utan delay
+          setCurrentView('calendar');
+          return (
+            <div className="container mx-auto px-4 py-8 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+              <p>Omdirigerar till kalendern...</p>
+            </div>
+          );
+        }
+      case 'pendingTasks':
+        // Kontrollera om användaren har behörighet att hantera väntande uppgifter
+        if (canManageTasks()) {
+          return <PendingTasksManager />;
+        } else {
+          console.log("Unauthorized access to pending tasks page, redirecting to calendar");
           // Sätt tillbaka tillståndet till calendar utan delay
           setCurrentView('calendar');
           return (

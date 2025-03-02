@@ -82,7 +82,8 @@
     },
     "manageUsers": "Zarządzaj użytkownikami",
     "tooltips": {
-      "manageUsers": "Zarządzaj użytkownikami"
+      "manageUsers": "Zarządzaj użytkownikami",
+      "pendingTasks": "Zadania oczekujące"
     }
   },
   "calendar": {
@@ -318,5 +319,24 @@
       "commentPlaceholder": "Napisz swój komentarz tutaj...",
       "addComment": "Dodaj komentarz"
     }
+  },
+  "pendingTasks": {
+    "title": "Zadania oczekujące",
+    "subtitle": "Zarządzaj zadaniami oczekującymi na zatwierdzenie",
+    "emptyState": "Nie znaleziono żadnych oczekujących zadań",
+    "assignTo": "Przypisz do",
+    "editTask": "Edytuj zadanie",
+    "approve": "Zatwierdź",
+    "reject": "Odrzuć",
+    "updateStatus": "Aktualizuj status",
+    "updatePriority": "Aktualizuj priorytet",
+    "taskUpdated": "Zadanie zostało zaktualizowane",
+    "assignSuccess": "Zadanie zostało przypisane",
+    "statusChanged": "Status zadania został zmieniony",
+    "priorityChanged": "Priorytet zadania został zmieniony",
+    "confirmApprove": "Czy na pewno chcesz zatwierdzić to zadanie?",
+    "confirmReject": "Czy na pewno chcesz odrzucić to zadanie?",
+    "search": "Szukaj oczekujących zadań",
+    "filter": "Filtruj zadania"
   }
 } 

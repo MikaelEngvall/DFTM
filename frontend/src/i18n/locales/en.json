@@ -82,7 +82,8 @@
     },
     "manageUsers": "Manage users",
     "tooltips": {
-      "manageUsers": "Manage users"
+      "manageUsers": "Manage users",
+      "pendingTasks": "Pending Tasks"
     }
   },
   "calendar": {
@@ -318,5 +319,24 @@
       "commentPlaceholder": "Write your comment here...",
       "addComment": "Add Comment"
     }
+  },
+  "pendingTasks": {
+    "title": "Pending Tasks",
+    "subtitle": "Manage tasks waiting for approval",
+    "emptyState": "No pending tasks found",
+    "assignTo": "Assign to",
+    "editTask": "Edit Task",
+    "approve": "Approve",
+    "reject": "Reject",
+    "updateStatus": "Update Status",
+    "updatePriority": "Update Priority",
+    "taskUpdated": "Task has been updated",
+    "assignSuccess": "Task has been assigned successfully",
+    "statusChanged": "Task status has been changed",
+    "priorityChanged": "Task priority has been changed",
+    "confirmApprove": "Are you sure you want to approve this task?",
+    "confirmReject": "Are you sure you want to reject this task?",
+    "search": "Search pending tasks",
+    "filter": "Filter tasks"
   }
 } 
