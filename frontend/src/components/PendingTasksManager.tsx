@@ -10,6 +10,7 @@ import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Select } from './ui/Select';
 import { pendingTasksToTasks, pendingTaskToTask } from '../utils/taskAdapters';
+import { Notification } from './ui/Notification';
 
 export const PendingTasksManager = () => {
   const { t } = useTranslation();
@@ -33,6 +34,14 @@ export const PendingTasksManager = () => {
   const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<TaskStatus>(TaskStatus.PENDING);
   const [selectedPriority, setSelectedPriority] = useState<TaskPriority>(TaskPriority.MEDIUM);
+  const [selectedDueDate, setSelectedDueDate] = useState<string>('');
+
+  // Notification state
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    type: 'success' as 'success' | 'error' | 'warning' | 'info',
+    message: ''
+  });
 
   useEffect(() => {
     fetchPendingTasks();
@@ -99,24 +108,8 @@ export const PendingTasksManager = () => {
     setSelectedUserId(task.assignedTo?.id || '');
     setSelectedStatus(task.status);
     setSelectedPriority(task.priority);
+    setSelectedDueDate(task.dueDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
     setIsEditModalOpen(true);
-  };
-
-  const assignPendingTask = async (taskId: string, userId: string) => {
-    try {
-      await taskApi.assignPendingTask(taskId, userId);
-      
-      // Uppdatera den lokala uppgiften med den nya användaren
-      setTasks(prevTasks => prevTasks.map(task =>
-        task.id === taskId ? {
-          ...task,
-          assignedTo: users.find(u => u.id === userId)
-        } : task
-      ));
-    } catch (assignErr) {
-      console.error('Failed to assign pending task:', assignErr);
-      throw assignErr;
-    }
   };
 
   // Ny funktion för att avvisa en pending task
@@ -124,60 +117,70 @@ export const PendingTasksManager = () => {
     if (!selectedTask) return;
 
     try {
-      // Sätt statusen till REJECTED
-      const pendingTaskData = {
-        title: editedTitle,
-        description: editedDescription,
-        status: TaskStatus.REJECTED,
-        priority: selectedPriority
-      };
-
-      // Uppdatera pending task
-      await taskApi.updatePendingTask(selectedTask.id, pendingTaskData);
+      await taskApi.rejectPendingTask(selectedTask.id);
 
       // Ta bort uppgiften från listan
       setTasks(prevTasks => prevTasks.filter(task => task.id !== selectedTask.id));
       setFilteredTasks(prevTasks => prevTasks.filter(task => task.id !== selectedTask.id));
 
       setIsEditModalOpen(false);
+      showNotification('success', t('notifications.taskRejected'));
     } catch (err) {
       console.error('Failed to reject pending task:', err);
-      alert(t('errors.updateFailed'));
+      showNotification('error', t('errors.rejectionFailed'));
     }
+  };
+
+  // Show notification helper
+  const showNotification = (type: 'success' | 'error' | 'warning' | 'info', message: string) => {
+    setNotification({
+      isVisible: true,
+      type,
+      message
+    });
+  };
+
+  // Close notification helper
+  const closeNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
   };
 
   // Ny funktion för att godkänna en pending task
   const approvePendingTask = async () => {
-    if (!selectedTask) return;
-
-    // Kontrollera om uppgiften har tilldelats en användare
-    if (!selectedUserId) {
-      alert(t('pendingTasks.assignUserRequired'));
-      return;
-    }
+    if (!selectedTask || !selectedUserId) return;
 
     try {
       // Tilldela användaren först om det behövs
       if (selectedUserId !== (selectedTask.assignedTo?.id || '')) {
-        await assignPendingTask(selectedTask.id, selectedUserId);
+        // Anropa assign internt i metoden för att undvika oanvänd funktion
+        try {
+          await taskApi.assignPendingTask(selectedTask.id, selectedUserId);
+        } catch (err) {
+          console.error('Failed to assign user to pending task:', err);
+          showNotification('error', t('errors.assignmentFailed'));
+          return;
+        }
       }
 
-      // Använd selectedUserId som både assignedToUserId och assignedByUserId
-      // eftersom vi inte har ett säkert sätt att få den inloggade användarens ID här
       await taskApi.approvePendingTask(
         selectedTask.id,
         selectedUserId,
-        selectedUserId // Använd samma ID som för assignedToUserId som en temporär lösning
+        selectedUserId, // Använd samma ID som för assignedToUserId som en temporär lösning
+        selectedDueDate ? new Date(selectedDueDate) : null
       );
 
-      // Ta bort uppgiften från pending tasks-listan
+      // Ta bort uppgiften från listan
       setTasks(prevTasks => prevTasks.filter(task => task.id !== selectedTask.id));
       setFilteredTasks(prevTasks => prevTasks.filter(task => task.id !== selectedTask.id));
 
       setIsEditModalOpen(false);
+      showNotification('success', t('notifications.taskApproved'));
     } catch (err) {
-      console.error('Failed to approve pending task:', err);
-      alert(t('errors.approvalFailed'));
+      console.error('Failed to approve task:', err);
+      showNotification('error', t('errors.approvalFailed'));
     }
   };
 
@@ -308,6 +311,45 @@ export const PendingTasksManager = () => {
     }
   };
 
+  // Uppdatera pending task med nya värden inklusive dueDate
+  const updatePendingTask = async () => {
+    if (!selectedTask) return;
+
+    try {
+      const pendingTaskData = {
+        title: editedTitle,
+        description: editedDescription,
+        status: selectedStatus,
+        priority: selectedPriority,
+        dueDate: selectedDueDate ? new Date(selectedDueDate) : null
+      };
+
+      await taskApi.updatePendingTask(selectedTask.id, pendingTaskData);
+
+      // Uppdatera uppgiften i listan
+      const updatedTask = {
+        ...selectedTask,
+        title: editedTitle,
+        description: editedDescription,
+        status: selectedStatus,
+        priority: selectedPriority,
+        dueDate: selectedDueDate
+      };
+
+      setTasks(prevTasks => prevTasks.map(task => 
+        task.id === updatedTask.id ? updatedTask : task
+      ));
+      setFilteredTasks(prevTasks => prevTasks.map(task => 
+        task.id === updatedTask.id ? updatedTask : task
+      ));
+
+      setIsEditModalOpen(false);
+    } catch (err) {
+      console.error('Failed to update pending task:', err);
+      showNotification('error', t('errors.updateFailed'));
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -335,6 +377,15 @@ export const PendingTasksManager = () => {
 
   return (
     <div className="container mx-auto p-4">
+      {/* Notification component */}
+      <Notification
+        type={notification.type}
+        message={notification.message}
+        isVisible={notification.isVisible}
+        onClose={closeNotification}
+        autoHideDuration={1500}
+      />
+
       <h1 className="text-2xl font-bold mb-2">{t('pendingTasks.title')}</h1>
       <p className="text-muted-foreground mb-6">{t('pendingTasks.subtitle')}</p>
       
@@ -419,6 +470,12 @@ export const PendingTasksManager = () => {
               {t('common.cancel')}
             </Button>
             <Button
+              variant="outline"
+              onClick={updatePendingTask}
+            >
+              {t('common.save')}
+            </Button>
+            <Button
               variant="destructive"
               onClick={rejectPendingTask}
             >
@@ -489,6 +546,17 @@ export const PendingTasksManager = () => {
                 ))}
               </Select>
             </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              {t('tasks.dueDate')}
+            </label>
+            <Input
+              type="date"
+              value={selectedDueDate}
+              onChange={(e) => setSelectedDueDate(e.target.value)}
+              className="w-full"
+            />
           </div>
         </div>
       </Dialog>

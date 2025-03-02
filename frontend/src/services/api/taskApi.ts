@@ -288,18 +288,42 @@ export const taskApi = {
   approvePendingTask: async (
     taskId: string,
     assignedToUserId: string,
-    assignedByUserId: string
+    assignedByUserId: string,
+    dueDate?: Date | null
   ): Promise<PendingTask> => {
     try {
-      const response = await axiosInstance.patch<PendingTask>(`/pending-tasks/${taskId}/approve`, null, {
-        params: {
-          assignedToUserId,
-          assignedByUserId
-        }
-      });
+      const params: Record<string, string> = {
+        assignedToUserId,
+        assignedByUserId
+      };
+
+      // Lägg till dueDate i parametrar om det finns
+      if (dueDate) {
+        params.dueDate = dueDate.toISOString();
+      }
+
+      const response = await axiosInstance.patch<PendingTask>(
+        `/pending-tasks/${taskId}/approve`, 
+        null, 
+        { params }
+      );
       return response.data;
     } catch (error) {
-      console.error('Error approving pending task:', error);
+      console.error('Failed to approve pending task:', error);
+      throw error;
+    }
+  },
+
+  // Funktion för att avvisa en pending task
+  rejectPendingTask: async (taskId: string): Promise<PendingTask> => {
+    try {
+      const response = await axiosInstance.patch<PendingTask>(
+        `/pending-tasks/${taskId}/status`,
+        { status: 'REJECTED' }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to reject pending task:', error);
       throw error;
     }
   }

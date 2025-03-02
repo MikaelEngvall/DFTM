@@ -32,6 +32,7 @@ public class PendingTask {
     
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime dueDate;
     
     private boolean assigned;
     private boolean approved;

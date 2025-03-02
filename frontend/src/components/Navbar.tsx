@@ -119,6 +119,10 @@ export const Navbar = ({
         }
       }
       setIsLoginModalOpen(false);
+      
+      // Ladda om sidan för att säkerställa att alla komponenter uppdateras korrekt
+      console.log('Inloggning lyckades, laddar om sidan för att uppdatera applikationen...');
+      window.location.reload();
     } catch (err) {
       console.error('Login error:', err);
       // Här kan vi lägga till felhantering/meddelanden

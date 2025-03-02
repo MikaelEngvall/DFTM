@@ -67,9 +67,24 @@ public class PendingTaskController {
     public ResponseEntity<PendingTask> approvePendingTask(
             @PathVariable String id,
             @RequestParam String assignedToUserId,
-            @RequestParam String assignedByUserId) {
-        log.debug("Approving pending task with id: {}", id);
-        PendingTask approvedTask = pendingTaskService.approvePendingTask(id, assignedToUserId, assignedByUserId);
+            @RequestParam String assignedByUserId,
+            @RequestParam(required = false) String dueDate) {
+        log.debug("Approving pending task with id: {}, dueDate: {}", id, dueDate);
+        
+        // Konvertera dueDate-strängen till LocalDateTime om den finns
+        LocalDateTime dueDateObj = null;
+        if (dueDate != null && !dueDate.isEmpty()) {
+            try {
+                // Förväntar ISO-8601 format (2023-04-15T14:30:00Z)
+                dueDateObj = LocalDateTime.parse(dueDate);
+                log.debug("Parsed dueDate: {}", dueDateObj);
+            } catch (Exception e) {
+                log.warn("Could not parse dueDate: {}. Error: {}", dueDate, e.getMessage());
+                // Fortsätt utan dueDate, servicen kommer använda standardvärdet
+            }
+        }
+        
+        PendingTask approvedTask = pendingTaskService.approvePendingTask(id, assignedToUserId, assignedByUserId, dueDateObj);
         return ResponseEntity.ok(approvedTask);
     }
 

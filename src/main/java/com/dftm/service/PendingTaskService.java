@@ -59,7 +59,7 @@ public class PendingTaskService {
         return pendingTaskRepository.findByApproved(approved);
     }
 
-    public PendingTask approvePendingTask(String pendingTaskId, String assignedToUserId, String assignedByUserId) {
+    public PendingTask approvePendingTask(String pendingTaskId, String assignedToUserId, String assignedByUserId, LocalDateTime customDueDate) {
         PendingTask pendingTask = pendingTaskRepository.findById(pendingTaskId)
                 .orElseThrow(() -> new RuntimeException("Pending task not found"));
 
@@ -89,8 +89,19 @@ public class PendingTaskService {
             taskPriority = TaskPriority.MEDIUM;
         }
 
-        // Sätt dueDate till 7 dagar framåt som standard
-        LocalDateTime dueDate = LocalDateTime.now().plusDays(7);
+        // Använd custom dueDate om det angivits, annars använd pendingTask dueDate om det finns,
+        // annars sätt det till 7 dagar framåt
+        LocalDateTime dueDate;
+        if (customDueDate != null) {
+            dueDate = customDueDate;
+            log.debug("Using custom dueDate: {}", dueDate);
+        } else if (pendingTask.getDueDate() != null) {
+            dueDate = pendingTask.getDueDate();
+            log.debug("Using pendingTask dueDate: {}", dueDate);
+        } else {
+            dueDate = LocalDateTime.now().plusDays(7);
+            log.debug("Using default dueDate (now+7days): {}", dueDate);
+        }
 
         // Skapa ny task baserad på pending task
         Task newTask = Task.builder()
