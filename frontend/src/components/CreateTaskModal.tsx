@@ -106,7 +106,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
         priority,
         assignedTo,
         assigner: currentUserId,
-        dueDate: selectedDate.toISOString().split('T')[0], // Format: YYYY-MM-DD
+        dueDate: `${selectedDate.toISOString().split('T')[0]}T12:00:00`, // Format: YYYY-MM-DDT12:00:00
         archived: false,
         approved: true,
       };

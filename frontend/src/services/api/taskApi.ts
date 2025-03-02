@@ -152,10 +152,29 @@ export const taskApi = {
       };
       
       console.log('Sending task creation request:', backendTask);
-      const response = await axiosInstance.post('/tasks', backendTask);
-      console.log('Task creation response:', response);
+      console.log('Token exists:', !!localStorage.getItem('token'));
       
-      return response.data;
+      try {
+        const response = await axiosInstance.post('/tasks', backendTask);
+        console.log('Task creation response:', response);
+        return response.data;
+      } catch (apiError: unknown) {
+        if (apiError && typeof apiError === 'object' && 'response' in apiError) {
+          const axiosError = apiError as { 
+            response?: { 
+              status?: number, 
+              data?: any, 
+              headers?: any 
+            } 
+          };
+          console.error('API error details:', {
+            status: axiosError.response?.status,
+            data: axiosError.response?.data,
+            headers: axiosError.response?.headers
+          });
+        }
+        throw apiError;
+      }
     } catch (error) {
       console.error('Error creating task:', error);
       throw error;

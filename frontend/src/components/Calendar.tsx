@@ -68,10 +68,9 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
 
   // Funktion för att öppna skapa uppgift modal
   const openCreateTaskModal = (date: Date) => {
-    if (isAdmin) {
-      setSelectedDate(date);
-      setIsCreateTaskModalOpen(true);
-    }
+    // Tillåt alla inloggade användare att öppna modalen
+    setSelectedDate(date);
+    setIsCreateTaskModalOpen(true);
   };
 
   // Funktion för att hantera när en ny uppgift skapats
