@@ -7,6 +7,9 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -121,5 +124,15 @@ public class UserController {
         return ResponseEntity.ok()
             .header("X-Message", getMessage("user.created"))
             .body(translateUser(createdUser));
+    }
+
+    @GetMapping("/me/role")
+    public ResponseEntity<String> getUserRole() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String role = auth.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .findFirst()
+            .orElse("NONE");
+        return ResponseEntity.ok("Your role is: " + role);
     }
 } 

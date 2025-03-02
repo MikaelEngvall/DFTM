@@ -40,7 +40,7 @@ function App() {
         console.log("App received user role:", user.role);
 
         // Om användaren loggar in, visa kalender för vanliga användare
-        if ((user.role === 'user' || user.role === 'ROLE_USER') && currentView === 'landing') {
+        if (user.role === 'ROLE_USER' && currentView === 'landing') {
           setCurrentView('calendar');
         }
       }

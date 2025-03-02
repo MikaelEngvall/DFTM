@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dftm.dto.TaskRequest;
 import com.dftm.model.Language;
-import com.dftm.model.PendingTask;
 import com.dftm.model.Task;
 import com.dftm.model.TaskPriority;
 import com.dftm.model.TaskStatus;
@@ -48,6 +48,7 @@ public class TaskController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<Task> createTask(@Valid @RequestBody TaskRequest taskRequest) {
         log.debug("POST request to create task");
         Task task = Task.createNewTask(

@@ -330,6 +330,7 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
           selectedDate={selectedDate}
           onTaskCreated={handleTaskCreated}
           currentUserId={userId}
+          userRole={userRole || 'ROLE_USER'}
         />
       )}
     </div>
