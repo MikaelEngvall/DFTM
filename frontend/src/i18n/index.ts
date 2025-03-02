@@ -23,7 +23,7 @@ i18n
         translation: ukTranslations,
       },
     },
-    lng: 'sv', // Default language
+    lng: 'en', // Default language
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false,

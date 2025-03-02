@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { User } from '../types/user';
 import { userApi } from '../services/api/userApi';
+import { useTranslation } from 'react-i18next';
 
 export const ProfilePage = () => {
+  const { t } = useTranslation();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -14,7 +16,7 @@ export const ProfilePage = () => {
         const userData = await userApi.getLoggedInUser();
         setUser(userData);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Ett fel uppstod vid hämtning av profil');
+        setError(err instanceof Error ? err.message : t('profile.errors.fetchFailed'));
         console.error('Error fetching profile:', err);
       } finally {
         setIsLoading(false);
@@ -22,7 +24,7 @@ export const ProfilePage = () => {
     };
 
     fetchUserProfile();
-  }, []);
+  }, [t]);
 
   if (isLoading) {
     return (
@@ -40,7 +42,7 @@ export const ProfilePage = () => {
           className="mt-2 px-4 py-2 bg-primary text-primary-foreground rounded-md"
           onClick={() => window.location.reload()}
         >
-          Försök igen
+          {t('common.tryAgain')}
         </button>
       </div>
     );
@@ -49,7 +51,7 @@ export const ProfilePage = () => {
   if (!user) {
     return (
       <div className="text-center p-4">
-        <p>Ingen användarinformation hittades. Vänligen logga in igen.</p>
+        <p>{t('profile.errors.noUserData')}</p>
       </div>
     );
   }
@@ -57,28 +59,28 @@ export const ProfilePage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Min profil</h1>
+        <h1 className="text-3xl font-bold mb-6">{t('profile.title')}</h1>
 
         <div className="bg-card rounded-lg shadow-sm border border-border p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-lg font-semibold mb-2">Personlig information</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('profile.personalInfo')}</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm text-muted-foreground">Förnamn</label>
+                  <label className="text-sm text-muted-foreground">{t('profile.firstName')}</label>
                   <p className="font-medium">{user.firstName}</p>
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground">Efternamn</label>
+                  <label className="text-sm text-muted-foreground">{t('profile.lastName')}</label>
                   <p className="font-medium">{user.lastName}</p>
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground">E-post</label>
+                  <label className="text-sm text-muted-foreground">{t('profile.email')}</label>
                   <p className="font-medium">{user.email}</p>
                 </div>
                 {user.phoneNumber && (
                   <div>
-                    <label className="text-sm text-muted-foreground">Telefon</label>
+                    <label className="text-sm text-muted-foreground">{t('profile.phone')}</label>
                     <p className="font-medium">{user.phoneNumber}</p>
                   </div>
                 )}
@@ -86,30 +88,30 @@ export const ProfilePage = () => {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-2">Kontoinformation</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('profile.accountInfo')}</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm text-muted-foreground">Roll</label>
+                  <label className="text-sm text-muted-foreground">{t('profile.role')}</label>
                   <p className="font-medium capitalize">{user.role}</p>
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground">Föredraget språk</label>
-                  <p className="font-medium">{user.preferredLanguage || 'Inte angett'}</p>
+                  <label className="text-sm text-muted-foreground">{t('profile.preferredLanguage')}</label>
+                  <p className="font-medium">{user.preferredLanguage || t('profile.notSpecified')}</p>
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground">Kontostatus</label>
+                  <label className="text-sm text-muted-foreground">{t('profile.accountStatus')}</label>
                   <p className="font-medium">
                     {user.isActive ? (
-                      <span className="text-green-500">Aktiv</span>
+                      <span className="text-green-500">{t('profile.status.active')}</span>
                     ) : (
-                      <span className="text-destructive">Inaktiv</span>
+                      <span className="text-destructive">{t('profile.status.inactive')}</span>
                     )}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground">Registrerad</label>
+                  <label className="text-sm text-muted-foreground">{t('profile.registered')}</label>
                   <p className="font-medium">
-                    {new Date(user.createdAt).toLocaleDateString('sv-SE')}
+                    {new Date(user.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               </div>

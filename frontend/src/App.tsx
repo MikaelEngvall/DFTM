@@ -39,6 +39,27 @@ function App() {
         setUserName(user.firstName);
         setUserRole(user.role);
 
+        // Ställ in språk baserat på användarens preferredLanguage
+        if (user.preferredLanguage) {
+          console.log(`Setting language based on user preference: ${user.preferredLanguage}`);
+          // Importera i18n direkt
+          const i18n = (await import('./i18n')).default;
+          
+          // Mappning från backend språkkod till frontend språkkod
+          const languageMapping: Record<string, string> = {
+            'SV': 'sv',
+            'EN': 'en',
+            'PL': 'pl',
+            'UK': 'uk'
+          };
+          
+          const frontendLangCode = languageMapping[user.preferredLanguage] || 'en';
+          i18n.changeLanguage(frontendLangCode);
+          console.log(`Language changed to: ${frontendLangCode}`);
+          // Spara även i localStorage så att språket bevaras
+          localStorage.setItem('language', frontendLangCode);
+        }
+
         // Om användaren loggar in, visa kalender för vanliga användare
         if (user.role === 'ROLE_USER' && currentView === 'landing') {
           setCurrentView('calendar');

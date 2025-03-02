@@ -27,7 +27,7 @@ export const Navbar = ({
   const [userFirstName, setUserFirstName] = useState(userName);
   const [userRole, setUserRole] = useState<string>('');
 
-  // Kontrollera tema vid start
+  // Kontrollera tema och språk vid start
   useEffect(() => {
     // Kontrollera om dark mode är aktiverat i systemet eller om användaren har valt det tidigare
     const isDark = document.documentElement.classList.contains('dark') || 
@@ -41,6 +41,13 @@ export const Navbar = ({
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
+    }
+    
+    // Kontrollera om språket är sparat i localStorage
+    const savedLanguage = localStorage.getItem('language');
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage);
+      console.log('Språk återställt från localStorage:', savedLanguage);
     }
   }, []);
 
@@ -89,6 +96,24 @@ export const Navbar = ({
       if (user) {
         setUserFirstName(user.firstName);
         setUserRole(user.role);
+        
+        // Ställ in språk baserat på användarens preferredLanguage
+        if (user.preferredLanguage) {
+          console.log(`Setting language based on user preference: ${user.preferredLanguage}`);
+          // Mappning från backend språkkod till frontend språkkod
+          const languageMapping: Record<string, string> = {
+            'SV': 'sv',
+            'EN': 'en',
+            'PL': 'pl',
+            'UK': 'uk'
+          };
+          
+          const frontendLangCode = languageMapping[user.preferredLanguage] || 'en';
+          i18n.changeLanguage(frontendLangCode);
+          // Spara även i localStorage så att språket bevaras
+          localStorage.setItem('language', frontendLangCode);
+          console.log(`Language changed to: ${frontendLangCode} and saved in localStorage`);
+        }
       }
       setIsLoginModalOpen(false);
     } catch (err) {
@@ -158,6 +183,13 @@ export const Navbar = ({
 
   const canManageUsers = userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN';
 
+  // Uppdatera för att hantera språkbyte och spara i localStorage
+  const handleLanguageChange = (langCode: string) => {
+    console.log(`Changing language to: ${langCode}`);
+    i18n.changeLanguage(langCode);
+    localStorage.setItem('language', langCode);
+  };
+
   return (
     <>
       <nav className="bg-background border-b border-border dark:bg-card dark:text-card-foreground">
@@ -183,7 +215,7 @@ export const Navbar = ({
                   title={t('navbar.calendar')}
                 >
                   <FiCalendar className="w-5 h-5 mr-1" />
-                  <span className="text-sm font-medium">Kalender</span>
+                  <span className="text-sm font-medium">{t('navbar.calendar')}</span>
                 </button>
               )}
 
@@ -192,7 +224,7 @@ export const Navbar = ({
                 {languages.map(({ code, flag: Flag, label }) => (
                   <button
                     key={code}
-                    onClick={() => i18n.changeLanguage(code)}
+                    onClick={() => handleLanguageChange(code)}
                     className={`w-6 h-4 rounded-sm overflow-hidden transition-opacity ${
                       i18n.language === code ? 'opacity-100' : 'opacity-50 hover:opacity-75'
                     }`}
