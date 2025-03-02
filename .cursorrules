@@ -30,8 +30,6 @@ Code Structure and Patterns
 Use functional components with TypeScript interfaces for props.
 Use const instead of function for defining components:
 tsx
-Copy
-Edit
 const Button: React.FC<ButtonProps> = ({ label }) => <button>{label}</button>;
 Use named exports for components.
 Avoid default exports unless necessary for dynamic imports.
@@ -47,8 +45,6 @@ Prefer useReducer over complex useState logic.
 Use useMemo and useCallback to optimize renders.
 Define proper types for useState:
 tsx
-Copy
-Edit
 const [count, setCount] = useState<number>(0);
 Use Zod for runtime validation and inferred types.
 Next.js Best Practices
@@ -77,8 +73,6 @@ Express Best Practices
 Use express-async-handler to avoid try-catch boilerplate.
 Define strongly typed request and response objects:
 ts
-Copy
-Edit
 app.get<{}, ResponseData>("/api", (req, res) => res.json({ message: "Hello" }));
 Use Zod or Yup for request validation.
 NestJS Best Practices
@@ -133,19 +127,6 @@ You are an expert in Java 21, Spring Boot, MongoDB (Mongoose), JWT authenticatio
 - Implement robust error handling and logging.
 - Enforce security best practices for JWT authentication and data protection.
 
-## **Project Structure**
-- Use a modular package structure:
-com.example.app
-config/
-controllers/
-services/
-repositories/
-models/
-security/
-utils/
-markdown
-Copy
-Edit
 - Separate concerns: Controller (API), Service (Business Logic), Repository (Database).
 - Use DTOs for request/response objects to decouple API and entity layers.
 
@@ -173,25 +154,12 @@ public record User(
   String name,
   String passwordHash
 ) {}
+
 JWT Authentication
 Use Spring Security with JWT for authentication.
 Implement stateless authentication using OncePerRequestFilter.
 Store secrets securely using environment variables.
 
-
-
-
-
-You said:
-in plain text please
-ChatGPT said:
-Sure! Here’s the .cursorrules file in plain text format:
-
-.cursorrules File for Java 21 Backend Development (Spring Boot, MongoDB, JWT, Mobile-Centric)
-
-diff
-Copy
-Edit
 You are an expert in Java 21, Spring Boot, MongoDB (Mongoose), JWT authentication, and mobile backend development.
 
 Key Principles  
@@ -286,3 +254,81 @@ Use efficient JSON serialization (Jackson) to reduce payload size.
 Implement WebSockets or Server-Sent Events (SSE) for real-time updates.
 Support offline mode by implementing sync strategies for mobile apps.
 Follow official Spring Boot, MongoDB, and JWT documentation for best practices and keep APIs secure, optimized, and mobile-friendly.
+
+The project's structure is this for nowDFTM/
+│
+├── frontend/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   │   ├── Calendar.tsx
+│   │   │   ├── CreateTaskModal.tsx
+│   │   │   ├── LandingPage.tsx
+│   │   │   ├── LoginModal.tsx
+│   │   │   ├── Navbar.tsx
+│   │   │   ├── PendingTasksManager.tsx
+│   │   │   ├── ProfilePage.tsx
+│   │   │   ├── TaskDetailModal.tsx
+│   │   │   ├── UserManagementPage.tsx
+│   │   │   └── ui/
+│   │   │       ├── Button.tsx
+│   │   │       ├── Dialog.tsx
+│   │   │       ├── Input.tsx
+│   │   │       ├── Notification.tsx
+│   │   │       ├── Select.tsx
+│   │   │       └── Spinner.tsx
+│   │   │
+│   │   ├── i18n/
+│   │   │   └── locales/
+│   │   │       ├── en.json
+│   │   │       ├── pl.json
+│   │   │       ├── sv.json
+│   │   │       └── uk.json
+│   │   │
+│   │   ├── services/
+│   │   │   └── api/
+│   │   │       ├── axiosConfig.ts
+│   │   │       ├── taskApi.ts
+│   │   │       └── userApi.ts
+│   │   │
+│   │   ├── types/
+│   │   │   ├── task.ts
+│   │   │   └── user.ts
+│   │   │
+│   │   ├── utils/
+│   │   │   └── taskAdapters.ts
+│   │   │
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   │
+│   └── index.html
+│
+├── src/
+│   └── main/
+│       └── java/
+│           └── com/
+│               └── dftm/
+│                   ├── config/
+│                   ├── controller/
+│                   │   ├── AuthController.java
+│                   │   ├── PendingTaskController.java
+│                   │   ├── TaskController.java
+│                   │   └── UserController.java
+│                   │
+│                   ├── model/
+│                   │   ├── PendingTask.java
+│                   │   ├── Task.java
+│                   │   ├── TaskPriority.java
+│                   │   ├── TaskStatus.java
+│                   │   └── User.java
+│                   │
+│                   ├── repository/
+│                   │   ├── PendingTaskRepository.java
+│                   │   ├── TaskRepository.java
+│                   │   └── UserRepository.java
+│                   │
+│                   └── service/
+│                       ├── PendingTaskService.java
+│                       ├── TaskService.java
+│                       └── UserService.java
+└── README.md
