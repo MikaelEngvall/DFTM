@@ -206,5 +206,108 @@
       "high": "Hög",
       "urgent": "Akut"
     }
+  },
+  "landingPage": {
+    "title": "Välkommen till DFTM",
+    "subtitle": "Duggals Fastigheter Task Management",
+    "features": {
+      "taskManagement": {
+        "title": "Uppgiftshantering",
+        "description": "Skapa, tilldela och hantera uppgifter enkelt och effektivt"
+      },
+      "calendarView": {
+        "title": "Kalendervy",
+        "description": "Planera och organisera aktiviteter med vår intuitiva kalender"
+      },
+      "collaboration": {
+        "title": "Samarbete",
+        "description": "Samarbeta med teamet med realtidsuppdateringar och meddelanden"
+      }
+    },
+    "loginPrompt": "Logga in för att komma igång"
+  },
+  "loginModal": {
+    "title": "Logga in",
+    "email": {
+      "label": "E-post",
+      "placeholder": "Ange din e-post"
+    },
+    "password": {
+      "label": "Lösenord",
+      "placeholder": "Ange ditt lösenord"
+    },
+    "rememberMe": "Kom ihåg mig",
+    "forgotPassword": "Glömt lösenord?",
+    "submit": "Logga in"
+  },
+  "userManagement": {
+    "title": "Användarhantering",
+    "showInactive": "Visa inaktiva användare",
+    "createUser": {
+      "button": "Skapa användare",
+      "title": "Skapa ny användare",
+      "firstName": "Förnamn",
+      "lastName": "Efternamn",
+      "email": "E-post",
+      "phoneNumber": "Telefonnummer",
+      "password": "Lösenord",
+      "role": "Roll",
+      "preferredLanguage": "Föredraget språk",
+      "isActive": "Aktiv användare",
+      "cancel": "Avbryt",
+      "save": "Spara"
+    },
+    "editUser": {
+      "title": "Redigera användare",
+      "firstName": "Förnamn",
+      "lastName": "Efternamn",
+      "email": "E-post",
+      "phoneNumber": "Telefonnummer",
+      "password": "Lösenord",
+      "passwordHelp": "Lämna tomt för att behålla nuvarande lösenord",
+      "role": "Roll",
+      "preferredLanguage": "Föredraget språk",
+      "isActive": "Aktiv användare",
+      "cancel": "Avbryt",
+      "save": "Spara"
+    },
+    "table": {
+      "firstName": "Förnamn",
+      "lastName": "Efternamn",
+      "phoneNumber": "Telefon",
+      "role": "Roll"
+    },
+    "roles": {
+      "user": "Användare",
+      "admin": "Administratör",
+      "superadmin": "Superadministratör"
+    },
+    "languages": {
+      "sv": "Svenska",
+      "en": "Engelska",
+      "pl": "Polska",
+      "uk": "Ukrainska"
+    }
+  },
+  "task": {
+    "status": {
+      "pending": "Väntande",
+      "inProgress": "Pågående",
+      "completed": "Slutförd",
+      "approved": "Godkänd",
+      "rejected": "Avvisad"
+    },
+    "details": {
+      "description": "Beskrivning",
+      "dueDate": "Förfallodatum",
+      "completedDate": "Slutförandedatum",
+      "created": "Skapad",
+      "updated": "Uppdaterad",
+      "updateStatus": "Uppdatera status",
+      "comments": "Kommentarer",
+      "noComments": "Inga kommentarer ännu",
+      "commentPlaceholder": "Skriv din kommentar här...",
+      "addComment": "Lägg till kommentar"
+    }
   }
 } 

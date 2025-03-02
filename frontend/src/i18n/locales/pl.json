@@ -206,5 +206,108 @@
       "high": "Wysoki",
       "urgent": "Pilny"
     }
+  },
+  "landingPage": {
+    "title": "Witamy w DFTM",
+    "subtitle": "Duggals Fastigheter Task Management",
+    "features": {
+      "taskManagement": {
+        "title": "Zarządzanie zadaniami",
+        "description": "Twórz, przydzielaj i zarządzaj zadaniami łatwo i efektywnie"
+      },
+      "calendarView": {
+        "title": "Widok kalendarza",
+        "description": "Planuj i organizuj aktywności dzięki naszemu intuicyjnemu kalendarzowi"
+      },
+      "collaboration": {
+        "title": "Współpraca",
+        "description": "Współpracuj z zespołem dzięki aktualizacjom i powiadomieniom w czasie rzeczywistym"
+      }
+    },
+    "loginPrompt": "Zaloguj się, aby rozpocząć"
+  },
+  "loginModal": {
+    "title": "Zaloguj się",
+    "email": {
+      "label": "Email",
+      "placeholder": "Wprowadź swój email"
+    },
+    "password": {
+      "label": "Hasło",
+      "placeholder": "Wprowadź swoje hasło"
+    },
+    "rememberMe": "Zapamiętaj mnie",
+    "forgotPassword": "Zapomniałeś hasła?",
+    "submit": "Zaloguj się"
+  },
+  "userManagement": {
+    "title": "Zarządzanie użytkownikami",
+    "showInactive": "Pokaż nieaktywnych użytkowników",
+    "createUser": {
+      "button": "Utwórz użytkownika",
+      "title": "Utwórz nowego użytkownika",
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "email": "Email",
+      "phoneNumber": "Numer telefonu",
+      "password": "Hasło",
+      "role": "Rola",
+      "preferredLanguage": "Preferowany język",
+      "isActive": "Aktywny użytkownik",
+      "cancel": "Anuluj",
+      "save": "Zapisz"
+    },
+    "editUser": {
+      "title": "Edytuj użytkownika",
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "email": "Email",
+      "phoneNumber": "Numer telefonu",
+      "password": "Hasło",
+      "passwordHelp": "Pozostaw puste, aby zachować aktualne hasło",
+      "role": "Rola",
+      "preferredLanguage": "Preferowany język",
+      "isActive": "Aktywny użytkownik",
+      "cancel": "Anuluj",
+      "save": "Zapisz"
+    },
+    "table": {
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "phoneNumber": "Telefon",
+      "role": "Rola"
+    },
+    "roles": {
+      "user": "Użytkownik",
+      "admin": "Administrator",
+      "superadmin": "Super Administrator"
+    },
+    "languages": {
+      "sv": "Szwedzki",
+      "en": "Angielski",
+      "pl": "Polski",
+      "uk": "Ukraiński"
+    }
+  },
+  "task": {
+    "status": {
+      "pending": "Oczekujące",
+      "inProgress": "W trakcie",
+      "completed": "Zakończone",
+      "approved": "Zatwierdzone",
+      "rejected": "Odrzucone"
+    },
+    "details": {
+      "description": "Opis",
+      "dueDate": "Termin wykonania",
+      "completedDate": "Data zakończenia",
+      "created": "Utworzone",
+      "updated": "Zaktualizowane",
+      "updateStatus": "Aktualizuj status",
+      "comments": "Komentarze",
+      "noComments": "Brak komentarzy",
+      "commentPlaceholder": "Napisz swój komentarz tutaj...",
+      "addComment": "Dodaj komentarz"
+    }
   }
 } 

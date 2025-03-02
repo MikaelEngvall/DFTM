@@ -206,5 +206,108 @@
       "high": "Високий",
       "urgent": "Терміновий"
     }
+  },
+  "landingPage": {
+    "title": "Ласкаво просимо до DFTM",
+    "subtitle": "Duggals Fastigheter Task Management",
+    "features": {
+      "taskManagement": {
+        "title": "Управління завданнями",
+        "description": "Створюйте, призначайте та керуйте завданнями легко та ефективно"
+      },
+      "calendarView": {
+        "title": "Перегляд календаря",
+        "description": "Плануйте та організовуйте діяльність за допомогою нашого інтуїтивного календаря"
+      },
+      "collaboration": {
+        "title": "Співпраця",
+        "description": "Співпрацюйте з командою за допомогою оновлень та сповіщень у реальному часі"
+      }
+    },
+    "loginPrompt": "Увійдіть, щоб почати"
+  },
+  "loginModal": {
+    "title": "Увійти",
+    "email": {
+      "label": "Електронна пошта",
+      "placeholder": "Введіть вашу електронну пошту"
+    },
+    "password": {
+      "label": "Пароль",
+      "placeholder": "Введіть ваш пароль"
+    },
+    "rememberMe": "Запам'ятати мене",
+    "forgotPassword": "Забули пароль?",
+    "submit": "Увійти"
+  },
+  "userManagement": {
+    "title": "Керування користувачами",
+    "showInactive": "Показати неактивних користувачів",
+    "createUser": {
+      "button": "Створити користувача",
+      "title": "Створити нового користувача",
+      "firstName": "Ім'я",
+      "lastName": "Прізвище",
+      "email": "Електронна пошта",
+      "phoneNumber": "Номер телефону",
+      "password": "Пароль",
+      "role": "Роль",
+      "preferredLanguage": "Бажана мова",
+      "isActive": "Активний користувач",
+      "cancel": "Скасувати",
+      "save": "Зберегти"
+    },
+    "editUser": {
+      "title": "Редагувати користувача",
+      "firstName": "Ім'я",
+      "lastName": "Прізвище",
+      "email": "Електронна пошта",
+      "phoneNumber": "Номер телефону",
+      "password": "Пароль",
+      "passwordHelp": "Залиште порожнім, щоб зберегти поточний пароль",
+      "role": "Роль",
+      "preferredLanguage": "Бажана мова",
+      "isActive": "Активний користувач",
+      "cancel": "Скасувати",
+      "save": "Зберегти"
+    },
+    "table": {
+      "firstName": "Ім'я",
+      "lastName": "Прізвище",
+      "phoneNumber": "Телефон",
+      "role": "Роль"
+    },
+    "roles": {
+      "user": "Користувач",
+      "admin": "Адміністратор",
+      "superadmin": "Суперадміністратор"
+    },
+    "languages": {
+      "sv": "Шведська",
+      "en": "Англійська",
+      "pl": "Польська",
+      "uk": "Українська"
+    }
+  },
+  "task": {
+    "status": {
+      "pending": "В очікуванні",
+      "inProgress": "В процесі",
+      "completed": "Виконано",
+      "approved": "Затверджено",
+      "rejected": "Відхилено"
+    },
+    "details": {
+      "description": "Опис",
+      "dueDate": "Термін виконання",
+      "completedDate": "Дата виконання",
+      "created": "Створено",
+      "updated": "Оновлено",
+      "updateStatus": "Оновити статус",
+      "comments": "Коментарі",
+      "noComments": "Ще немає коментарів",
+      "commentPlaceholder": "Напишіть свій коментар тут...",
+      "addComment": "Додати коментар"
+    }
   }
 } 

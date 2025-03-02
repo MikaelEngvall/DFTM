@@ -206,5 +206,108 @@
       "high": "High",
       "urgent": "Urgent"
     }
+  },
+  "landingPage": {
+    "title": "Welcome to DFTM",
+    "subtitle": "Duggals Fastigheter Task Management",
+    "features": {
+      "taskManagement": {
+        "title": "Task Management",
+        "description": "Create, assign and manage tasks easily and efficiently"
+      },
+      "calendarView": {
+        "title": "Calendar View",
+        "description": "Plan and organize activities with our intuitive calendar"
+      },
+      "collaboration": {
+        "title": "Collaboration",
+        "description": "Collaborate with your team with real-time updates and notifications"
+      }
+    },
+    "loginPrompt": "Login to get started"
+  },
+  "loginModal": {
+    "title": "Log in",
+    "email": {
+      "label": "Email",
+      "placeholder": "Enter your email"
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "Enter your password"
+    },
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "submit": "Log in"
+  },
+  "userManagement": {
+    "title": "User Management",
+    "showInactive": "Show inactive users",
+    "createUser": {
+      "button": "Create User",
+      "title": "Create New User",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phoneNumber": "Phone Number",
+      "password": "Password",
+      "role": "Role",
+      "preferredLanguage": "Preferred Language",
+      "isActive": "Active User",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "editUser": {
+      "title": "Edit User",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phoneNumber": "Phone Number",
+      "password": "Password",
+      "passwordHelp": "Leave blank to keep current password",
+      "role": "Role",
+      "preferredLanguage": "Preferred Language",
+      "isActive": "Active User",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "table": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "phoneNumber": "Phone",
+      "role": "Role"
+    },
+    "roles": {
+      "user": "User",
+      "admin": "Administrator",
+      "superadmin": "Super Administrator"
+    },
+    "languages": {
+      "sv": "Swedish",
+      "en": "English",
+      "pl": "Polish",
+      "uk": "Ukrainian"
+    }
+  },
+  "task": {
+    "status": {
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "details": {
+      "description": "Description",
+      "dueDate": "Due Date",
+      "completedDate": "Completed Date",
+      "created": "Created",
+      "updated": "Updated",
+      "updateStatus": "Update Status",
+      "comments": "Comments",
+      "noComments": "No comments yet",
+      "commentPlaceholder": "Write your comment here...",
+      "addComment": "Add Comment"
+    }
   }
 } 
