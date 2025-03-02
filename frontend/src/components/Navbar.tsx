@@ -206,7 +206,7 @@ export const Navbar = ({
                 <img 
                   src={isDarkMode ? LogoDark : LogoLight} 
                   alt="DFTASKS" 
-                  className="h-8" 
+                  className="h-12" 
                 />
               </div>
             </div>
