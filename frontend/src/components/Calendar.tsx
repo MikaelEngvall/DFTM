@@ -29,7 +29,19 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
       try {
         setIsLoading(true);
         setError(null);
-        const userTasks = await taskApi.getTasksByUser(userId);
+        
+        let userTasks: Task[] = [];
+        
+        // Admin/superadmin kan se alla uppgifter
+        if (isAdmin) {
+          console.log("Admin user, fetching all tasks");
+          userTasks = await taskApi.getAllTasks();
+        } else {
+          // Vanliga användare ser bara egna uppgifter
+          console.log("Regular user, fetching user tasks");
+          userTasks = await taskApi.getTasksByUser(userId);
+        }
+        
         setTasks(userTasks);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Ett fel uppstod vid hämtning av uppgifter');

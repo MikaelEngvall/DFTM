@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import {
-  FiMenu,
-  FiX,
   FiSun,
   FiMoon,
-  FiChevronDown,
   FiUser,
   FiLogOut,
   FiCalendar,
+  FiUsers
 } from 'react-icons/fi';
 import { GB, SE, PL, UA } from 'country-flag-icons/react/3x2';
 import { LoginModal } from './LoginModal';
@@ -17,12 +15,10 @@ import { User } from '../types/user';
 import { userApi } from '../services/api/userApi';
 
 export const Navbar = ({
-  isLoggedIn,
   userName,
   onLogout,
   onNavigate,
 }: {
-  isLoggedIn: boolean;
   userName?: string;
   onLogout?: () => void;
   onNavigate?: (view: string) => void;
@@ -35,6 +31,8 @@ export const Navbar = ({
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Vi använder _ för att förhindra lintervarning men behåller setUserRole för funktionalitet
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [userRole, setUserRole] = useState<string>('');
 
   // Kontrollera tema vid start
@@ -57,11 +55,21 @@ export const Navbar = ({
   // Hämta användarinformation från JWT vid start
   useEffect(() => {
     const fetchCurrentUser = async () => {
-      const user = await userApi.getCurrentUser();
-      if (user) {
-        setUserFirstName(user.firstName);
-        setUserRole(user.role);
-        console.log("Navbar received user role:", user.role);
+      try {
+        const user = await userApi.getCurrentUser();
+        if (user) {
+          setUserFirstName(user.firstName);
+          setUserRole(user.role);
+          console.log("Navbar received user role:", user.role);
+        } else {
+          // Användaren är inte inloggad eller token är ogiltig
+          setUserFirstName(undefined);
+          setUserRole('');
+        }
+      } catch (error) {
+        console.error("Fel vid hämtning av användarinfo:", error);
+        setUserFirstName(undefined);
+        setUserRole('');
       }
     };
     
@@ -184,6 +192,7 @@ export const Navbar = ({
   const languages = [
     { code: 'sv', flag: SE, label: 'Svenska' },
     { code: 'en', flag: GB, label: 'English' },
+    { code: 'pl', flag: PL, label: 'Polski' },
     { code: 'uk', flag: UA, label: 'Українська' },
   ];
 
@@ -241,11 +250,22 @@ export const Navbar = ({
                 {isDarkMode ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
               </button>
 
-              {/* Auth Section */}
-              <div className="flex items-center space-x-2">
+              {/* Auth Section - Always rightmost */}
+              <div className="flex items-center space-x-2 ml-auto">
                 {userFirstName ? (
                   <>
                     <div className="flex items-center space-x-2">
+                      {/* Användarhanteringsikon för admin/superadmin */}
+                      {userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN' && (
+                        <button
+                          onClick={() => setIsUserManagementVisible(!isUserManagementVisible)}
+                          className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
+                          title={t('navbar.manageUsers')}
+                        >
+                          <FiUsers className="w-5 h-5" />
+                        </button>
+                      )}
+                      
                       <button
                         onClick={navigateToProfile}
                         className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"

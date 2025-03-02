@@ -58,8 +58,15 @@ axiosInstance.interceptors.request.use((config) => {
 // User API service
 export const userApi = {
   // Hämta den inloggade användaren
-  getCurrentUser: async (): Promise<User> => {
+  getCurrentUser: async (): Promise<User | null> => {
     try {
+      // Kontrollera först om token finns
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.log('Ingen token hittades, användaren är inte inloggad');
+        return null;
+      }
+      
       const response = await axiosInstance.get('/auth/me');
       const userData = response.data;
 
@@ -80,6 +87,15 @@ export const userApi = {
       };
     } catch (error) {
       console.error('Error fetching current user:', error);
+      // Om vi får ett 401 eller 403, ta bort token och returnera null
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 401 || axiosError.response?.status === 403) {
+          console.log('Token är ogiltig eller utgången, tar bort token');
+          localStorage.removeItem('token');
+          return null;
+        }
+      }
       throw error;
     }
   },
@@ -120,7 +136,7 @@ export const userApi = {
   // Ändra en användares lösenord
   changePassword: async (currentPassword: string, newPassword: string): Promise<void> => {
     try {
-      await axiosInstance.post('/auth/change-password', {
+      await axiosInstance.post('/api/v1/auth/change-password', {
         currentPassword,
         newPassword
       });
@@ -133,7 +149,7 @@ export const userApi = {
   // Begär ändring av e-post
   requestEmailChange: async (newEmail: string): Promise<void> => {
     try {
-      await axiosInstance.post('/auth/request-email-change', {
+      await axiosInstance.post('/api/v1/auth/request-email-change', {
         newEmail
       });
     } catch (error) {
@@ -145,7 +161,7 @@ export const userApi = {
   // Hämta alla användare
   getUsers: async (): Promise<User[]> => {
     try {
-      const response = await axiosInstance.get('/users');
+      const response = await axiosInstance.get('/api/v1/users');
       return response.data.map((user: BackendUser) => ({
         id: user.id,
         username: user.username,

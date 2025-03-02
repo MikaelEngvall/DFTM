@@ -42,9 +42,24 @@ function App() {
         if (user.role === 'ROLE_USER' && currentView === 'landing') {
           setCurrentView('calendar');
         }
+      } else {
+        // Om användaren inte är inloggad eller token är ogiltig
+        setIsLoggedIn(false);
+        setUserName(undefined);
+        setUserId('');
+        setUserRole('');
+        localStorage.removeItem('token');
+        setCurrentView('landing');
       }
     } catch (err) {
       console.error('Error fetching user data:', err);
+      // Vid fel, rensa användardata
+      setIsLoggedIn(false);
+      setUserName(undefined);
+      setUserId('');
+      setUserRole('');
+      localStorage.removeItem('token');
+      setCurrentView('landing');
     }
   };
 
