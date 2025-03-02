@@ -1,5 +1,6 @@
 package com.dftm.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,13 +71,34 @@ public class PendingTaskService {
         pendingTask.setApproved(true);
         PendingTask savedPendingTask = pendingTaskRepository.save(pendingTask);
 
+        // Konvertera status från sträng till enum
+        TaskStatus taskStatus;
+        try {
+            taskStatus = TaskStatus.valueOf(pendingTask.getStatus());
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid status value in pending task: {}. Using default PENDING", pendingTask.getStatus());
+            taskStatus = TaskStatus.PENDING;
+        }
+
+        // Konvertera priority från sträng till enum
+        TaskPriority taskPriority;
+        try {
+            taskPriority = TaskPriority.valueOf(pendingTask.getPriority());
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid priority value in pending task: {}. Using default MEDIUM", pendingTask.getPriority());
+            taskPriority = TaskPriority.MEDIUM;
+        }
+
+        // Sätt dueDate till 7 dagar framåt som standard
+        LocalDateTime dueDate = LocalDateTime.now().plusDays(7);
+
         // Skapa ny task baserad på pending task
         Task newTask = Task.builder()
                 .title(pendingTask.getTitle())
                 .description(pendingTask.getDescription())
-                .status(TaskStatus.PENDING)
-                .priority(TaskPriority.MEDIUM)
-                .dueDate(null)
+                .status(taskStatus)
+                .priority(taskPriority)
+                .dueDate(dueDate)
                 .assignedTo(assignedToUserId)
                 .assigner(assignedByUserId)
                 .reporter(pendingTask.getReporter())
@@ -86,8 +108,8 @@ public class PendingTaskService {
                 .approved(true)
                 .build();
 
-        taskRepository.save(newTask);
-        log.info("Created new task from approved pending task: {}", newTask.getId());
+        Task savedTask = taskRepository.save(newTask);
+        log.info("Created new task from approved pending task: {}", savedTask.getId());
 
         return savedPendingTask;
     }

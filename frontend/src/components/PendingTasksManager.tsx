@@ -102,83 +102,82 @@ export const PendingTasksManager = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleAssignTask = (task: Task) => {
-    setSelectedTask(task);
-    setSelectedUserId(task.assignedTo?.id || '');
-    setIsAssignModalOpen(true);
-  };
-
-  const handleUpdateStatus = (task: Task) => {
-    setSelectedTask(task);
-    setSelectedStatus(task.status);
-    setIsStatusModalOpen(true);
-  };
-
-  const handleUpdatePriority = (task: Task) => {
-    setSelectedTask(task);
-    setSelectedPriority(task.priority);
-    setIsPriorityModalOpen(true);
-  };
-
-  const saveEditedTask = async () => {
-    if (!selectedTask) return;
-    
+  const assignPendingTask = async (taskId: string, userId: string) => {
     try {
-      // Först uppdaterar vi grundläggande information
+      await taskApi.assignPendingTask(taskId, userId);
+      
+      // Uppdatera den lokala uppgiften med den nya användaren
+      setTasks(prevTasks => prevTasks.map(task =>
+        task.id === taskId ? {
+          ...task,
+          assignedTo: users.find(u => u.id === userId)
+        } : task
+      ));
+    } catch (assignErr) {
+      console.error('Failed to assign pending task:', assignErr);
+      throw assignErr;
+    }
+  };
+
+  // Ny funktion för att avvisa en pending task
+  const rejectPendingTask = async () => {
+    if (!selectedTask) return;
+
+    try {
+      // Sätt statusen till REJECTED
       const pendingTaskData = {
         title: editedTitle,
         description: editedDescription,
-        status: selectedStatus,
+        status: TaskStatus.REJECTED,
         priority: selectedPriority
       };
-      
-      // Konvertera Task till PendingTask-format för att uppdatera
-      const updatedPendingTask = await taskApi.updatePendingTask(selectedTask.id, pendingTaskData);
-      
-      // Konvertera tillbaka den uppdaterade PendingTask till Task för UI
-      const updatedTask = pendingTaskToTask(updatedPendingTask);
-      
-      // Uppdatera listan med uppgifter
-      setTasks(prevTasks => {
-        // Om uppgiftens status är APPROVED eller REJECTED, ta bort den från listan
-        if (selectedStatus === TaskStatus.APPROVED || selectedStatus === TaskStatus.REJECTED) {
-          return prevTasks.filter(task => task.id !== updatedTask.id);
-        }
-        // Annars uppdatera den i listan
-        return prevTasks.map(task => 
-          task.id === updatedTask.id ? {
-            ...updatedTask,
-            assignedTo: task.assignedTo // Behåll den befintliga tilldelningen tillsvidare
-          } : task
-        );
-      });
-      
-      // Om användaren har tilldelats, försök uppdatera det separat
-      if (selectedUserId && (selectedTask.assignedTo?.id !== selectedUserId)) {
-        try {
-          const pendingTaskWithAssignedUser = await taskApi.assignPendingTask(selectedTask.id, selectedUserId);
-          
-          // Konvertera tillbaka till Task för UI
-          const taskWithAssignedUser = pendingTaskToTask(pendingTaskWithAssignedUser);
-          
-          // Uppdatera bara tilldelningen om det lyckas
-          setTasks(prevTasks => prevTasks.map(task => 
-            task.id === taskWithAssignedUser.id ? {
-              ...task,
-              assignedTo: users.find(u => u.id === selectedUserId)
-            } : task
-          ));
-        } catch (assignErr) {
-          console.error('Failed to assign pending task:', assignErr);
-          // Visa felmeddelande om tilldelning misslyckades men resten av ändringarna gick igenom
-          alert(t('errors.assignmentFailed'));
-        }
-      }
-      
+
+      // Uppdatera pending task
+      await taskApi.updatePendingTask(selectedTask.id, pendingTaskData);
+
+      // Ta bort uppgiften från listan
+      setTasks(prevTasks => prevTasks.filter(task => task.id !== selectedTask.id));
+      setFilteredTasks(prevTasks => prevTasks.filter(task => task.id !== selectedTask.id));
+
       setIsEditModalOpen(false);
     } catch (err) {
-      console.error('Failed to update pending task:', err);
+      console.error('Failed to reject pending task:', err);
       alert(t('errors.updateFailed'));
+    }
+  };
+
+  // Ny funktion för att godkänna en pending task
+  const approvePendingTask = async () => {
+    if (!selectedTask) return;
+
+    // Kontrollera om uppgiften har tilldelats en användare
+    if (!selectedUserId) {
+      alert(t('pendingTasks.assignUserRequired'));
+      return;
+    }
+
+    try {
+      // Tilldela användaren först om det behövs
+      if (selectedUserId !== (selectedTask.assignedTo?.id || '')) {
+        await assignPendingTask(selectedTask.id, selectedUserId);
+      }
+
+      // Använd selectedUserId som både assignedToUserId och assignedByUserId
+      // eftersom vi inte har ett säkert sätt att få den inloggade användarens ID här
+      await taskApi.approvePendingTask(
+        selectedTask.id,
+        selectedUserId,
+        selectedUserId // Använd samma ID som för assignedToUserId som en temporär lösning
+      );
+
+      // Ta bort uppgiften från pending tasks-listan
+      setTasks(prevTasks => prevTasks.filter(task => task.id !== selectedTask.id));
+      setFilteredTasks(prevTasks => prevTasks.filter(task => task.id !== selectedTask.id));
+
+      setIsEditModalOpen(false);
+    } catch (err) {
+      console.error('Failed to approve pending task:', err);
+      alert(t('errors.approvalFailed'));
     }
   };
 
@@ -419,8 +418,18 @@ export const PendingTasksManager = () => {
             >
               {t('common.cancel')}
             </Button>
-            <Button onClick={saveEditedTask}>
-              {t('common.save')}
+            <Button
+              variant="destructive"
+              onClick={rejectPendingTask}
+            >
+              {t('pendingTasks.reject')}
+            </Button>
+            <Button
+              onClick={approvePendingTask}
+              disabled={!selectedUserId}
+              title={!selectedUserId ? t('pendingTasks.assignUserRequired') : ''}
+            >
+              {t('pendingTasks.approve')}
             </Button>
           </>
         }
@@ -449,91 +458,36 @@ export const PendingTasksManager = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">
-                {t('tasks.status')}
+                {t('tasks.assignedTo')}
               </label>
-              <div className="flex space-x-2">
-                <Select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value as TaskStatus)}
-                  className="w-full"
-                >
-                  <option value={TaskStatus.PENDING}>{t('tasks.statuses.pending')}</option>
-                  <option value={TaskStatus.IN_PROGRESS}>{t('tasks.statuses.inprogress')}</option>
-                  <option value={TaskStatus.COMPLETED}>{t('tasks.statuses.completed')}</option>
-                </Select>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => {
-                    if (selectedTask) {
-                      handleUpdateStatus(selectedTask);
-                    }
-                  }}
-                  title={t('pendingTasks.updateStatus')}
-                >
-                  {t('common.change')}
-                </Button>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                {t('tasks.priority')}
-              </label>
-              <div className="flex space-x-2">
-                <Select
-                  value={selectedPriority}
-                  onChange={(e) => setSelectedPriority(e.target.value as TaskPriority)}
-                  className="w-full"
-                >
-                  <option value={TaskPriority.LOW}>{t('tasks.priorities.low')}</option>
-                  <option value={TaskPriority.MEDIUM}>{t('tasks.priorities.medium')}</option>
-                  <option value={TaskPriority.HIGH}>{t('tasks.priorities.high')}</option>
-                  <option value={TaskPriority.URGENT}>{t('tasks.priorities.urgent')}</option>
-                </Select>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => {
-                    if (selectedTask) {
-                      handleUpdatePriority(selectedTask);
-                    }
-                  }}
-                  title={t('pendingTasks.updatePriority')}
-                >
-                  {t('common.change')}
-                </Button>
-              </div>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              {t('tasks.assignedTo')}
-            </label>
-            <div className="flex space-x-2">
               <Select
                 value={selectedUserId}
                 onChange={(e) => setSelectedUserId(e.target.value)}
                 className="w-full"
               >
-                <option value="">{t('common.select')}</option>
+                <option value="">{t('tasks.selectUser')}</option>
                 {users.map(user => (
                   <option key={user.id} value={user.id}>
-                    {user.firstName} {user.lastName}
+                    {`${user.firstName} ${user.lastName}`}
                   </option>
                 ))}
               </Select>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => {
-                  if (selectedTask) {
-                    handleAssignTask(selectedTask);
-                  }
-                }}
-                title={t('pendingTasks.assignTo')}
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t('tasks.priority')}
+              </label>
+              <Select
+                value={selectedPriority}
+                onChange={(e) => setSelectedPriority(e.target.value as TaskPriority)}
+                className="w-full"
               >
-                {t('common.assign')}
-              </Button>
+                {Object.values(TaskPriority).map(priority => (
+                  <option key={priority} value={priority}>
+                    {t(`tasks.priorities.${priority.toLowerCase()}`)}
+                  </option>
+                ))}
+              </Select>
             </div>
           </div>
         </div>

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dftm.model.PendingTask;
 import com.dftm.repository.PendingTaskRepository;
+import com.dftm.repository.TaskRepository;
 import com.dftm.service.PendingTaskService;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PendingTaskController {
     private final PendingTaskService pendingTaskService;
     private final PendingTaskRepository pendingTaskRepository;
+    private final TaskRepository taskRepository;
 
     @GetMapping
     public ResponseEntity<List<PendingTask>> getAllPendingTasks(
@@ -61,7 +62,7 @@ public class PendingTaskController {
         return ResponseEntity.ok(result);
     }
 
-    @PutMapping("/{id}/approve")
+    @PatchMapping("/{id}/approve")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<PendingTask> approvePendingTask(
             @PathVariable String id,
@@ -338,6 +339,43 @@ public class PendingTaskController {
             log.error("Error updating priority of pending task with ID {}: {}", id, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .build();
+        }
+    }
+
+    @PatchMapping("/{id}/assign")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
+    public ResponseEntity<?> assignPendingTask(
+        @PathVariable String id,
+        @RequestBody Map<String, String> requestBody) {
+        
+        log.info("Assigning pending task with ID: {}", id);
+        
+        // Validera att userId finns i request body
+        String userId = requestBody.get("userId");
+        if (userId == null || userId.isEmpty()) {
+            log.error("Cannot assign task without userId");
+            return ResponseEntity.badRequest().body("userId is required in request body");
+        }
+        
+        // Hämta pending task
+        Optional<PendingTask> pendingTaskOpt = pendingTaskRepository.findById(id);
+        if (pendingTaskOpt.isEmpty()) {
+            log.error("Pending task with ID {} not found", id);
+            return ResponseEntity.notFound().build();
+        }
+        
+        PendingTask pendingTask = pendingTaskOpt.get();
+        
+        try {
+            // Markera som tilldelad
+            pendingTask.setAssigned(true);
+            pendingTaskRepository.save(pendingTask);
+            
+            log.info("Pending task assigned successfully");
+            return ResponseEntity.ok(pendingTask);
+        } catch (Exception e) {
+            log.error("Error assigning pending task: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error assigning task: " + e.getMessage());
         }
     }
 } 

@@ -3,8 +3,6 @@ package com.dftm.service;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,7 +16,6 @@ import com.dftm.model.TaskStatus;
 import com.dftm.repository.PendingTaskRepository;
 
 import jakarta.mail.BodyPart;
-import jakarta.mail.Flags;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.Session;
@@ -185,7 +182,8 @@ public class EmailListener {
                     .originalLanguage(Language.SV)
                     .status(TaskStatus.PENDING.toString())
                     .priority(TaskPriority.MEDIUM.toString())
-                    .active(true)
+                    .assigned(false)
+                    .approved(false)
                     .build();
             
             log.info("\033[0;34m Creating PendingTask: \n" + 

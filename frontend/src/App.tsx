@@ -19,28 +19,62 @@ function App() {
     return ['calendar', 'profile', 'users', 'pendingTasks'].includes(view);
   };
 
-  // Återställ sidans tillstånd vid laddning
+  // Funktion för att uppdatera URL-hashen baserat på aktuell vy
+  const updateUrlHash = (view: string) => {
+    window.location.hash = view;
+  };
+
+  // Funktion för att hämta vy från URL-hash
+  const getViewFromHash = (): string => {
+    const hash = window.location.hash.substring(1); // Ta bort #-tecknet
+    return hash || 'landing'; // Standardvärde om hash är tom
+  };
+
+  // Återställ sidans tillstånd vid laddning baserat på URL-hash
   useEffect(() => {
+    const handleHashChange = () => {
+      const viewFromHash = getViewFromHash();
+      console.log("URL hash changed, new view:", viewFromHash);
+      
+      // Om vyn kräver autentisering och användaren inte är inloggad, stannar vi på landing
+      if (requiresAuthentication(viewFromHash) && !localStorage.getItem('token')) {
+        console.log("View requires authentication but no token found");
+        if (window.location.hash !== '#landing') {
+          window.location.hash = 'landing';
+        }
+        return;
+      }
+      
+      setCurrentView(viewFromHash);
+    };
+
+    // Lyssna på hash-ändringar i URL:en
+    window.addEventListener('hashchange', handleHashChange);
+    
+    // Initialisera vid första laddningen
+    const initialView = getViewFromHash();
+    console.log("Initial hash view:", initialView);
+    
     const token = localStorage.getItem('token');
     if (token) {
+      // Om användaren är inloggad, hämta användardata och sätt korrekt vy
       fetchUserData().then(() => {
-        // Återställ vyn från local storage EFTER att användardata har laddats
-        const savedView = localStorage.getItem('currentView');
-        if (savedView) {
-          setCurrentView(savedView);
+        if (requiresAuthentication(initialView)) {
+          setCurrentView(initialView);
         }
       });
+    } else if (!requiresAuthentication(initialView)) {
+      // Om vyn inte kräver autentisering, sätt den direkt
+      setCurrentView(initialView);
     } else {
-      // Om ingen token finns, kolla ändå om det finns en sparad vy
-      const savedView = localStorage.getItem('currentView');
-      // Använd den sparade vyn om den inte kräver autentisering
-      if (savedView && !requiresAuthentication(savedView)) {
-        setCurrentView(savedView);
-      } else {
-        // Annars, sätt vyn till landing
-        setCurrentView('landing');
-      }
+      // Om vyn kräver autentisering men användaren inte är inloggad
+      window.location.hash = 'landing';
     }
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
   }, []);
 
   // Hämta användarinformation
@@ -75,10 +109,13 @@ function App() {
           localStorage.setItem('language', frontendLangCode);
         }
 
-        // Om användaren loggar in, visa kalender för vanliga användare
-        if (user.role === 'ROLE_USER' && currentView === 'landing') {
-          setCurrentView('calendar');
+        // Om användaren loggar in och är på landningssidan, visa kalender för vanliga användare
+        const currentHash = getViewFromHash();
+        if (user.role === 'ROLE_USER' && (currentHash === 'landing' || currentHash === '')) {
+          window.location.hash = 'calendar';
         }
+        
+        return true; // Indikerar framgångsrik autentisering
       } else {
         console.log("Ingen användarinformation hittad, användaren är inte inloggad");
         // Om användaren inte är inloggad eller token är ogiltig
@@ -86,7 +123,13 @@ function App() {
         setUserId('');
         setUserRole('');
         localStorage.removeItem('token');
-        setCurrentView('landing');
+        
+        // Kontrollera om nuvarande vy kräver autentisering
+        if (requiresAuthentication(getViewFromHash())) {
+          window.location.hash = 'landing';
+        }
+        
+        return false;
       }
     } catch (err) {
       console.error('Error fetching user data:', err);
@@ -95,13 +138,19 @@ function App() {
       setUserId('');
       setUserRole('');
       localStorage.removeItem('token');
-      setCurrentView('landing');
+      
+      // Kontrollera om nuvarande vy kräver autentisering
+      if (requiresAuthentication(getViewFromHash())) {
+        window.location.hash = 'landing';
+      }
+      
+      return false;
     }
   };
 
-  // Spara aktuell vy när den ändras
+  // Uppdatera URL-hash när aktuell vy ändras
   useEffect(() => {
-    localStorage.setItem('currentView', currentView);
+    updateUrlHash(currentView);
   }, [currentView]);
 
   const handleLogout = () => {
@@ -109,12 +158,12 @@ function App() {
     setUserId('');
     setUserRole('');
     localStorage.removeItem('token');
-    setCurrentView('landing');
+    window.location.hash = 'landing';
   };
 
   // Funktion för att ändra vy
   const navigateTo = (view: string) => {
-    setCurrentView(view);
+    window.location.hash = view;
   };
 
   // Funktion för att kontrollera om användaren har behörighet att hantera uppgifter
@@ -130,7 +179,7 @@ function App() {
     if (!userId && requiresAuthentication(currentView)) {
       console.log("Missing userId for protected view, redirecting to landing");
       // Sätt tillbaka tillståndet till landing utan delay
-      setCurrentView('landing');
+      window.location.hash = 'landing';
       return (
         <div className="container mx-auto px-4 py-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
@@ -153,7 +202,7 @@ function App() {
         } else {
           console.log("Unauthorized access to users page, redirecting to calendar");
           // Sätt tillbaka tillståndet till calendar utan delay
-          setCurrentView('calendar');
+          window.location.hash = 'calendar';
           return (
             <div className="container mx-auto px-4 py-8 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
@@ -168,7 +217,7 @@ function App() {
         } else {
           console.log("Unauthorized access to pending tasks page, redirecting to calendar");
           // Sätt tillbaka tillståndet till calendar utan delay
-          setCurrentView('calendar');
+          window.location.hash = 'calendar';
           return (
             <div className="container mx-auto px-4 py-8 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>

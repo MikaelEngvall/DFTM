@@ -1,5 +1,5 @@
 import { axiosInstance } from './axiosConfig';
-// import { api } from './api'; // Tar bort denna import som inte används
+// import { api } from './api'; // Denna import används inte
 import { Task, TaskStatus, TaskPriority } from '../../types/task';
 import { PendingTask } from '../../types/pendingTask';
 
@@ -280,6 +280,26 @@ export const taskApi = {
       }
     } catch (error) {
       console.error('Error creating task:', error);
+      throw error;
+    }
+  },
+
+  // Korrigerar approvePendingTask för att använda korrekt anropsmetod
+  approvePendingTask: async (
+    taskId: string,
+    assignedToUserId: string,
+    assignedByUserId: string
+  ): Promise<PendingTask> => {
+    try {
+      const response = await axiosInstance.patch<PendingTask>(`/pending-tasks/${taskId}/approve`, null, {
+        params: {
+          assignedToUserId,
+          assignedByUserId
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error approving pending task:', error);
       throw error;
     }
   }
