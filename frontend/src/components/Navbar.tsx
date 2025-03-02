@@ -214,8 +214,7 @@ export const Navbar = ({
                   className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
                   title={t('navbar.calendar')}
                 >
-                  <FiCalendar className="w-5 h-5 mr-1" />
-                  <span className="text-sm font-medium">{t('navbar.calendar')}</span>
+                  <FiCalendar className="w-5 h-5" />
                 </button>
               )}
 
@@ -265,7 +264,6 @@ export const Navbar = ({
                         className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
                         title={t('navbar.auth.userTooltip')}
                       >
-                        <FiUser className="w-5 h-5 mr-1" />
                         <span className="text-sm font-medium">{userFirstName}</span>
                       </button>
                       <button
