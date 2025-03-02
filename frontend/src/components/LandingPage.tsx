@@ -1,11 +1,48 @@
 import { useTranslation } from 'react-i18next';
+import { useState, useEffect } from 'react';
+import LogoDark from '../assets/Transparent Logo White Text.png';
+import LogoLight from '../assets/Transparent Logo Black Text.png';
 
 export const LandingPage = () => {
   const { t } = useTranslation();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  
+  // Kontrollera om dark mode är aktiverat
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark') || 
+                  window.matchMedia('(prefers-color-scheme: dark)').matches ||
+                  localStorage.getItem('theme') === 'dark';
+    setIsDarkMode(isDark);
+    
+    // Lyssna på tema-ändringar
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          const isDark = document.documentElement.classList.contains('dark');
+          setIsDarkMode(isDark);
+        }
+      });
+    });
+    
+    observer.observe(document.documentElement, { attributes: true });
+    
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
   
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto text-center">
+        {/* Logotyp */}
+        <div className="flex justify-center mb-8">
+          <img 
+            src={isDarkMode ? LogoDark : LogoLight} 
+            alt="DFTASKS" 
+            className="h-48" 
+          />
+        </div>
+        
         <h1 className="text-4xl font-bold mb-6">
           {t('landingPage.title')}
         </h1>
@@ -40,12 +77,6 @@ export const LandingPage = () => {
               {t('landingPage.features.collaboration.description')}
             </p>
           </div>
-        </div>
-        
-        <div className="mt-16">
-          <p className="text-muted-foreground">
-            {t('landingPage.loginPrompt')}
-          </p>
         </div>
       </div>
     </div>
