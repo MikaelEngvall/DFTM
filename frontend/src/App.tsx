@@ -31,18 +31,20 @@ function App() {
   // Hämta användarinformation
   const fetchUserData = async () => {
     try {
-      const user = await userApi.getCurrentUser();
+      console.log("Hämtar användardata...");
+      const user = await userApi.getLoggedInUser();
       if (user) {
+        console.log("Användare inloggad:", user.firstName, user.lastName, "med roll:", user.role);
         setUserId(user.id);
         setUserName(user.firstName);
         setUserRole(user.role);
-        console.log("App received user role:", user.role);
 
         // Om användaren loggar in, visa kalender för vanliga användare
         if (user.role === 'ROLE_USER' && currentView === 'landing') {
           setCurrentView('calendar');
         }
       } else {
+        console.log("Ingen användarinformation hittad, användaren är inte inloggad");
         // Om användaren inte är inloggad eller token är ogiltig
         setUserName(undefined);
         setUserId('');
@@ -81,8 +83,20 @@ function App() {
 
   // Rendera rätt innehåll baserat på aktuell vy
   const renderContent = () => {
-    // Logga rollen för att debugga för admin-åtkomst
-    console.log("Current user role:", userRole);
+    console.log("Rendering view:", currentView, "with user role:", userRole);
+    
+    // Om vi inte har ett användarID för vyer som kräver inloggning, visa landningssidan
+    if (!userId && (currentView === 'calendar' || currentView === 'profile' || currentView === 'users')) {
+      console.log("Missing userId for protected view, redirecting to landing");
+      // Sätt tillbaka tillståndet till landing utan delay
+      setCurrentView('landing');
+      return (
+        <div className="container mx-auto px-4 py-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Omdirigerar till startsidan...</p>
+        </div>
+      );
+    }
     
     switch (currentView) {
       case 'landing':
@@ -90,20 +104,27 @@ function App() {
       case 'profile':
         return <ProfilePage />;
       case 'calendar':
-        return userId ? <Calendar userId={userId} userRole={userRole} /> : <div>Laddar...</div>;
+        return <Calendar userId={userId} userRole={userRole} />;
       case 'users':
         // Kontrollera om användaren har behörighet att se användarhantering
         if (userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN') {
           return <UserManagementPage />;
         } else {
-          // Omdirigera till kalendern om användaren inte har behörighet
+          console.log("Unauthorized access to users page, redirecting to calendar");
+          // Sätt tillbaka tillståndet till calendar utan delay
           setCurrentView('calendar');
-          return <div>Omdirigerar...</div>;
+          return (
+            <div className="container mx-auto px-4 py-8 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+              <p>Omdirigerar till kalendern...</p>
+            </div>
+          );
         }
       default:
         return (
           <div className="container mx-auto px-4 py-8">
             <h2 className="text-2xl font-bold mb-4">{currentView}</h2>
+            <p>Innehållet för denna sida är inte tillgängligt.</p>
           </div>
         );
     }

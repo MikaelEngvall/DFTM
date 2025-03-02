@@ -15,9 +15,24 @@ axiosInstance.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
-      console.log(`Debug - API call to ${config.url} with token: ${token.substring(0, 15)}...`);
+      console.log(`Debug - API call to ${config.url} with token: ${token.substring(0, 15)}...`, {
+        method: config.method,
+        url: config.url,
+        baseURL: config.baseURL,
+        fullURL: `${config.baseURL}${config.url}`,
+        headers: {
+          ...config.headers,
+          Authorization: `Bearer ${token.substring(0, 10)}...`
+        },
+        data: config.data ? JSON.stringify(config.data).substring(0, 100) + '...' : 'None'
+      });
     } else {
-      console.warn(`Debug - API call to ${config.url} without token!`);
+      console.warn(`Debug - API call to ${config.url} without token!`, {
+        method: config.method,
+        url: config.url,
+        baseURL: config.baseURL,
+        fullURL: `${config.baseURL}${config.url}`
+      });
     }
     return config;
   },
@@ -33,16 +48,25 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response) {
       console.error(`API Error: ${error.response.status} - ${error.response.statusText}`, {
-        url: error.config?.url,
-        method: error.config?.method,
-        data: error.response?.data
+        url: error.config.url,
+        method: error.config.method,
+        data: error.config.data
       });
-
-      // Om svaret är 401 Unauthorized, rensa token och omdirigera till login
+      
+      // Hantera 401 Unauthorized fel
       if (error.response.status === 401) {
+        console.error('401 Unauthorized - Token är ogiltig eller utgången');
         localStorage.removeItem('token');
-        // Om vi använder React Router kan vi omdirigera här, men nu gör vi en enkel omladdning
-        window.location.reload();
+        // Om vi är i en webbläsarmiljö, redirecta användaren vid behov
+        if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+          // Men undvik redirect om vi redan försöker logga in
+          const isAuthEndpoint = error.config.url.includes('/auth/');
+          if (!isAuthEndpoint) {
+            console.log('Omdirigerar till startsidan pga. ogiltiga användaruppgifter');
+            // Vi använder redirect direkt bara för svåra auth-fel
+            // För andra fall låter vi komponenterna själva hantera navigeringen
+          }
+        }
       }
       
       // Visa ett mer specifikt meddelande för 403 Forbidden
@@ -66,8 +90,18 @@ axiosInstance.interceptors.response.use(
           }
         }
       }
+    } else if (error.request) {
+      // Request gjordes men inget svar mottogs
+      console.error('Nätverksfel - Inget svar från servern', {
+        url: error.config.url,
+        method: error.config.method
+      });
+      
+      // Lägg till mer användbara felmeddelanden för frontend
+      error.message = "Kunde inte nå servern. Kontrollera din internetanslutning och försök igen.";
     } else {
-      console.error('API Error: Inget svar från servern', error.message);
+      // Något gick fel vid uppsättning av requesten
+      console.error('Fel vid uppsättning av API-anrop:', error.message);
     }
     
     return Promise.reject(error);

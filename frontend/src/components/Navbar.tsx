@@ -46,9 +46,9 @@ export const Navbar = ({
 
   // Hämta användarinformation från JWT vid start
   useEffect(() => {
-    const fetchCurrentUser = async () => {
+    const fetchUserData = async () => {
       try {
-        const user = await userApi.getCurrentUser();
+        const user = await userApi.getLoggedInUser();
         if (user) {
           setUserFirstName(user.firstName);
           setUserRole(user.role);
@@ -65,7 +65,7 @@ export const Navbar = ({
       }
     };
     
-    fetchCurrentUser();
+    fetchUserData();
   }, []);
 
   const toggleTheme = () => {
@@ -85,7 +85,7 @@ export const Navbar = ({
     try {
       await userApi.login(email, password);
       // Hämta användarinfo efter inloggning
-      const user = await userApi.getCurrentUser();
+      const user = await userApi.getLoggedInUser();
       if (user) {
         setUserFirstName(user.firstName);
         setUserRole(user.role);
@@ -105,19 +105,46 @@ export const Navbar = ({
   };
 
   const handleNavigate = (view: string) => {
+    console.log(`Navigating to: ${view}`);
     // Anropa navigeringsfunktionen från props
-    onNavigate?.(view);
+    if (onNavigate) {
+      onNavigate(view);
+    } else {
+      console.warn("Navigering fungerar inte: onNavigate-funktionen saknas");
+    }
   };
 
   const navigateToProfile = () => {
+    if (!userFirstName) {
+      console.warn("Försöker navigera till profilen när användaren inte är inloggad");
+      setIsLoginModalOpen(true);
+      return;
+    }
     handleNavigate('profile');
   };
 
   const navigateToCalendar = () => {
+    if (!userFirstName) {
+      console.warn("Försöker navigera till kalendern när användaren inte är inloggad");
+      setIsLoginModalOpen(true);
+      return;
+    }
     handleNavigate('calendar');
   };
 
   const navigateToUserManagement = () => {
+    if (!userFirstName) {
+      console.warn("Försöker navigera till användarhanteringen när användaren inte är inloggad");
+      setIsLoginModalOpen(true);
+      return;
+    }
+    
+    if (!canManageUsers) {
+      console.warn("Användaren har inte behörighet att se användarhanteringen");
+      handleNavigate('calendar');
+      return;
+    }
+    
     handleNavigate('users');
   };
 
@@ -128,6 +155,8 @@ export const Navbar = ({
     { code: 'pl', flag: PL, label: 'Polski' },
     { code: 'uk', flag: UA, label: 'Українська' },
   ];
+
+  const canManageUsers = userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN';
 
   return (
     <>
@@ -189,11 +218,11 @@ export const Navbar = ({
                   <>
                     <div className="flex items-center space-x-2">
                       {/* Användarhanteringsikon för admin/superadmin */}
-                      {(userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN') && (
+                      {canManageUsers && (
                         <button
                           onClick={navigateToUserManagement}
                           className="p-1.5 rounded-md hover:bg-foreground/10 dark:hover:bg-foreground/10 flex items-center"
-                          title={t('navbar.manageUsers')}
+                          title={t('navbar.tooltips.manageUsers')}
                         >
                           <FiUsers className="w-5 h-5" />
                         </button>

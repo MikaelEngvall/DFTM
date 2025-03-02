@@ -11,7 +11,7 @@ export const ProfilePage = () => {
     const fetchUserProfile = async () => {
       try {
         setIsLoading(true);
-        const userData = await userApi.getCurrentUser();
+        const userData = await userApi.getLoggedInUser();
         setUser(userData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Ett fel uppstod vid hämtning av profil');

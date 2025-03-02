@@ -162,6 +162,24 @@ export const EditUserModal = ({ isOpen, onClose, user, onSave }: EditUserModalPr
                     </select>
                   </div>
 
+                  <div>
+                    <label htmlFor="preferredLanguage" className="block text-sm font-medium text-gray-300">
+                      {t('userManagement.editUser.preferredLanguage')}
+                    </label>
+                    <select
+                      id="preferredLanguage"
+                      name="preferredLanguage"
+                      value={formData.preferredLanguage || 'SV'}
+                      onChange={handleChange}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="SV">{t('userManagement.languages.sv')}</option>
+                      <option value="EN">{t('userManagement.languages.en')}</option>
+                      <option value="PL">{t('userManagement.languages.pl')}</option>
+                      <option value="UK">{t('userManagement.languages.uk')}</option>
+                    </select>
+                  </div>
+
                   <div className="flex items-center">
                     <input
                       type="checkbox"

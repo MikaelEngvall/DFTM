@@ -25,6 +25,10 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
 
   // Hämta uppgifter för inloggad användare
   useEffect(() => {
+    // Skapa en funktion som kan avbrytas
+    let isMounted = true;
+    const abortController = new AbortController();
+    
     const fetchTasks = async () => {
       try {
         setIsLoading(true);
@@ -38,21 +42,33 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
           userTasks = await taskApi.getAllTasks();
         } else {
           // Vanliga användare ser bara egna uppgifter
-          console.log("Regular user, fetching user tasks");
+          console.log("Regular user, fetching user tasks for ID:", userId);
           userTasks = await taskApi.getTasksByUser(userId);
         }
         
-        setTasks(userTasks);
+        // Kontrollera om komponenten fortfarande är monterad innan uppdatering av state
+        if (isMounted) {
+          setTasks(userTasks);
+          setIsLoading(false);
+        }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Ett fel uppstod vid hämtning av uppgifter');
         console.error('Error fetching tasks:', err);
-      } finally {
-        setIsLoading(false);
+        // Kontrollera om komponenten fortfarande är monterad innan uppdatering av state
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : 'Ett fel uppstod vid hämtning av uppgifter');
+          setIsLoading(false);
+        }
       }
     };
-
+    
     fetchTasks();
-  }, [userId]);
+    
+    // Cleanup-funktion som körs när komponenten avmonteras
+    return () => {
+      isMounted = false;
+      abortController.abort();
+    };
+  }, [userId, isAdmin]);
 
   // Funktion för att gå till föregående månad
   const goToPreviousMonth = () => {
@@ -209,24 +225,33 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
   // Skapa kalenderdagar
   const calendarDays = getDaysInMonth();
 
+  // Anpassa vyn baserat på laddningsstatus och fel
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="container mx-auto px-4 py-8">
+        <h2 className="text-2xl font-bold mb-4">{t('calendar.title')}</h2>
+        <div className="flex flex-col items-center justify-center p-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
+          <p className="text-lg">{t('common.loading')}</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center text-destructive p-4">
-        <p>{error}</p>
-        <button 
-          className="mt-2 px-4 py-2 bg-primary text-primary-foreground rounded-md"
-          onClick={() => window.location.reload()}
-        >
-          {t('common.loading')}
-        </button>
+      <div className="container mx-auto px-4 py-8">
+        <h2 className="text-2xl font-bold mb-4">{t('calendar.title')}</h2>
+        <div className="bg-destructive/10 text-destructive p-4 rounded-md mb-6">
+          <p className="font-medium">{t('common.error')}</p>
+          <p>{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          >
+            {t('common.retry')}
+          </button>
+        </div>
       </div>
     );
   }

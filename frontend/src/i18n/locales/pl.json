@@ -13,7 +13,10 @@
     "navigation": {
       "home": "Strona główna"
     },
-    "calendar": "Kalendarz"
+    "calendar": "Kalendarz",
+    "tooltips": {
+      "manageUsers": "Zarządzanie użytkownikami"
+    }
   },
   "loginModal": {
     "title": "Zaloguj się",
@@ -37,6 +40,22 @@
   "landingPage": {
     "title": "Witamy w DFTASKS",
     "description": "Nowoczesny menedżer zadań do efektywnej współpracy i zarządzania projektami.",
+    "subtitle": "Prosty sposób zarządzania zadaniami i współpracy z zespołem.",
+    "features": {
+      "taskManagement": {
+        "title": "Zarządzanie zadaniami",
+        "description": "Twórz, przydzielaj i śledź zadania łatwo i efektywnie."
+      },
+      "calendarView": {
+        "title": "Widok kalendarza",
+        "description": "Zobacz wszystkie swoje zadania w przejrzystym widoku kalendarza do łatwego planowania."
+      },
+      "collaboration": {
+        "title": "Współpraca",
+        "description": "Współpracuj płynnie ze swoim zespołem poprzez komentarze i aktualizacje statusu."
+      }
+    },
+    "loginPrompt": "Zaloguj się, aby rozpocząć.",
     "buttons": {
       "getStarted": "Rozpocznij",
       "learnMore": "Dowiedz się więcej"

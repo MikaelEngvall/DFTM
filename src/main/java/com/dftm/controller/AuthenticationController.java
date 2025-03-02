@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dftm.config.JwtService;
 import com.dftm.dto.AuthenticationRequest;
 import com.dftm.dto.AuthenticationResponse;
 import com.dftm.dto.RegisterRequest;
 import com.dftm.model.User;
+import com.dftm.repository.UserRepository;
 import com.dftm.service.AuthenticationService;
 import com.dftm.service.UserService;
 
@@ -30,6 +32,8 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final UserService userService;
     private final MessageSource messageSource;
+    private final JwtService jwtService;
+    private final UserRepository userRepository;
 
     private String getMessage(String code) {
         return messageSource.getMessage(code, null, LocaleContextHolder.getLocale());
@@ -46,7 +50,7 @@ public class AuthenticationController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
-        log.debug("POST request to authenticate user");
+        log.info("POST request to authenticate user: {}", request.getEmail());
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
     

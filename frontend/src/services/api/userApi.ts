@@ -58,7 +58,7 @@ axiosInstance.interceptors.request.use((config) => {
 // User API service
 export const userApi = {
   // Hämta den inloggade användaren
-  getCurrentUser: async (): Promise<User | null> => {
+  getLoggedInUser: async (): Promise<User | null> => {
     try {
       // Kontrollera först om token finns
       const token = localStorage.getItem('token');
@@ -103,7 +103,7 @@ export const userApi = {
   // Hämta en lista över alla användare
   getAllUsers: async (): Promise<User[]> => {
     try {
-      const response = await axiosInstance.get('/api/v1/users');
+      const response = await axiosInstance.get('/users');
       return response.data;
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -114,7 +114,7 @@ export const userApi = {
   // Hämta en specifik användare med ID
   getUserById: async (id: string): Promise<User> => {
     try {
-      const response = await axiosInstance.get(`/api/v1/users/${id}`);
+      const response = await axiosInstance.get(`/users/${id}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching user ${id}:`, error);
@@ -125,10 +125,39 @@ export const userApi = {
   // Uppdatera en användare
   updateUser: async (userData: User): Promise<User> => {
     try {
-      const response = await axiosInstance.put(`/api/v1/users/${userData.id}`, userData);
+      // Validera token för bättre felsökning
+      const tokenStatus = userApi.validateToken();
+      console.log('Token status innan användaruppdatering:', tokenStatus);
+      
+      if (!tokenStatus.valid) {
+        throw new Error(`Ogiltig token: ${tokenStatus.reason}`);
+      }
+      
+      console.log('Updating user with ID:', userData.id);
+      const response = await axiosInstance.patch(`/users/${userData.id}`, userData);
       return response.data;
     } catch (error) {
       console.error('Error updating user:', error);
+      
+      // Om felet är ett 403 Forbidden, kontrollera token och behörigheter igen
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number, data?: unknown } };
+        if (axiosError.response?.status === 403) {
+          console.error('403 Förbjuden - kontrollerar token och behörigheter igen:');
+          const token = localStorage.getItem('token');
+          
+          // Logga token-information
+          if (token) {
+            try {
+              const payload = JSON.parse(atob(token.split('.')[1]));
+              console.error('Token payload:', payload);
+            } catch (e) {
+              console.error('Kunde inte avkoda token:', e);
+            }
+          }
+        }
+      }
+      
       throw error;
     }
   },
@@ -136,7 +165,7 @@ export const userApi = {
   // Ändra en användares lösenord
   changePassword: async (currentPassword: string, newPassword: string): Promise<void> => {
     try {
-      await axiosInstance.post('/api/v1/auth/change-password', {
+      await axiosInstance.post('/auth/change-password', {
         currentPassword,
         newPassword
       });
@@ -149,7 +178,7 @@ export const userApi = {
   // Begär ändring av e-post
   requestEmailChange: async (newEmail: string): Promise<void> => {
     try {
-      await axiosInstance.post('/api/v1/auth/request-email-change', {
+      await axiosInstance.post('/auth/request-email-change', {
         newEmail
       });
     } catch (error) {
@@ -161,7 +190,7 @@ export const userApi = {
   // Hämta alla användare
   getUsers: async (): Promise<User[]> => {
     try {
-      const response = await axiosInstance.get('/api/v1/users');
+      const response = await axiosInstance.get('/users');
       return response.data.map((user: BackendUser) => ({
         id: user.id,
         username: user.username,
@@ -182,25 +211,57 @@ export const userApi = {
   // Skapa en ny användare
   createUser: async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> => {
     try {
-      // Hantera rollen enkelt utan överdrivet komplex logik
-      const role = user.role && user.role.startsWith('ROLE_') ? user.role : `ROLE_${user.role.toUpperCase()}`;
+      // Validera token för bättre felsökning
+      const tokenStatus = userApi.validateToken();
+      console.log('Token status innan användarregistrering:', tokenStatus);
+      
+      if (!tokenStatus.valid) {
+        throw new Error(`Ogiltig token: ${tokenStatus.reason}`);
+      }
+      
+      if (tokenStatus.role !== 'ROLE_SUPERADMIN') {
+        throw new Error(`Fel roll för användarskapande. Har: ${tokenStatus.role}, behöver: ROLE_SUPERADMIN`);
+      }
+      
+      // Se till att rollen är korrekt formatterad (backend förväntar sig ROLE_*)
+      let role: string;
+      if (user.role && typeof user.role === 'string') {
+        role = user.role.startsWith('ROLE_') ? user.role : `ROLE_${user.role.toUpperCase()}`;
+      } else {
+        role = 'ROLE_USER';
+      }
       
       console.log('Skapar användare med roll:', role);
       
       // Mappa 'isActive' från frontend till 'active' i backend
-      const backendUser: Omit<BackendUser, 'id'> = {
+      const backendUser = {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
         password: user.password,
         role: role,
-        active: user.isActive,
+        active: user.isActive !== undefined ? user.isActive : true,
         phoneNumber: user.phoneNumber || null,
         preferredLanguage: user.preferredLanguage || 'SV'
       };
       
       console.log('Sending user creation request:', backendUser);
-      const response = await axiosInstance.post('/users', backendUser);
+      
+      // VIKTIGA ÄNDRINGAR: 
+      // 1. Använd absolut URL istället för relativ
+      // 2. Lägg till headers explicit
+      // 3. Skicka data i rätt format
+      const token = localStorage.getItem('token');
+      console.log(`Använder token (första 10 tecken): ${token ? token.substring(0, 10) : 'INGEN TOKEN!'}`);
+      
+      // Använd den absoluta URL:en istället för relativ URL
+      const response = await axiosInstance.post('/users', backendUser, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        }
+      });
+      
       console.log('User creation response:', response);
       
       // Mappa 'active' från backend till 'isActive' i frontend
@@ -209,7 +270,33 @@ export const userApi = {
         isActive: response.data.active
       };
     } catch (error) {
+      // Förbättrad felhantering för att hjälpa med felsökning
       console.error('Error creating user:', error);
+      
+      // Om felet är ett 403 Forbidden, kontrollera token och behörigheter igen
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number, data?: unknown } };
+        if (axiosError.response?.status === 403) {
+          console.error('403 Förbjuden - kontrollerar token och behörigheter igen:');
+          const token = localStorage.getItem('token');
+          
+          // Logga raw token för felsökning (första 10 tecken)
+          if (token) {
+            console.error(`Token-prefix: ${token.substring(0, 10)}...`);
+            
+            // Försök att extrahera och logga payloaden
+            try {
+              const payload = JSON.parse(atob(token.split('.')[1]));
+              console.error('Token payload:', payload);
+            } catch (e) {
+              console.error('Kunde inte avkoda token:', e);
+            }
+          } else {
+            console.error('Ingen token hittades!');
+          }
+        }
+      }
+      
       throw error;
     }
   },
@@ -245,6 +332,8 @@ export const userApi = {
   login: async (email: string, password: string): Promise<void> => {
     try {
       console.log('Attempting login with:', { email, password });
+      
+      // Normal inloggningsprocess
       const response = await axiosInstance.post('/auth/authenticate', 
         { email, password }
       );

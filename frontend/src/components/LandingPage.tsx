@@ -7,44 +7,44 @@ export const LandingPage = () => {
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto text-center">
         <h1 className="text-4xl font-bold mb-6">
-          {t('landingPage.title', 'Välkommen till DFTASKS')}
+          {t('landingPage.title')}
         </h1>
         <p className="text-xl mb-8">
-          {t('landingPage.subtitle', 'Det enkla sättet att hantera uppgifter och samarbeta med ditt team.')}
+          {t('landingPage.subtitle')}
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
           <div className="bg-card p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-semibold mb-3">
-              {t('landingPage.features.tasks.title', 'Uppgiftshantering')}
+              {t('landingPage.features.taskManagement.title')}
             </h3>
             <p>
-              {t('landingPage.features.tasks.description', 'Skapa, tilldela och spåra uppgifter enkelt och effektivt.')}
+              {t('landingPage.features.taskManagement.description')}
             </p>
           </div>
           
           <div className="bg-card p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-semibold mb-3">
-              {t('landingPage.features.calendar.title', 'Kalendervy')}
+              {t('landingPage.features.calendarView.title')}
             </h3>
             <p>
-              {t('landingPage.features.calendar.description', 'Se alla dina uppgifter i en tydlig kalendervy för enkel planering.')}
+              {t('landingPage.features.calendarView.description')}
             </p>
           </div>
           
           <div className="bg-card p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-semibold mb-3">
-              {t('landingPage.features.collaboration.title', 'Samarbete')}
+              {t('landingPage.features.collaboration.title')}
             </h3>
             <p>
-              {t('landingPage.features.collaboration.description', 'Samarbeta smidigt med ditt team genom kommentarer och statusuppdateringar.')}
+              {t('landingPage.features.collaboration.description')}
             </p>
           </div>
         </div>
         
         <div className="mt-16">
           <p className="text-muted-foreground">
-            {t('landingPage.loginPrompt', 'Logga in för att komma igång.')}
+            {t('landingPage.loginPrompt')}
           </p>
         </div>
       </div>

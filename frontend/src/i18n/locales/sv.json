@@ -1,8 +1,8 @@
 {
   "navbar": {
     "theme": {
-      "light": "Byt till ljust läge",
-      "dark": "Byt till mörkt läge"
+      "light": "Byt till ljust tema",
+      "dark": "Byt till mörkt tema"
     },
     "auth": {
       "login": "Logga in",
@@ -13,13 +13,16 @@
     "navigation": {
       "home": "Hem"
     },
-    "calendar": "Kalender"
+    "calendar": "Kalender",
+    "tooltips": {
+      "manageUsers": "Användarhantering"
+    }
   },
   "loginModal": {
     "title": "Logga in",
     "email": {
       "label": "E-post",
-      "placeholder": "din@epost.se"
+      "placeholder": "din@epost.com"
     },
     "password": {
       "label": "Lösenord",
@@ -28,18 +31,34 @@
     "button": "Logga in",
     "submit": "Logga in",
     "error": {
-      "invalidCredentials": "Fel e-post eller lösenord"
+      "invalidCredentials": "Ogiltig e-post eller lösenord"
     },
     "rememberMe": "Kom ihåg mig",
     "forgotPassword": "Glömt lösenord?",
     "loading": "Laddar..."
   },
   "error": {
-    "invalidCredentials": "Fel e-post eller lösenord"
+    "invalidCredentials": "Ogiltig e-post eller lösenord"
   },
   "landingPage": {
     "title": "Välkommen till DFTASKS",
     "description": "En modern uppgiftshanterare för effektivt samarbete och projektledning.",
+    "subtitle": "Det enkla sättet att hantera uppgifter och samarbeta med ditt team.",
+    "features": {
+      "taskManagement": {
+        "title": "Uppgiftshantering",
+        "description": "Skapa, tilldela och spåra uppgifter enkelt och effektivt."
+      },
+      "calendarView": {
+        "title": "Kalendervy",
+        "description": "Se alla dina uppgifter i en tydlig kalendervy för enkel planering."
+      },
+      "collaboration": {
+        "title": "Samarbete",
+        "description": "Samarbeta smidigt med ditt team genom kommentarer och statusuppdateringar."
+      }
+    },
+    "loginPrompt": "Logga in för att komma igång.",
     "buttons": {
       "getStarted": "Kom igång",
       "learnMore": "Läs mer"
@@ -67,7 +86,7 @@
     "emailChange": {
       "title": "E-postadressändring begärd",
       "description": "En bekräftelselänk har skickats till din nya e-postadress.",
-      "instruction": "Klicka på länken i e-postmeddelandet för att slutföra ändringen av e-postadress. Länken är giltig i en timme."
+      "instruction": "Klicka på länken i e-postmeddelandet för att slutföra e-poständringen. Länken är giltig i en timme."
     },
     "error": {
       "fetch": "Kunde inte hämta profilinformation",
@@ -184,15 +203,15 @@
     },
     "priority": {
       "low": "Låg",
-      "medium": "Medel",
+      "medium": "Medium",
       "high": "Hög",
-      "urgent": "Brådskande"
+      "urgent": "Akut"
     },
     "details": {
       "title": "Uppgiftsdetaljer",
       "description": "Beskrivning",
       "dueDate": "Förfallodatum",
-      "completedDate": "Slutförd datum",
+      "completedDate": "Slutförandedatum",
       "created": "Skapad",
       "updated": "Senast uppdaterad",
       "updateStatus": "Uppdatera status",

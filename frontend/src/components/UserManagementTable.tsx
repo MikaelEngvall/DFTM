@@ -95,7 +95,9 @@ export const UserManagementTable = ({ users, onUserUpdate, onUserCreate }: UserM
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-card-foreground">{user.lastName}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-card-foreground">{user.phoneNumber || '-'}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-card-foreground">
-                  {t(`userManagement.roles.${user.role}`)}
+                  {user.role === 'ROLE_USER' && t('userManagement.roles.user')}
+                  {user.role === 'ROLE_ADMIN' && t('userManagement.roles.admin')}
+                  {user.role === 'ROLE_SUPERADMIN' && t('userManagement.roles.superadmin')}
                 </td>
               </tr>
             ))}

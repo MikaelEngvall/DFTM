@@ -13,7 +13,10 @@
     "navigation": {
       "home": "Home"
     },
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "tooltips": {
+      "manageUsers": "User Management"
+    }
   },
   "loginModal": {
     "title": "Log in",
@@ -40,6 +43,22 @@
   "landingPage": {
     "title": "Welcome to DFTASKS",
     "description": "A modern task manager for efficient collaboration and project management.",
+    "subtitle": "The simple way to manage tasks and collaborate with your team.",
+    "features": {
+      "taskManagement": {
+        "title": "Task Management",
+        "description": "Create, assign, and track tasks easily and efficiently."
+      },
+      "calendarView": {
+        "title": "Calendar View",
+        "description": "See all your tasks in a clear calendar view for easy planning."
+      },
+      "collaboration": {
+        "title": "Collaboration",
+        "description": "Collaborate seamlessly with your team through comments and status updates."
+      }
+    },
+    "loginPrompt": "Log in to get started.",
     "buttons": {
       "getStarted": "Get Started",
       "learnMore": "Learn More"
