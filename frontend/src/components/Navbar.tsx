@@ -11,6 +11,8 @@ import { GB, SE, PL, UA } from 'country-flag-icons/react/3x2';
 import { LoginModal } from './LoginModal';
 import { useTranslation } from 'react-i18next';
 import { userApi } from '../services/api/userApi';
+import LogoDark from '../assets/Transparent Logo White Text.png';
+import LogoLight from '../assets/Transparent Logo Black Text.png';
 
 export const Navbar = ({
   userName,
@@ -197,12 +199,16 @@ export const Navbar = ({
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
             <div className="flex items-center space-x-4">
-              <span 
-                className="text-xl font-bold cursor-pointer" 
+              <div 
+                className="cursor-pointer" 
                 onClick={() => handleNavigate('landing')}
               >
-                DFTASKS
-              </span>
+                <img 
+                  src={isDarkMode ? LogoDark : LogoLight} 
+                  alt="DFTASKS" 
+                  className="h-8" 
+                />
+              </div>
             </div>
 
             {/* Navigation Items */}
