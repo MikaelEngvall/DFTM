@@ -3,7 +3,6 @@ import { Navbar } from './components/Navbar'
 import { LandingPage } from './components/LandingPage'
 import { ProfilePage } from './components/ProfilePage'
 import { Calendar } from './components/Calendar'
-import { AdminPanel } from './components/AdminPanel'
 import { userApi } from './services/api/userApi'
 
 function App() {
@@ -72,9 +71,6 @@ function App() {
   const renderContent = () => {
     // Logga rollen för att debugga för admin-åtkomst
     console.log("Current user role:", userRole);
-    // Kontrollera specifikt för ROLE_ADMIN och ROLE_SUPERADMIN
-    const isAdmin = userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN';
-    console.log("Is admin?", isAdmin);
     
     switch (currentView) {
       case 'landing':
@@ -83,8 +79,6 @@ function App() {
         return <ProfilePage />;
       case 'calendar':
         return userId ? <Calendar userId={userId} userRole={userRole} /> : <div>Laddar...</div>;
-      case 'admin':
-        return isAdmin ? <AdminPanel /> : <div>Åtkomst nekad</div>;
       default:
         return (
           <div className="container mx-auto px-4 py-8">
