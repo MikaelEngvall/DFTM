@@ -9,6 +9,7 @@ import { Dialog } from './ui/Dialog';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Select } from './ui/Select';
+import { pendingTasksToTasks, pendingTaskToTask } from '../utils/taskAdapters';
 
 export const PendingTasksManager = () => {
   const { t } = useTranslation();
@@ -55,10 +56,23 @@ export const PendingTasksManager = () => {
     setIsLoading(true);
     setError(null);
     try {
-      // Antar att API:t har en funktion för att hämta väntande uppgifter
-      const response = await taskApi.getPendingTasks();
-      setTasks(response);
-      setFilteredTasks(response);
+      const pendingTasksResponse = await taskApi.getPendingTasks();
+      console.log('Pending tasks response:', pendingTasksResponse);
+      
+      // Kontrollera om det finns någon uppgift med id 67bdb085b526ba5619e3b3d1
+      const targetTask = pendingTasksResponse.find(task => task.id === '67bdb085b526ba5619e3b3d1');
+      if (targetTask) {
+        console.log('Target task found:', targetTask);
+      } else {
+        console.log('Target task not found in response');
+      }
+      
+      // Konvertera PendingTask till Task-format
+      const convertedTasks = pendingTasksToTasks(pendingTasksResponse);
+      console.log('Converted tasks:', convertedTasks);
+      
+      setTasks(convertedTasks);
+      setFilteredTasks(convertedTasks);
     } catch (err) {
       console.error('Failed to fetch pending tasks:', err);
       setError('Failed to load pending tasks');
@@ -109,13 +123,18 @@ export const PendingTasksManager = () => {
     
     try {
       // Först uppdaterar vi grundläggande information
-      const updatedTask = await taskApi.updateTask(selectedTask.id, {
-        ...selectedTask,
+      const pendingTaskData = {
         title: editedTitle,
         description: editedDescription,
         status: selectedStatus,
         priority: selectedPriority
-      });
+      };
+      
+      // Konvertera Task till PendingTask-format för att uppdatera
+      const updatedPendingTask = await taskApi.updatePendingTask(selectedTask.id, pendingTaskData);
+      
+      // Konvertera tillbaka den uppdaterade PendingTask till Task för UI
+      const updatedTask = pendingTaskToTask(updatedPendingTask);
       
       // Uppdatera listan med uppgifter
       setTasks(prevTasks => {
@@ -133,10 +152,12 @@ export const PendingTasksManager = () => {
       });
       
       // Om användaren har tilldelats, försök uppdatera det separat
-      // Detta ger oss möjlighet att hantera fel med tilldelningen utan att påverka de andra ändringarna
       if (selectedUserId && (selectedTask.assignedTo?.id !== selectedUserId)) {
         try {
-          const taskWithAssignedUser = await taskApi.assignTask(selectedTask.id, selectedUserId);
+          const pendingTaskWithAssignedUser = await taskApi.assignPendingTask(selectedTask.id, selectedUserId);
+          
+          // Konvertera tillbaka till Task för UI
+          const taskWithAssignedUser = pendingTaskToTask(pendingTaskWithAssignedUser);
           
           // Uppdatera bara tilldelningen om det lyckas
           setTasks(prevTasks => prevTasks.map(task => 
@@ -146,7 +167,7 @@ export const PendingTasksManager = () => {
             } : task
           ));
         } catch (assignErr) {
-          console.error('Failed to assign task:', assignErr);
+          console.error('Failed to assign pending task:', assignErr);
           // Visa felmeddelande om tilldelning misslyckades men resten av ändringarna gick igenom
           alert(t('errors.assignmentFailed'));
         }
@@ -154,7 +175,7 @@ export const PendingTasksManager = () => {
       
       setIsEditModalOpen(false);
     } catch (err) {
-      console.error('Failed to update task:', err);
+      console.error('Failed to update pending task:', err);
       alert(t('errors.updateFailed'));
     }
   };
@@ -163,16 +184,22 @@ export const PendingTasksManager = () => {
     if (!selectedTask) return;
     
     try {
-      const updatedTask = await taskApi.assignTask(selectedTask.id, selectedUserId);
+      const pendingTaskWithAssignedUser = await taskApi.assignPendingTask(selectedTask.id, selectedUserId);
+      
+      // Konvertera tillbaka till Task för UI
+      const updatedTask = pendingTaskToTask(pendingTaskWithAssignedUser);
       
       setTasks(prevTasks => prevTasks.map(task => 
-        task.id === updatedTask.id ? updatedTask : task
+        task.id === updatedTask.id ? {
+          ...updatedTask,
+          assignedTo: users.find(u => u.id === selectedUserId)
+        } : task
       ));
       
       setIsAssignModalOpen(false);
       // Visa bekräftelsemeddelande
     } catch (err) {
-      console.error('Failed to assign task:', err);
+      console.error('Failed to assign pending task:', err);
       // Visa felmeddelande
     }
   };
@@ -181,7 +208,10 @@ export const PendingTasksManager = () => {
     if (!selectedTask) return;
     
     try {
-      const updatedTask = await taskApi.updateTaskStatus(selectedTask.id, selectedStatus);
+      const pendingTaskWithUpdatedStatus = await taskApi.updatePendingTaskStatus(selectedTask.id, selectedStatus);
+      
+      // Konvertera tillbaka till Task för UI
+      const updatedTask = pendingTaskToTask(pendingTaskWithUpdatedStatus);
       
       setTasks(prevTasks => prevTasks.map(task => 
         task.id === updatedTask.id ? updatedTask : task
@@ -190,7 +220,7 @@ export const PendingTasksManager = () => {
       setIsStatusModalOpen(false);
       // Visa bekräftelsemeddelande
     } catch (err) {
-      console.error('Failed to update task status:', err);
+      console.error('Failed to update pending task status:', err);
       // Visa felmeddelande
     }
   };
@@ -199,7 +229,10 @@ export const PendingTasksManager = () => {
     if (!selectedTask) return;
     
     try {
-      const updatedTask = await taskApi.updateTaskPriority(selectedTask.id, selectedPriority);
+      const pendingTaskWithUpdatedPriority = await taskApi.updatePendingTaskPriority(selectedTask.id, selectedPriority);
+      
+      // Konvertera tillbaka till Task för UI
+      const updatedTask = pendingTaskToTask(pendingTaskWithUpdatedPriority);
       
       setTasks(prevTasks => prevTasks.map(task => 
         task.id === updatedTask.id ? updatedTask : task
@@ -208,7 +241,7 @@ export const PendingTasksManager = () => {
       setIsPriorityModalOpen(false);
       // Visa bekräftelsemeddelande
     } catch (err) {
-      console.error('Failed to update task priority:', err);
+      console.error('Failed to update pending task priority:', err);
       // Visa felmeddelande
     }
   };
@@ -258,9 +291,46 @@ export const PendingTasksManager = () => {
     return (
       <div className="text-center p-6">
         <p className="text-red-500 mb-4">{error}</p>
-        <Button onClick={fetchPendingTasks}>
-          {t('common.tryAgain')}
-        </Button>
+        <div className="space-y-4">
+          <Button onClick={fetchPendingTasks}>
+            {t('common.tryAgain')}
+          </Button>
+          
+          <div>
+            <Button 
+              onClick={async () => {
+                try {
+                  setIsLoading(true);
+                  const pendingTaskId = '67bdb085b526ba5619e3b3d1';
+                  console.log('Försöker hämta specifik pendingTask med ID:', pendingTaskId);
+                  const pendingTask = await taskApi.getPendingTaskById(pendingTaskId);
+                  console.log('Hämtade specifik pendingTask:', pendingTask);
+                  
+                  if (pendingTask) {
+                    console.log('Konverterar pendingTask till Task format');
+                    const convertedTask = pendingTaskToTask(pendingTask);
+                    console.log('Konverterad Task:', convertedTask);
+                    setTasks([convertedTask]);
+                    setFilteredTasks([convertedTask]);
+                    setError(null);
+                  } else {
+                    console.error('Ingen pendingTask hittades med ID:', pendingTaskId);
+                    setError('Kunde inte hitta uppgiften med det angivna ID:t');
+                  }
+                } catch (err) {
+                  console.error('Kunde inte hämta specifik pendingTask:', err);
+                  setError('Kunde inte hämta specifik pendingTask: ' + (err instanceof Error ? err.message : String(err)));
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              variant="outline"
+              className="ml-2"
+            >
+              Hämta specifik uppgift (ID: 67bdb085b526ba5619e3b3d1)
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }

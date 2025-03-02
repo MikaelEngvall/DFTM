@@ -1,17 +1,18 @@
 package com.dftm.service;
 
-import com.dftm.model.PendingTask;
-import com.dftm.model.Task;
-import com.dftm.model.User;
-import com.dftm.model.TaskStatus;
-import com.dftm.model.TaskPriority;
-import com.dftm.repository.PendingTaskRepository;
-import com.dftm.repository.TaskRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.dftm.model.PendingTask;
+import com.dftm.model.Task;
+import com.dftm.model.TaskPriority;
+import com.dftm.model.TaskStatus;
+import com.dftm.repository.PendingTaskRepository;
+import com.dftm.repository.TaskRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,24 @@ public class PendingTaskService {
 
     public List<PendingTask> getAllPendingTasks() {
         log.debug("Fetching all pending tasks from database");
-        return pendingTaskRepository.findAll();
+        List<PendingTask> pendingTasks = pendingTaskRepository.findAll();
+        log.info("Found {} pending tasks", pendingTasks.size());
+        return pendingTasks;
+    }
+
+    public List<PendingTask> getPendingTasksByActiveAndProcessed(Boolean active, Boolean processed) {
+        log.debug("Fetching pending tasks with active={} and processed={}", active, processed);
+        return pendingTaskRepository.findByActiveAndProcessed(active, processed);
+    }
+
+    public List<PendingTask> getPendingTasksByActive(Boolean active) {
+        log.debug("Fetching pending tasks with active={}", active);
+        return pendingTaskRepository.findByActive(active);
+    }
+
+    public List<PendingTask> getPendingTasksByProcessed(Boolean processed) {
+        log.debug("Fetching pending tasks with processed={}", processed);
+        return pendingTaskRepository.findByProcessed(processed);
     }
 
     public PendingTask approvePendingTask(String pendingTaskId, String assignedToUserId, String assignedByUserId) {

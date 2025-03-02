@@ -16,16 +16,18 @@ function App() {
 
   // Återställ sidans tillstånd vid laddning
   useEffect(() => {
-    // Kolla om användaren är inloggad
     const token = localStorage.getItem('token');
     if (token) {
-      fetchUserData();
-    }
-
-    // Återställ vyn från local storage om den finns
-    const savedView = localStorage.getItem('currentView');
-    if (savedView) {
-      setCurrentView(savedView);
+      fetchUserData().then(() => {
+        // Återställ vyn från local storage EFTER att användardata har laddats
+        const savedView = localStorage.getItem('currentView');
+        if (savedView) {
+          setCurrentView(savedView);
+        }
+      });
+    } else {
+      // Om ingen token finns, sätt vyn till landing
+      setCurrentView('landing');
     }
   }, []);
 

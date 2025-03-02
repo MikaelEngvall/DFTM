@@ -25,9 +25,21 @@ public class PendingTaskController {
     private final PendingTaskService pendingTaskService;
 
     @GetMapping
-    public ResponseEntity<List<PendingTask>> getAllPendingTasks() {
-        log.debug("Fetching all pending tasks");
-        return ResponseEntity.ok(pendingTaskService.getAllPendingTasks());
+    public ResponseEntity<List<PendingTask>> getAllPendingTasks(
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) Boolean processed) {
+        log.debug("Fetching pending tasks with filters - active: {}, processed: {}", active, processed);
+        
+        if (active != null && processed != null) {
+            return ResponseEntity.ok(pendingTaskService.getPendingTasksByActiveAndProcessed(active, processed));
+        } else if (active != null) {
+            return ResponseEntity.ok(pendingTaskService.getPendingTasksByActive(active));
+        } else if (processed != null) {
+            return ResponseEntity.ok(pendingTaskService.getPendingTasksByProcessed(processed));
+        } else {
+            // Inga filter angivna, returnera alla
+            return ResponseEntity.ok(pendingTaskService.getAllPendingTasks());
+        }
     }
 
     @PutMapping("/{id}/approve")

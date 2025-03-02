@@ -11,6 +11,7 @@ import com.dftm.model.PendingTask;
 @Repository
 public interface PendingTaskRepository extends MongoRepository<PendingTask, String> {
     List<PendingTask> findByProcessed(boolean processed);
+    List<PendingTask> findByActive(boolean active);
     List<PendingTask> findByActiveAndProcessed(boolean active, boolean processed);
     Optional<PendingTask> findByMessageId(String messageId);
 } 

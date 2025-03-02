@@ -1,6 +1,7 @@
 import { axiosInstance } from './axiosConfig';
 import { api } from './api';
 import { Task, TaskStatus, TaskPriority } from '../../types/task';
+import { PendingTask } from '../../types/pendingTask';
 
 // Uppgifternas prioritetsnivåer
 export enum TaskPriority {
@@ -110,12 +111,70 @@ export const taskApi = {
   },
 
   // Hämta väntande uppgifter
-  getPendingTasks: async (): Promise<Task[]> => {
+  getPendingTasks: async (): Promise<PendingTask[]> => {
     try {
-      const response = await axiosInstance.get('/tasks/pending');
+      // Hämta alla uppgifter utan filtrering
+      const response = await axiosInstance.get('/pending-tasks');
+      console.log('Pending tasks raw response:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error fetching pending tasks:', error);
+      throw error;
+    }
+  },
+
+  // Hämta väntande uppgift med ID 
+  getPendingTaskById: async (id: string): Promise<PendingTask> => {
+    try {
+      const response = await axiosInstance.get(`/pending-tasks/${id}`);
+      console.log(`Pending task ${id} response:`, response.data);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching pending task ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // Uppdatera en väntande uppgift
+  updatePendingTask: async (taskId: string, taskData: Partial<PendingTask>): Promise<PendingTask> => {
+    try {
+      const response = await axiosInstance.patch(`/pending-tasks/${taskId}`, taskData);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating pending task ${taskId}:`, error);
+      throw error;
+    }
+  },
+
+  // Uppdatera en väntande uppgifts status
+  updatePendingTaskStatus: async (taskId: string, status: string): Promise<PendingTask> => {
+    try {
+      const response = await axiosInstance.patch(`/pending-tasks/${taskId}/status`, { status });
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating pending task status for ${taskId}:`, error);
+      throw error;
+    }
+  },
+
+  // Uppdatera en väntande uppgifts prioritet
+  updatePendingTaskPriority: async (taskId: string, priority: string): Promise<PendingTask> => {
+    try {
+      const response = await axiosInstance.patch(`/pending-tasks/${taskId}/priority`, { priority });
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating priority for pending task ${taskId}:`, error);
+      throw error;
+    }
+  },
+
+  // Tilldela väntande uppgift till användare
+  assignPendingTask: async (taskId: string, userId: string): Promise<PendingTask> => {
+    try {
+      const response = await axiosInstance.patch(`/pending-tasks/${taskId}/assign`, { userId });
+      return response.data;
+    } catch (error) {
+      console.error(`Error assigning pending task ${taskId} to user ${userId}:`, error);
       throw error;
     }
   },
