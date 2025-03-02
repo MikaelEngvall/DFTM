@@ -14,6 +14,11 @@ function App() {
   const [currentView, setCurrentView] = useState<string>('landing');
   const [userRole, setUserRole] = useState<string>('');
 
+  // Funktion för att kontrollera om en vy kräver inloggning
+  const requiresAuthentication = (view: string): boolean => {
+    return ['calendar', 'profile', 'users', 'pendingTasks'].includes(view);
+  };
+
   // Återställ sidans tillstånd vid laddning
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -26,8 +31,15 @@ function App() {
         }
       });
     } else {
-      // Om ingen token finns, sätt vyn till landing
-      setCurrentView('landing');
+      // Om ingen token finns, kolla ändå om det finns en sparad vy
+      const savedView = localStorage.getItem('currentView');
+      // Använd den sparade vyn om den inte kräver autentisering
+      if (savedView && !requiresAuthentication(savedView)) {
+        setCurrentView(savedView);
+      } else {
+        // Annars, sätt vyn till landing
+        setCurrentView('landing');
+      }
     }
   }, []);
 
@@ -115,7 +127,7 @@ function App() {
     console.log("Rendering view:", currentView, "with user role:", userRole);
     
     // Om vi inte har ett användarID för vyer som kräver inloggning, visa landningssidan
-    if (!userId && (currentView === 'calendar' || currentView === 'profile' || currentView === 'users' || currentView === 'pendingTasks')) {
+    if (!userId && requiresAuthentication(currentView)) {
       console.log("Missing userId for protected view, redirecting to landing");
       // Sätt tillbaka tillståndet till landing utan delay
       setCurrentView('landing');

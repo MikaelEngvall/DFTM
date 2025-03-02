@@ -12,8 +12,7 @@ export interface PendingTask {
   reporter: string;
   createdAt: string;
   updatedAt: string;
-  active: boolean;
-  processed: boolean;
+  assigned: boolean;
   approved: boolean;
   originalLanguage: Language;
   titleTranslations: Record<Language, string>;

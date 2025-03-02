@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "pending_tasks")
+@Document(collection = "pendingTasks")
 public class PendingTask {
     @Id
     private String id;
@@ -33,8 +33,7 @@ public class PendingTask {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    private boolean active;
-    private boolean processed;
+    private boolean assigned;
     private boolean approved;
     
     private Language originalLanguage;

@@ -63,6 +63,8 @@ export const PendingTasksManager = () => {
       const targetTask = pendingTasksResponse.find(task => task.id === '67bdb085b526ba5619e3b3d1');
       if (targetTask) {
         console.log('Target task found:', targetTask);
+        console.log('Task assigned:', targetTask.assigned);
+        console.log('Task approved:', targetTask.approved);
       } else {
         console.log('Target task not found in response');
       }
@@ -279,6 +281,34 @@ export const PendingTasksManager = () => {
     );
   };
 
+  // För att manuellt hämta en specifik uppgift för felsökning
+  const fetchSpecificPendingTask = async () => {
+    try {
+      setIsLoading(true);
+      console.log('Fetching specific pending task with ID 67bdb085b526ba5619e3b3d1');
+      const task = await taskApi.getPendingTaskById('67bdb085b526ba5619e3b3d1');
+      console.log('Specific pending task response:', task);
+      
+      if (task) {
+        console.log('Task details:');
+        console.log('- ID:', task.id);
+        console.log('- Title:', task.title);
+        console.log('- Assigned:', task.assigned);
+        console.log('- Approved:', task.approved);
+        
+        // Konvertera och lägg till i listan
+        const convertedTask = pendingTaskToTask(task);
+        setTasks(prev => [convertedTask, ...prev.filter(t => t.id !== convertedTask.id)]);
+        setFilteredTasks(prev => [convertedTask, ...prev.filter(t => t.id !== convertedTask.id)]);
+      }
+    } catch (err) {
+      console.error('Failed to fetch specific pending task:', err);
+      setError('Failed to load specific pending task');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -289,48 +319,17 @@ export const PendingTasksManager = () => {
 
   if (error) {
     return (
-      <div className="text-center p-6">
-        <p className="text-red-500 mb-4">{error}</p>
-        <div className="space-y-4">
-          <Button onClick={fetchPendingTasks}>
-            {t('common.tryAgain')}
-          </Button>
-          
-          <div>
-            <Button 
-              onClick={async () => {
-                try {
-                  setIsLoading(true);
-                  const pendingTaskId = '67bdb085b526ba5619e3b3d1';
-                  console.log('Försöker hämta specifik pendingTask med ID:', pendingTaskId);
-                  const pendingTask = await taskApi.getPendingTaskById(pendingTaskId);
-                  console.log('Hämtade specifik pendingTask:', pendingTask);
-                  
-                  if (pendingTask) {
-                    console.log('Konverterar pendingTask till Task format');
-                    const convertedTask = pendingTaskToTask(pendingTask);
-                    console.log('Konverterad Task:', convertedTask);
-                    setTasks([convertedTask]);
-                    setFilteredTasks([convertedTask]);
-                    setError(null);
-                  } else {
-                    console.error('Ingen pendingTask hittades med ID:', pendingTaskId);
-                    setError('Kunde inte hitta uppgiften med det angivna ID:t');
-                  }
-                } catch (err) {
-                  console.error('Kunde inte hämta specifik pendingTask:', err);
-                  setError('Kunde inte hämta specifik pendingTask: ' + (err instanceof Error ? err.message : String(err)));
-                } finally {
-                  setIsLoading(false);
-                }
-              }}
-              variant="outline"
-              className="ml-2"
-            >
-              Hämta specifik uppgift (ID: 67bdb085b526ba5619e3b3d1)
-            </Button>
-          </div>
-        </div>
+      <div className="flex flex-col items-center justify-center p-4">
+        <div className="text-red-500 mb-4">{error}</div>
+        <Button onClick={fetchPendingTasks}>
+          Försök igen
+        </Button>
+        <Button 
+          onClick={fetchSpecificPendingTask} 
+          className="mt-2 bg-yellow-500 hover:bg-yellow-600"
+        >
+          Hämta specifik uppgift (67bdb085b526ba5619e3b3d1)
+        </Button>
       </div>
     );
   }

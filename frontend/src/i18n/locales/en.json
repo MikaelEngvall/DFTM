@@ -65,7 +65,8 @@
     "serverError": "A server error occurred. Please try again later.",
     "unauthorized": "Access denied. You don't have permission to perform this action.",
     "notFound": "Resource not found",
-    "unknown": "An unknown error has occurred"
+    "unknown": "An unknown error has occurred",
+    "updateFail": "Failed to update. Please try again."
   },
   "navbar": {
     "home": "Home",
@@ -206,9 +207,11 @@
     "taskCreated": "Task has been created",
     "taskUpdated": "Task has been updated",
     "taskDeleted": "Task has been deleted",
+    "notAssigned": "Not assigned",
     "statuses": {
       "pending": "Pending",
       "inProgress": "In Progress",
+      "inprogress": "In Progress",
       "completed": "Completed",
       "approved": "Approved",
       "rejected": "Rejected"

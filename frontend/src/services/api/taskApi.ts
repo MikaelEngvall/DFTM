@@ -1,5 +1,5 @@
 import { axiosInstance } from './axiosConfig';
-import { api } from './api';
+// import { api } from './api'; // Tar bort denna import som inte används
 import { Task, TaskStatus, TaskPriority } from '../../types/task';
 import { PendingTask } from '../../types/pendingTask';
 
@@ -113,9 +113,11 @@ export const taskApi = {
   // Hämta väntande uppgifter
   getPendingTasks: async (): Promise<PendingTask[]> => {
     try {
-      // Hämta alla uppgifter utan filtrering
+      console.log('Fetching pending tasks...');
+      // Vi hämtar alla pending tasks utan filter för att säkerställa att vi får alla från kollektionen
       const response = await axiosInstance.get('/pending-tasks');
-      console.log('Pending tasks raw response:', response.data);
+      console.log('Raw pending tasks response:', response);
+      console.log('Pending tasks data:', JSON.stringify(response.data));
       return response.data;
     } catch (error) {
       console.error('Error fetching pending tasks:', error);

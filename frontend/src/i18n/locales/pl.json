@@ -65,7 +65,8 @@
     "serverError": "Wystąpił błąd serwera. Spróbuj ponownie później.",
     "unauthorized": "Dostęp zabroniony. Nie masz uprawnień do wykonania tej akcji.",
     "notFound": "Nie znaleziono zasobu",
-    "unknown": "Wystąpił nieznany błąd"
+    "unknown": "Wystąpił nieznany błąd",
+    "updateFail": "Nie udało się zaktualizować. Spróbuj ponownie."
   },
   "navbar": {
     "home": "Strona główna",
@@ -206,9 +207,11 @@
     "taskCreated": "Zadanie zostało utworzone",
     "taskUpdated": "Zadanie zostało zaktualizowane",
     "taskDeleted": "Zadanie zostało usunięte",
+    "notAssigned": "Nieprzypisane",
     "statuses": {
       "pending": "Oczekujące",
       "inProgress": "W trakcie",
+      "inprogress": "W trakcie",
       "completed": "Zakończone",
       "approved": "Zatwierdzone",
       "rejected": "Odrzucone"

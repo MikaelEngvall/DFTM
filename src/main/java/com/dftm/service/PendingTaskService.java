@@ -1,6 +1,7 @@
 package com.dftm.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -24,24 +25,37 @@ public class PendingTaskService {
 
     public List<PendingTask> getAllPendingTasks() {
         log.debug("Fetching all pending tasks from database");
-        List<PendingTask> pendingTasks = pendingTaskRepository.findAll();
-        log.info("Found {} pending tasks", pendingTasks.size());
-        return pendingTasks;
+        try {
+            List<PendingTask> pendingTasks = pendingTaskRepository.findAll();
+            log.info("Found {} pending tasks", pendingTasks.size());
+            if (pendingTasks.isEmpty()) {
+                log.warn("No pending tasks found in database. Collection may be empty or not accessible.");
+            } else {
+                // Logga några detaljer om första uppgiften för att bekräfta att det hämtas korrekt
+                PendingTask firstTask = pendingTasks.get(0);
+                log.info("First task details - ID: {}, Title: {}, Assigned: {}, Approved: {}", 
+                        firstTask.getId(), firstTask.getTitle(), firstTask.isAssigned(), firstTask.isApproved());
+            }
+            return pendingTasks;
+        } catch (Exception e) {
+            log.error("Error while fetching pending tasks: {}", e.getMessage(), e);
+            return List.of(); // Returnera en tom lista vid fel
+        }
     }
 
-    public List<PendingTask> getPendingTasksByActiveAndProcessed(Boolean active, Boolean processed) {
-        log.debug("Fetching pending tasks with active={} and processed={}", active, processed);
-        return pendingTaskRepository.findByActiveAndProcessed(active, processed);
+    public List<PendingTask> getPendingTasksByAssignedAndApproved(Boolean assigned, Boolean approved) {
+        log.debug("Fetching pending tasks with assigned={} and approved={}", assigned, approved);
+        return pendingTaskRepository.findByAssignedAndApproved(assigned, approved);
     }
 
-    public List<PendingTask> getPendingTasksByActive(Boolean active) {
-        log.debug("Fetching pending tasks with active={}", active);
-        return pendingTaskRepository.findByActive(active);
+    public List<PendingTask> getPendingTasksByAssigned(Boolean assigned) {
+        log.debug("Fetching pending tasks with assigned={}", assigned);
+        return pendingTaskRepository.findByAssigned(assigned);
     }
 
-    public List<PendingTask> getPendingTasksByProcessed(Boolean processed) {
-        log.debug("Fetching pending tasks with processed={}", processed);
-        return pendingTaskRepository.findByProcessed(processed);
+    public List<PendingTask> getPendingTasksByApproved(Boolean approved) {
+        log.debug("Fetching pending tasks with approved={}", approved);
+        return pendingTaskRepository.findByApproved(approved);
     }
 
     public PendingTask approvePendingTask(String pendingTaskId, String assignedToUserId, String assignedByUserId) {
@@ -76,5 +90,24 @@ public class PendingTaskService {
         log.info("Created new task from approved pending task: {}", newTask.getId());
 
         return savedPendingTask;
+    }
+
+    /**
+     * Hämtar en specifik PendingTask med ID
+     */
+    public Optional<PendingTask> findById(String id) {
+        log.debug("Fetching pending task with ID: {}", id);
+        try {
+            Optional<PendingTask> task = pendingTaskRepository.findById(id);
+            if (task.isPresent()) {
+                log.info("Found pending task with ID {}", id);
+            } else {
+                log.warn("No pending task found with ID {}", id);
+            }
+            return task;
+        } catch (Exception e) {
+            log.error("Error fetching pending task with ID {}: {}", id, e.getMessage(), e);
+            return Optional.empty();
+        }
     }
 } 

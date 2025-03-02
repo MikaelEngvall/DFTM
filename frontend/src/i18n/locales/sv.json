@@ -65,7 +65,8 @@
     "serverError": "Ett fel uppstod på servern. Försök igen senare.",
     "unauthorized": "Åtkomst nekad. Du har inte behörighet att utföra denna åtgärd.",
     "notFound": "Resursen hittades inte",
-    "unknown": "Ett okänt fel har uppstått"
+    "unknown": "Ett okänt fel har uppstått",
+    "updateFail": "Uppdateringen misslyckades. Försök igen."
   },
   "navbar": {
     "home": "Hem",
@@ -206,9 +207,11 @@
     "taskCreated": "Uppgiften har skapats",
     "taskUpdated": "Uppgiften har uppdaterats",
     "taskDeleted": "Uppgiften har tagits bort",
+    "notAssigned": "Ej tilldelad",
     "statuses": {
       "pending": "Väntande",
       "inProgress": "Pågående",
+      "inprogress": "Pågående",
       "completed": "Slutförd",
       "approved": "Godkänd",
       "rejected": "Avvisad"
