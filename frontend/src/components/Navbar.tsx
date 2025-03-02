@@ -209,6 +209,22 @@ export const Navbar = ({
                   className="h-12" 
                 />
               </div>
+              
+              {/* Language Selector - Moved next to logo */}
+              <div className="flex space-x-1 ml-4">
+                {languages.map(({ code, flag: Flag, label }) => (
+                  <button
+                    key={code}
+                    onClick={() => handleLanguageChange(code)}
+                    className={`w-6 h-4 rounded-sm overflow-hidden transition-opacity ${
+                      i18n.language === code ? 'opacity-100' : 'opacity-50 hover:opacity-75'
+                    }`}
+                    title={label}
+                  >
+                    <Flag className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Navigation Items */}
@@ -223,22 +239,6 @@ export const Navbar = ({
                   <FiCalendar className="w-5 h-5" />
                 </button>
               )}
-
-              {/* Language Selector */}
-              <div className="flex space-x-1">
-                {languages.map(({ code, flag: Flag, label }) => (
-                  <button
-                    key={code}
-                    onClick={() => handleLanguageChange(code)}
-                    className={`w-6 h-4 rounded-sm overflow-hidden transition-opacity ${
-                      i18n.language === code ? 'opacity-100' : 'opacity-50 hover:opacity-75'
-                    }`}
-                    title={label}
-                  >
-                    <Flag className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
 
               {/* Theme Toggle */}
               <button

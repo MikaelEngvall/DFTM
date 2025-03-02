@@ -63,7 +63,7 @@ export const UserManagementTable = ({ users, onUserUpdate, onUserCreate }: UserM
           className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-md flex items-center gap-2"
         >
           <FiUserPlus className="h-5 w-5" />
-          {t('userManagement.createUser.button')}
+          <span className="hidden sm:inline">{t('userManagement.createUser.button')}</span>
         </button>
       </div>
       <div className="overflow-x-auto">

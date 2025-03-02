@@ -96,7 +96,16 @@
       "thursday": "Torsdag",
       "friday": "Fredag",
       "saturday": "Lördag",
-      "sunday": "Söndag"
+      "sunday": "Söndag",
+      "short": {
+        "monday": "Mån",
+        "tuesday": "Tis",
+        "wednesday": "Ons",
+        "thursday": "Tor",
+        "friday": "Fre",
+        "saturday": "Lör",
+        "sunday": "Sön"
+      }
     },
     "months": {
       "january": "Januari",

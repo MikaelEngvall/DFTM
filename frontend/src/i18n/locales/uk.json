@@ -96,7 +96,16 @@
       "thursday": "Четвер",
       "friday": "П'ятниця",
       "saturday": "Субота",
-      "sunday": "Неділя"
+      "sunday": "Неділя",
+      "short": {
+        "monday": "Пон",
+        "tuesday": "Вів",
+        "wednesday": "Сер",
+        "thursday": "Чет",
+        "friday": "Пят",
+        "saturday": "Суб",
+        "sunday": "Нед"
+      }
     },
     "months": {
       "january": "Січень",

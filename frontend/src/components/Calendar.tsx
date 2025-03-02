@@ -288,7 +288,15 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
         {/* Veckodagar */}
         {weekdays.map(day => (
           <div key={day} className="p-2 text-center font-bold border-b border-border">
-            {day}
+            <span className="hidden sm:inline">{day}</span>
+            <span className="sm:hidden">
+              {t(`calendar.weekdays.short.${day.toLowerCase() === t('calendar.weekdays.monday').toLowerCase() ? 'monday' : 
+                 day.toLowerCase() === t('calendar.weekdays.tuesday').toLowerCase() ? 'tuesday' : 
+                 day.toLowerCase() === t('calendar.weekdays.wednesday').toLowerCase() ? 'wednesday' : 
+                 day.toLowerCase() === t('calendar.weekdays.thursday').toLowerCase() ? 'thursday' : 
+                 day.toLowerCase() === t('calendar.weekdays.friday').toLowerCase() ? 'friday' : 
+                 day.toLowerCase() === t('calendar.weekdays.saturday').toLowerCase() ? 'saturday' : 'sunday'}`)}
+            </span>
           </div>
         ))}
 
