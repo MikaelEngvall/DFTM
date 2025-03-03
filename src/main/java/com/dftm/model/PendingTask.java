@@ -1,8 +1,8 @@
 package com.dftm.model;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,27 +21,21 @@ public class PendingTask {
     @Id
     private String id;
     
-    private String title;
+    private String name;
+    private String email;
+    private String phone;
+    private String address;
+    private String apartment;
     private String description;
-    private String status;
-    private String priority;
-    private String sender;
-    private String recipient;
-    private String messageId;
-    private String reporter;
     
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime dueDate;
-    
-    private boolean assigned;
-    private boolean approved;
-    
-    private Language originalLanguage;
-    
-    @Builder.Default
-    private Map<Language, String> titleTranslations = new HashMap<>();
-    
+    // Översättningsfält
+    private Language descriptionLanguage;
     @Builder.Default
     private Map<Language, String> descriptionTranslations = new HashMap<>();
+    
+    // Status kan vara "APPROVED" eller "REJECTED"
+    private String status;
+    
+    // Datum då felanmälan mottogs
+    private LocalDateTime received;
 } 

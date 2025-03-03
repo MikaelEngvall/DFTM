@@ -288,22 +288,19 @@ public class TaskController {
                 .orElseThrow(() -> new RuntimeException("Pending task not found"));
             
             Task task = Task.builder()
-                .title(pendingTask.getTitle())
+                .title("Felanmälan från " + pendingTask.getName() + " - " + pendingTask.getAddress() + " " + pendingTask.getApartment())
                 .description(pendingTask.getDescription())
-                .reporter(pendingTask.getReporter())
-                .status(TaskStatus.COMPLETED)
-                .priority(TaskPriority.valueOf(pendingTask.getPriority()))
-                .createdAt(pendingTask.getCreatedAt())
+                .reporter(pendingTask.getEmail())
+                .status(TaskStatus.PENDING)
+                .priority(TaskPriority.MEDIUM)
+                .createdAt(pendingTask.getReceived())
                 .updatedAt(LocalDateTime.now())
                 .assigned(false)
-                .titleTranslations(pendingTask.getTitleTranslations())
-                .descriptionTranslations(pendingTask.getDescriptionTranslations())
-                .originalLanguage(pendingTask.getOriginalLanguage())
                 .build();
 
             taskRepository.save(task);
             
-            pendingTask.setStatus(TaskStatus.COMPLETED.toString());
+            pendingTask.setStatus("APPROVED");
             pendingTaskRepository.save(pendingTask);
             
             return ResponseEntity.ok().build();

@@ -1,15 +1,11 @@
 package com.dftm.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.dftm.model.PendingTask;
-import com.dftm.model.Task;
-import com.dftm.model.TaskPriority;
-import com.dftm.model.TaskStatus;
 import com.dftm.repository.PendingTaskRepository;
 import com.dftm.repository.TaskRepository;
 
@@ -34,8 +30,8 @@ public class PendingTaskService {
             } else {
                 // Logga några detaljer om första uppgiften för att bekräfta att det hämtas korrekt
                 PendingTask firstTask = pendingTasks.get(0);
-                log.info("First task details - ID: {}, Title: {}, Assigned: {}, Approved: {}", 
-                        firstTask.getId(), firstTask.getTitle(), firstTask.isAssigned(), firstTask.isApproved());
+                log.info("First task details - ID: {}, Address: {}, Status: {}", 
+                        firstTask.getId(), firstTask.getAddress(), firstTask.getStatus());
             }
             return pendingTasks;
         } catch (Exception e) {
@@ -44,85 +40,32 @@ public class PendingTaskService {
         }
     }
 
-    public List<PendingTask> getPendingTasksByAssignedAndApproved(Boolean assigned, Boolean approved) {
-        log.debug("Fetching pending tasks with assigned={} and approved={}", assigned, approved);
-        return pendingTaskRepository.findByAssignedAndApproved(assigned, approved);
+    public List<PendingTask> getPendingTasksByStatus(String status) {
+        log.debug("Fetching pending tasks with status={}", status);
+        return pendingTaskRepository.findByStatus(status);
     }
 
-    public List<PendingTask> getPendingTasksByAssigned(Boolean assigned) {
-        log.debug("Fetching pending tasks with assigned={}", assigned);
-        return pendingTaskRepository.findByAssigned(assigned);
+    public List<PendingTask> getPendingTasksByAddress(String address) {
+        log.debug("Fetching pending tasks with address containing={}", address);
+        return pendingTaskRepository.findByAddressContaining(address);
     }
 
-    public List<PendingTask> getPendingTasksByApproved(Boolean approved) {
-        log.debug("Fetching pending tasks with approved={}", approved);
-        return pendingTaskRepository.findByApproved(approved);
-    }
-
-    public PendingTask approvePendingTask(String pendingTaskId, String assignedToUserId, String assignedByUserId, LocalDateTime customDueDate) {
+    public PendingTask approvePendingTask(String pendingTaskId) {
         PendingTask pendingTask = pendingTaskRepository.findById(pendingTaskId)
                 .orElseThrow(() -> new RuntimeException("Pending task not found"));
 
-        // Verifiera att användarna finns
-        userService.getUserById(assignedToUserId);
-        userService.getUserById(assignedByUserId);
+        // Markera pending task som godkänd
+        pendingTask.setStatus("APPROVED");
+        return pendingTaskRepository.save(pendingTask);
+    }
+    
+    public PendingTask rejectPendingTask(String pendingTaskId) {
+        PendingTask pendingTask = pendingTaskRepository.findById(pendingTaskId)
+                .orElseThrow(() -> new RuntimeException("Pending task not found"));
 
-        // Markera pending task som approved
-        pendingTask.setApproved(true);
-        PendingTask savedPendingTask = pendingTaskRepository.save(pendingTask);
-
-        // Konvertera status från sträng till enum
-        TaskStatus taskStatus;
-        try {
-            taskStatus = TaskStatus.valueOf(pendingTask.getStatus());
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid status value in pending task: {}. Using default PENDING", pendingTask.getStatus());
-            taskStatus = TaskStatus.PENDING;
-        }
-
-        // Konvertera priority från sträng till enum
-        TaskPriority taskPriority;
-        try {
-            taskPriority = TaskPriority.valueOf(pendingTask.getPriority());
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid priority value in pending task: {}. Using default MEDIUM", pendingTask.getPriority());
-            taskPriority = TaskPriority.MEDIUM;
-        }
-
-        // Använd custom dueDate om det angivits, annars använd pendingTask dueDate om det finns,
-        // annars sätt det till 7 dagar framåt
-        LocalDateTime dueDate;
-        if (customDueDate != null) {
-            dueDate = customDueDate;
-            log.debug("Using custom dueDate: {}", dueDate);
-        } else if (pendingTask.getDueDate() != null) {
-            dueDate = pendingTask.getDueDate();
-            log.debug("Using pendingTask dueDate: {}", dueDate);
-        } else {
-            dueDate = LocalDateTime.now().plusDays(7);
-            log.debug("Using default dueDate (now+7days): {}", dueDate);
-        }
-
-        // Skapa ny task baserad på pending task
-        Task newTask = Task.builder()
-                .title(pendingTask.getTitle())
-                .description(pendingTask.getDescription())
-                .status(taskStatus)
-                .priority(taskPriority)
-                .dueDate(dueDate)
-                .assignedTo(assignedToUserId)
-                .assigner(assignedByUserId)
-                .reporter(pendingTask.getReporter())
-                .createdAt(pendingTask.getCreatedAt())
-                .updatedAt(pendingTask.getUpdatedAt())
-                .originalLanguage(pendingTask.getOriginalLanguage())
-                .approved(true)
-                .build();
-
-        Task savedTask = taskRepository.save(newTask);
-        log.info("Created new task from approved pending task: {}", savedTask.getId());
-
-        return savedPendingTask;
+        // Markera pending task som avslagen
+        pendingTask.setStatus("REJECTED");
+        return pendingTaskRepository.save(pendingTask);
     }
 
     /**

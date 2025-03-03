@@ -1,8 +1,6 @@
 package com.dftm.controller;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dftm.model.PendingTask;
 import com.dftm.repository.PendingTaskRepository;
-import com.dftm.repository.TaskRepository;
 import com.dftm.service.PendingTaskService;
 
 import lombok.RequiredArgsConstructor;
@@ -34,58 +31,41 @@ import lombok.extern.slf4j.Slf4j;
 public class PendingTaskController {
     private final PendingTaskService pendingTaskService;
     private final PendingTaskRepository pendingTaskRepository;
-    private final TaskRepository taskRepository;
 
     @GetMapping
     public ResponseEntity<List<PendingTask>> getAllPendingTasks(
-            @RequestParam(required = false) Boolean assigned,
-            @RequestParam(required = false) Boolean approved) {
-        log.info("GET /api/v1/pending-tasks - Fetching pending tasks with filters - assigned: {}, approved: {}", assigned, approved);
+            @RequestParam(required = false) String status) {
+        log.info("GET /api/v1/pending-tasks - Fetching pending tasks with filters - status: {}", status);
         
         List<PendingTask> result;
-        if (assigned != null && approved != null) {
-            result = pendingTaskService.getPendingTasksByAssignedAndApproved(assigned, approved);
-        } else if (assigned != null) {
-            result = pendingTaskService.getPendingTasksByAssigned(assigned);
-        } else if (approved != null) {
-            result = pendingTaskService.getPendingTasksByApproved(approved);
+        if (status != null && !status.isEmpty()) {
+            result = pendingTaskService.getPendingTasksByStatus(status);
         } else {
             // Inga filter angivna, returnera alla
             result = pendingTaskService.getAllPendingTasks();
         }
         
         log.info("Found {} pending tasks to return", result.size());
-        for (PendingTask task : result) {
-            log.info("Task: {}", task);
-        }
         
         return ResponseEntity.ok(result);
     }
 
     @PatchMapping("/{id}/approve")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
-    public ResponseEntity<PendingTask> approvePendingTask(
-            @PathVariable String id,
-            @RequestParam String assignedToUserId,
-            @RequestParam String assignedByUserId,
-            @RequestParam(required = false) String dueDate) {
-        log.debug("Approving pending task with id: {}, dueDate: {}", id, dueDate);
+    public ResponseEntity<PendingTask> approvePendingTask(@PathVariable String id) {
+        log.debug("Approving pending task with id: {}", id);
         
-        // Konvertera dueDate-strängen till LocalDateTime om den finns
-        LocalDateTime dueDateObj = null;
-        if (dueDate != null && !dueDate.isEmpty()) {
-            try {
-                // Förväntar ISO-8601 format (2023-04-15T14:30:00Z)
-                dueDateObj = LocalDateTime.parse(dueDate);
-                log.debug("Parsed dueDate: {}", dueDateObj);
-            } catch (Exception e) {
-                log.warn("Could not parse dueDate: {}. Error: {}", dueDate, e.getMessage());
-                // Fortsätt utan dueDate, servicen kommer använda standardvärdet
-            }
-        }
-        
-        PendingTask approvedTask = pendingTaskService.approvePendingTask(id, assignedToUserId, assignedByUserId, dueDateObj);
+        PendingTask approvedTask = pendingTaskService.approvePendingTask(id);
         return ResponseEntity.ok(approvedTask);
+    }
+    
+    @PatchMapping("/{id}/reject")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
+    public ResponseEntity<PendingTask> rejectPendingTask(@PathVariable String id) {
+        log.debug("Rejecting pending task with id: {}", id);
+        
+        PendingTask rejectedTask = pendingTaskService.rejectPendingTask(id);
+        return ResponseEntity.ok(rejectedTask);
     }
 
     @GetMapping("/{id}")
@@ -111,122 +91,20 @@ public class PendingTaskController {
         }
     }
 
-    @GetMapping("/test-db-connection")
-    public ResponseEntity<?> testDatabaseConnection() {
-        log.info("Testing MongoDB connection and collection access");
-        
-        try {
-            Map<String, Object> result = new HashMap<>();
-            
-            // Test 1: Kan vi räkna alla dokument?
-            long count = pendingTaskRepository.count();
-            result.put("count", count);
-            log.info("Total documents in collection: {}", count);
-            
-            // Test 2: Kollektionsnamn
-            result.put("pendingTasksCollection", "pendingTasks");
-            
-            // Test 3: Skapa, spara och sedan leta efter en uppgift med ett unikt ID
-            String uniqueId = "test-" + System.currentTimeMillis();
-            
-            // Skapa utan builder
-            PendingTask testTask = new PendingTask();
-            testTask.setTitle("DB Test Task");
-            testTask.setDescription("Testing database connectivity");
-            testTask.setStatus("PENDING");
-            testTask.setPriority("LOW");
-            testTask.setMessageId(uniqueId);
-            testTask.setSender("system");
-            testTask.setRecipient("system");
-            testTask.setReporter("system");
-            testTask.setAssigned(false);
-            testTask.setApproved(false);
-            testTask.setCreatedAt(LocalDateTime.now());
-            testTask.setUpdatedAt(LocalDateTime.now());
-            
-            PendingTask savedTask = pendingTaskRepository.save(testTask);
-            result.put("savedTask", savedTask);
-            log.info("Task saved with ID: {}", savedTask.getId());
-            
-            // Test 4: Hämta den nyskapade uppgiften med messageId
-            Optional<PendingTask> foundByMessageId = pendingTaskRepository.findByMessageId(uniqueId);
-            result.put("foundByMessageId", foundByMessageId.isPresent());
-            log.info("Task found by messageId: {}", foundByMessageId.isPresent());
-            
-            if (foundByMessageId.isPresent()) {
-                log.info("Found task details: {}", foundByMessageId.get());
-            }
-            
-            // Test 5: Hämta den nyskapade uppgiften med ID
-            Optional<PendingTask> foundById = pendingTaskRepository.findById(savedTask.getId());
-            result.put("foundById", foundById.isPresent());
-            log.info("Task found by ID: {}", foundById.isPresent());
-            
-            if (foundById.isPresent()) {
-                log.info("Found task details: {}", foundById.get());
-            }
-            
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            log.error("Error testing database connection: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of(
-                    "error", "Database connection test failed",
-                    "message", e.getMessage(),
-                    "stackTrace", Arrays.toString(e.getStackTrace())
-                ));
-        }
-    }
-
-    @GetMapping("/test-create")
-    public ResponseEntity<?> createTestPendingTask() {
-        log.info("Creating test pending task to check database connectivity");
-        
-        try {
-            // Skapa en ny test PendingTask utan builder
-            PendingTask testTask = new PendingTask();
-            testTask.setTitle("Test Pending Task");
-            testTask.setDescription("Test description to check database connectivity");
-            testTask.setStatus("PENDING");
-            testTask.setPriority("MEDIUM");
-            testTask.setSender("test-sender");
-            testTask.setRecipient("test-recipient");
-            testTask.setReporter("test-reporter");
-            testTask.setMessageId("test-message-" + System.currentTimeMillis());
-            testTask.setAssigned(false);
-            testTask.setApproved(false);
-            testTask.setCreatedAt(LocalDateTime.now());
-            testTask.setUpdatedAt(LocalDateTime.now());
-            
-            // Spara till databasen
-            PendingTask savedTask = pendingTaskRepository.save(testTask);
-            log.info("Test task successfully saved with ID: {}", savedTask.getId());
-            
-            // Dubbelkolla om den sparades genom att hämta den igen
-            List<PendingTask> allTasks = pendingTaskRepository.findAll();
-            log.info("Total tasks after test creation: {}", allTasks.size());
-            
-            return ResponseEntity.ok(Map.of(
-                "message", "Test task created successfully",
-                "task", savedTask,
-                "totalTasks", allTasks.size()
-            ));
-        } catch (Exception e) {
-            log.error("Error creating test task: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Failed to create test task", "message", e.getMessage()));
-        }
-    }
-
     @PostMapping
     public ResponseEntity<PendingTask> createPendingTask(@RequestBody PendingTask pendingTask) {
         log.info("POST /api/v1/pending-tasks - Creating new pending task");
         
         try {
-            // Sätt automatiska datumfält
-            LocalDateTime now = LocalDateTime.now();
-            pendingTask.setCreatedAt(now);
-            pendingTask.setUpdatedAt(now);
+            // Sätt received till nu om det inte redan finns
+            if (pendingTask.getReceived() == null) {
+                pendingTask.setReceived(LocalDateTime.now());
+            }
+            
+            // Sätt standardstatus om det behövs
+            if (pendingTask.getStatus() == null || pendingTask.getStatus().isEmpty()) {
+                pendingTask.setStatus("NEW");
+            }
             
             // Spara till databasen
             PendingTask savedTask = pendingTaskRepository.save(pendingTask);
@@ -248,38 +126,43 @@ public class PendingTaskController {
         try {
             Optional<PendingTask> existingTaskOptional = pendingTaskRepository.findById(id);
             
-            if (existingTaskOptional.isEmpty()) {
+            if (existingTaskOptional.isPresent()) {
+                PendingTask existingTask = existingTaskOptional.get();
+                
+                // Uppdatera fält om de har skickats med
+                if (taskData.getName() != null) {
+                    existingTask.setName(taskData.getName());
+                }
+                if (taskData.getEmail() != null) {
+                    existingTask.setEmail(taskData.getEmail());
+                }
+                if (taskData.getPhone() != null) {
+                    existingTask.setPhone(taskData.getPhone());
+                }
+                if (taskData.getAddress() != null) {
+                    existingTask.setAddress(taskData.getAddress());
+                }
+                if (taskData.getApartment() != null) {
+                    existingTask.setApartment(taskData.getApartment());
+                }
+                if (taskData.getDescription() != null) {
+                    existingTask.setDescription(taskData.getDescription());
+                }
+                if (taskData.getStatus() != null) {
+                    existingTask.setStatus(taskData.getStatus());
+                }
+                
+                // Spara uppdaterade uppgiften
+                PendingTask updatedTask = pendingTaskRepository.save(existingTask);
+                log.info("Successfully updated pending task with ID: {}", updatedTask.getId());
+                return ResponseEntity.ok(updatedTask);
+            } else {
                 log.warn("Pending task with ID {} not found for update", id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-            
-            PendingTask existingTask = existingTaskOptional.get();
-            
-            // Uppdatera bara de fält som finns i request body
-            if (taskData.getTitle() != null) {
-                existingTask.setTitle(taskData.getTitle());
-            }
-            if (taskData.getDescription() != null) {
-                existingTask.setDescription(taskData.getDescription());
-            }
-            if (taskData.getStatus() != null) {
-                existingTask.setStatus(taskData.getStatus());
-            }
-            if (taskData.getPriority() != null) {
-                existingTask.setPriority(taskData.getPriority());
-            }
-            
-            existingTask.setUpdatedAt(LocalDateTime.now());
-            
-            PendingTask updatedTask = pendingTaskRepository.save(existingTask);
-            log.info("Successfully updated pending task with ID {}", id);
-            
-            return ResponseEntity.ok(updatedTask);
         } catch (Exception e) {
             log.error("Error updating pending task with ID {}: {}", id, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .build();
+            throw new RuntimeException("Failed to update pending task: " + e.getMessage(), e);
         }
     }
 
@@ -288,109 +171,32 @@ public class PendingTaskController {
     public ResponseEntity<PendingTask> updatePendingTaskStatus(
             @PathVariable String id,
             @RequestBody Map<String, String> statusMap) {
-        log.info("PATCH /api/v1/pending-tasks/{}/status - Updating pending task status", id);
+        String status = statusMap.get("status");
+        
+        log.info("PATCH /api/v1/pending-tasks/{}/status - Updating pending task status to {}", id, status);
+        
+        if (status == null || status.isEmpty()) {
+            log.warn("Status value is missing in request body");
+            return ResponseEntity.badRequest().build();
+        }
         
         try {
-            String status = statusMap.get("status");
-            if (status == null) {
-                log.warn("No status provided in request body");
-                return ResponseEntity.badRequest().build();
-            }
+            Optional<PendingTask> taskOptional = pendingTaskRepository.findById(id);
             
-            Optional<PendingTask> existingTaskOptional = pendingTaskRepository.findById(id);
-            
-            if (existingTaskOptional.isEmpty()) {
+            if (taskOptional.isPresent()) {
+                PendingTask task = taskOptional.get();
+                task.setStatus(status);
+                
+                PendingTask updatedTask = pendingTaskRepository.save(task);
+                log.info("Successfully updated status for pending task with ID: {}", updatedTask.getId());
+                return ResponseEntity.ok(updatedTask);
+            } else {
                 log.warn("Pending task with ID {} not found for status update", id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-            
-            PendingTask existingTask = existingTaskOptional.get();
-            existingTask.setStatus(status);
-            existingTask.setUpdatedAt(LocalDateTime.now());
-            
-            PendingTask updatedTask = pendingTaskRepository.save(existingTask);
-            log.info("Successfully updated status of pending task with ID {} to {}", id, status);
-            
-            return ResponseEntity.ok(updatedTask);
         } catch (Exception e) {
-            log.error("Error updating status of pending task with ID {}: {}", id, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .build();
-        }
-    }
-
-    @PatchMapping("/{id}/priority")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
-    public ResponseEntity<PendingTask> updatePendingTaskPriority(
-            @PathVariable String id,
-            @RequestBody Map<String, String> priorityMap) {
-        log.info("PATCH /api/v1/pending-tasks/{}/priority - Updating pending task priority", id);
-        
-        try {
-            String priority = priorityMap.get("priority");
-            if (priority == null) {
-                log.warn("No priority provided in request body");
-                return ResponseEntity.badRequest().build();
-            }
-            
-            Optional<PendingTask> existingTaskOptional = pendingTaskRepository.findById(id);
-            
-            if (existingTaskOptional.isEmpty()) {
-                log.warn("Pending task with ID {} not found for priority update", id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .build();
-            }
-            
-            PendingTask existingTask = existingTaskOptional.get();
-            existingTask.setPriority(priority);
-            existingTask.setUpdatedAt(LocalDateTime.now());
-            
-            PendingTask updatedTask = pendingTaskRepository.save(existingTask);
-            log.info("Successfully updated priority of pending task with ID {} to {}", id, priority);
-            
-            return ResponseEntity.ok(updatedTask);
-        } catch (Exception e) {
-            log.error("Error updating priority of pending task with ID {}: {}", id, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .build();
-        }
-    }
-
-    @PatchMapping("/{id}/assign")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
-    public ResponseEntity<?> assignPendingTask(
-        @PathVariable String id,
-        @RequestBody Map<String, String> requestBody) {
-        
-        log.info("Assigning pending task with ID: {}", id);
-        
-        // Validera att userId finns i request body
-        String userId = requestBody.get("userId");
-        if (userId == null || userId.isEmpty()) {
-            log.error("Cannot assign task without userId");
-            return ResponseEntity.badRequest().body("userId is required in request body");
-        }
-        
-        // Hämta pending task
-        Optional<PendingTask> pendingTaskOpt = pendingTaskRepository.findById(id);
-        if (pendingTaskOpt.isEmpty()) {
-            log.error("Pending task with ID {} not found", id);
-            return ResponseEntity.notFound().build();
-        }
-        
-        PendingTask pendingTask = pendingTaskOpt.get();
-        
-        try {
-            // Markera som tilldelad
-            pendingTask.setAssigned(true);
-            pendingTaskRepository.save(pendingTask);
-            
-            log.info("Pending task assigned successfully");
-            return ResponseEntity.ok(pendingTask);
-        } catch (Exception e) {
-            log.error("Error assigning pending task: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error assigning task: " + e.getMessage());
+            log.error("Error updating status for pending task with ID {}: {}", id, e.getMessage(), e);
+            throw new RuntimeException("Failed to update pending task status: " + e.getMessage(), e);
         }
     }
 } 
