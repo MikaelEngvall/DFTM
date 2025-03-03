@@ -64,10 +64,11 @@ public class EmailListener {
             return;
         }
         
-        // I utvecklingsmiljö, skippa e-postanslutningen
-        if (isDevEnvironment()) {
-            log.info("Running in dev environment - skipping email check");
-            return;
+        // I utvecklingsmiljö, logga men fortsätt körningen
+        boolean isDev = isDevEnvironment();
+        if (isDev) {
+            log.info("Running in dev environment - will only process emails from {}", TARGET_SENDER);
+            // Ingen return här - fortsätt köra även i utvecklingsmiljön
         }
         
         Properties properties = new Properties();
