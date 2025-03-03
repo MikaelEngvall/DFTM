@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { userApi } from '../services/api/userApi';
 import { taskApi } from '../services/api/taskApi';
@@ -11,6 +11,7 @@ import { Input } from './ui/Input';
 import { Select } from './ui/Select';
 import { pendingTasksToTasks, pendingTaskToTask } from '../utils/taskAdapters';
 import { Notification } from './ui/Notification';
+import i18n from 'i18next';
 
 export const PendingTasksManager = () => {
   const { t, i18n } = useTranslation();
@@ -32,16 +33,11 @@ export const PendingTasksManager = () => {
   
   // Form state
   const [editedTitle, setEditedTitle] = useState('');
-  const [editedDescription, setEditedDescription] = useState('');
-  // Flerspråkig beskrivning
-  const [editedDescriptionSv, setEditedDescriptionSv] = useState('');
-  const [editedDescriptionEn, setEditedDescriptionEn] = useState('');
-  const [editedDescriptionPl, setEditedDescriptionPl] = useState('');
-  const [editedDescriptionUk, setEditedDescriptionUk] = useState('');
   const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<TaskStatus>(TaskStatus.PENDING);
   const [selectedPriority, setSelectedPriority] = useState<TaskPriority>(TaskPriority.MEDIUM);
   const [selectedDueDate, setSelectedDueDate] = useState<string>('');
+  const [editedDescription, setEditedDescription] = useState('');
 
   // Notification state
   const [notification, setNotification] = useState({
@@ -50,9 +46,14 @@ export const PendingTasksManager = () => {
     message: ''
   });
 
+  const [pendingTask, setPendingTask] = useState<PendingTask>({} as PendingTask);
+  const [isEditing, setIsEditing] = useState(false);
+  const [userRole, setUserRole] = useState<string>('');
+
   useEffect(() => {
     fetchPendingTasks();
     fetchUsers();
+    fetchUserRole();
   }, []);
 
   useEffect(() => {
@@ -148,6 +149,17 @@ export const PendingTasksManager = () => {
     }
   };
 
+  const fetchUserRole = async () => {
+    try {
+      const user = await userApi.getLoggedInUser();
+      if (user) {
+        setUserRole(user.role);
+      }
+    } catch (error) {
+      console.error('Kunde inte hämta användarinformation:', error);
+    }
+  };
+
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
 
@@ -158,10 +170,7 @@ export const PendingTasksManager = () => {
     if (typeof task.description === 'object') {
       // Om vi har olika språkversioner, uppdatera alla språkfält
       const descObj = task.description as TaskDescription;
-      setEditedDescriptionSv(descObj.sv || '');
-      setEditedDescriptionEn(descObj.en || '');
-      setEditedDescriptionPl(descObj.pl || '');
-      setEditedDescriptionUk(descObj.uk || '');
+      setEditedDescription(descObj.sv || '');
       
       // Visa aktuellt språk i huvudbeskrivningsfältet
       const currentLang = i18n.language as keyof TaskDescription;
@@ -169,10 +178,6 @@ export const PendingTasksManager = () => {
     } else {
       // För bakåtkompatibilitet, om det bara finns en beskrivning
       setEditedDescription(task.description || '');
-      setEditedDescriptionSv(task.description || '');
-      setEditedDescriptionEn(task.description || '');
-      setEditedDescriptionPl(task.description || '');
-      setEditedDescriptionUk(task.description || '');
     }
 
     // Sätt status och prioritet
@@ -187,6 +192,20 @@ export const PendingTasksManager = () => {
     
     // Öppna editerings-modalen
     setIsEditModalOpen(true);
+
+    taskApi.getPendingTaskById(task.id)
+      .then(fetchedTask => {
+        console.log('Hämtad uppgift:', fetchedTask);
+        // Hantera lokaliserad beskrivning baserat på användarens språk
+        setPendingTask(fetchedTask);
+        setSelectedPendingTask(task.id);
+        setSelectedUserId(fetchedTask.assignedToUserId || '');
+        setIsEditing(false);
+      })
+      .catch(error => {
+        console.error(`Kunde inte hämta uppgift med ID ${task.id}:`, error);
+        showNotification('error', t('pendingTasks.errors.fetchTask'));
+      });
   };
 
   // Ny funktion för att avvisa en pending task
@@ -389,46 +408,60 @@ export const PendingTasksManager = () => {
     }
   };
 
-  // Uppdatera pending task med nya värden inklusive dueDate
+  // Uppdatera pending task med nya värden
   const updatePendingTask = async () => {
     if (!selectedTask) return;
-
+    
     try {
       // Skapa en TaskDescription med alla språkversioner
-      const descriptionObj: TaskDescription = {
-        sv: editedDescriptionSv,
-        en: editedDescriptionEn,
-        pl: editedDescriptionPl,
-        uk: editedDescriptionUk
-      };
-
+      const currentLanguage = getCurrentLanguage();
+      const backendLanguage = getBackendLanguage(currentLanguage);
+      
+      // Skapa eller uppdatera språkversioner för beskrivningen
+      let descriptionValue: string | TaskDescription = editedDescription;
+      
+      // Om beskrivningen redan är ett objekt, uppdatera bara aktuellt språk
+      if (typeof selectedTask.description === 'object') {
+        const existingDescObj = selectedTask.description as TaskDescription;
+        descriptionValue = {
+          ...existingDescObj,
+          [currentLanguage]: editedDescription // Uppdatera bara det aktiva språket
+        };
+      } 
+      // Om det inte är ett objekt än, skapa ett nytt med aktuellt språk
+      else if (editedDescription) {
+        descriptionValue = {
+          sv: currentLanguage === 'sv' ? editedDescription : (selectedTask.description as string || ''),
+          en: currentLanguage === 'en' ? editedDescription : (selectedTask.description as string || ''),
+          pl: currentLanguage === 'pl' ? editedDescription : (selectedTask.description as string || ''),
+          uk: currentLanguage === 'uk' ? editedDescription : (selectedTask.description as string || '')
+        };
+      }
+      
       const pendingTaskData = {
         title: editedTitle,
-        description: descriptionObj,
+        description: descriptionValue,
         status: selectedStatus,
         priority: selectedPriority,
         dueDate: selectedDueDate ? new Date(selectedDueDate) : null
       };
-
+      
       await taskApi.updatePendingTask(selectedTask.id, pendingTaskData);
-
+      
       // Uppdatera uppgiften i listan
       const updatedTask = {
         ...selectedTask,
         title: editedTitle,
-        description: descriptionObj,
+        description: descriptionValue,
         status: selectedStatus,
         priority: selectedPriority,
         dueDate: selectedDueDate
       };
-
+      
       setTasks(prevTasks => prevTasks.map(task => 
         task.id === updatedTask.id ? updatedTask : task
       ));
-      setFilteredTasks(prevTasks => prevTasks.map(task => 
-        task.id === updatedTask.id ? updatedTask : task
-      ));
-
+      
       setIsEditModalOpen(false);
       showNotification('success', t('pendingTasks.taskUpdated'));
     } catch (err) {
@@ -446,6 +479,51 @@ export const PendingTasksManager = () => {
     
     // Alla andra uppgifter visas med full opacitet
     return 'opacity-100';
+  };
+
+  // Kontrollera om användaren har rätt roll för att redigera beskrivningar
+  const canEditDescription = () => {
+    return localStorage.getItem('userRole') === 'ROLE_ADMIN' || 
+           localStorage.getItem('userRole') === 'ROLE_SUPERADMIN';
+  };
+
+  // Hämta nuvarande språk från i18n eller localStorage
+  const getCurrentLanguage = (): string => {
+    return localStorage.getItem('language') || 'sv';
+  };
+  
+  // Konvertera frontend språkkod till backend språkkod
+  const getBackendLanguage = (frontendLang: string): string => {
+    const mapping: Record<string, string> = {
+      'sv': 'SV',
+      'en': 'EN',
+      'pl': 'PL',
+      'uk': 'UK'
+    };
+    return mapping[frontendLang] || 'SV';
+  };
+  
+  // Hämta beskrivning för aktuellt språk från Task
+  const getLocalizedTaskDescription = (task: Task | null): string => {
+    if (!task || !task.description) {
+      return '';
+    }
+    
+    // Om beskrivningen är ett objekt med språkversioner
+    if (typeof task.description === 'object') {
+      const descObj = task.description as TaskDescription;
+      const currentLang = getCurrentLanguage() as keyof TaskDescription;
+      
+      if (descObj[currentLang]) {
+        return descObj[currentLang];
+      }
+      
+      // Fallback till svenska
+      return descObj.sv || '';
+    }
+    
+    // Om description är en vanlig sträng
+    return task.description;
   };
 
   if (isLoading) {
@@ -634,60 +712,22 @@ export const PendingTasksManager = () => {
           </div>
           
           {/* Beskrivningar på olika språk */}
-          <div className="grid grid-cols-1 gap-4">
-            <h3 className="text-md font-medium">{t('tasks.description')}</h3>
-            
-            {/* Svenska beskrivningen */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                {t('userManagement.languages.sv')}
-              </label>
-              <textarea
-                value={editedDescriptionSv}
-                onChange={(e) => setEditedDescriptionSv(e.target.value)}
-                className="w-full min-h-24 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground dark:bg-card dark:text-card-foreground"
-                placeholder={t('task.details.noDescription')}
-              />
-            </div>
-            
-            {/* Engelska beskrivningen */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                {t('userManagement.languages.en')}
-              </label>
-              <textarea
-                value={editedDescriptionEn}
-                onChange={(e) => setEditedDescriptionEn(e.target.value)}
-                className="w-full min-h-24 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground dark:bg-card dark:text-card-foreground"
-                placeholder={t('task.details.noDescription')}
-              />
-            </div>
-            
-            {/* Polska beskrivningen */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                {t('userManagement.languages.pl')}
-              </label>
-              <textarea
-                value={editedDescriptionPl}
-                onChange={(e) => setEditedDescriptionPl(e.target.value)}
-                className="w-full min-h-24 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground dark:bg-card dark:text-card-foreground"
-                placeholder={t('task.details.noDescription')}
-              />
-            </div>
-            
-            {/* Ukrainska beskrivningen */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                {t('userManagement.languages.uk')}
-              </label>
-              <textarea
-                value={editedDescriptionUk}
-                onChange={(e) => setEditedDescriptionUk(e.target.value)}
-                className="w-full min-h-24 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground dark:bg-card dark:text-card-foreground"
-                placeholder={t('task.details.noDescription')}
-              />
-            </div>
+          <div className="form-group mb-4">
+            <label className="block text-sm font-medium text-muted-foreground mb-1">
+              {t('pendingTasks.form.description')} ({getCurrentLanguage().toUpperCase()})
+            </label>
+            <textarea
+              className="min-h-[120px] w-full border border-border rounded px-3 py-2 bg-card"
+              value={editedDescription || getLocalizedTaskDescription(selectedTask)}
+              onChange={(e) => setEditedDescription(e.target.value)}
+              placeholder={t('pendingTasks.form.descriptionPlaceholder')}
+              disabled={!isEditing || !canEditDescription()}
+            ></textarea>
+            {!canEditDescription() && isEditing && (
+              <p className="text-xs text-destructive mt-1">
+                {t('pendingTasks.form.onlyAdminCanEditDescription')}
+              </p>
+            )}
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
