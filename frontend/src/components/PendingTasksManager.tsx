@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { userApi } from '../services/api/userApi';
 import { taskApi } from '../services/api/taskApi';
-import { Task, TaskStatus, TaskPriority } from '../types/task';
+import { Task, TaskStatus, TaskPriority, TaskDescription } from '../types/task';
 import { User } from '../types/user';
 import { Spinner } from './ui/Spinner';
 import { Dialog } from './ui/Dialog';
@@ -13,7 +13,7 @@ import { pendingTasksToTasks, pendingTaskToTask } from '../utils/taskAdapters';
 import { Notification } from './ui/Notification';
 
 export const PendingTasksManager = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -33,6 +33,11 @@ export const PendingTasksManager = () => {
   // Form state
   const [editedTitle, setEditedTitle] = useState('');
   const [editedDescription, setEditedDescription] = useState('');
+  // Flerspråkig beskrivning
+  const [editedDescriptionSv, setEditedDescriptionSv] = useState('');
+  const [editedDescriptionEn, setEditedDescriptionEn] = useState('');
+  const [editedDescriptionPl, setEditedDescriptionPl] = useState('');
+  const [editedDescriptionUk, setEditedDescriptionUk] = useState('');
   const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<TaskStatus>(TaskStatus.PENDING);
   const [selectedPriority, setSelectedPriority] = useState<TaskPriority>(TaskPriority.MEDIUM);
@@ -145,12 +150,42 @@ export const PendingTasksManager = () => {
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
+
+    // Initialisera form state med uppgiftens värden
     setEditedTitle(task.title);
-    setEditedDescription(task.description || '');
-    setSelectedUserId(task.assignedTo?.id || '');
+
+    // Hantera beskrivningen baserat på dess typ
+    if (typeof task.description === 'object') {
+      // Om vi har olika språkversioner, uppdatera alla språkfält
+      const descObj = task.description as TaskDescription;
+      setEditedDescriptionSv(descObj.sv || '');
+      setEditedDescriptionEn(descObj.en || '');
+      setEditedDescriptionPl(descObj.pl || '');
+      setEditedDescriptionUk(descObj.uk || '');
+      
+      // Visa aktuellt språk i huvudbeskrivningsfältet
+      const currentLang = i18n.language as keyof TaskDescription;
+      setEditedDescription(descObj[currentLang] || descObj.sv || '');
+    } else {
+      // För bakåtkompatibilitet, om det bara finns en beskrivning
+      setEditedDescription(task.description || '');
+      setEditedDescriptionSv(task.description || '');
+      setEditedDescriptionEn(task.description || '');
+      setEditedDescriptionPl(task.description || '');
+      setEditedDescriptionUk(task.description || '');
+    }
+
+    // Sätt status och prioritet
     setSelectedStatus(task.status);
     setSelectedPriority(task.priority);
-    setSelectedDueDate(task.dueDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+    
+    // Hantera datum
+    setSelectedDueDate(task.dueDate ? new Date(task.dueDate).toISOString().substring(0, 10) : '');
+    
+    // Sätt tilldelad användare om den finns
+    setSelectedUserId(task.assignedTo?.id || '');
+    
+    // Öppna editerings-modalen
     setIsEditModalOpen(true);
   };
 
@@ -359,9 +394,17 @@ export const PendingTasksManager = () => {
     if (!selectedTask) return;
 
     try {
+      // Skapa en TaskDescription med alla språkversioner
+      const descriptionObj: TaskDescription = {
+        sv: editedDescriptionSv,
+        en: editedDescriptionEn,
+        pl: editedDescriptionPl,
+        uk: editedDescriptionUk
+      };
+
       const pendingTaskData = {
         title: editedTitle,
-        description: editedDescription,
+        description: descriptionObj,
         status: selectedStatus,
         priority: selectedPriority,
         dueDate: selectedDueDate ? new Date(selectedDueDate) : null
@@ -373,7 +416,7 @@ export const PendingTasksManager = () => {
       const updatedTask = {
         ...selectedTask,
         title: editedTitle,
-        description: editedDescription,
+        description: descriptionObj,
         status: selectedStatus,
         priority: selectedPriority,
         dueDate: selectedDueDate
@@ -387,9 +430,10 @@ export const PendingTasksManager = () => {
       ));
 
       setIsEditModalOpen(false);
+      showNotification('success', t('pendingTasks.taskUpdated'));
     } catch (err) {
       console.error('Failed to update pending task:', err);
-      showNotification('error', t('errors.updateFailed'));
+      showNotification('error', t('errors.updateFail'));
     }
   };
 
@@ -577,7 +621,7 @@ export const PendingTasksManager = () => {
           </>
         }
       >
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">
               {t('tasks.title')}
@@ -588,17 +632,65 @@ export const PendingTasksManager = () => {
               className="w-full"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              {t('tasks.description')}
-            </label>
-            <textarea
-              value={editedDescription}
-              onChange={(e) => setEditedDescription(e.target.value)}
-              className="w-full min-h-32 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground dark:bg-card dark:text-card-foreground"
-            />
+          
+          {/* Beskrivningar på olika språk */}
+          <div className="grid grid-cols-1 gap-4">
+            <h3 className="text-md font-medium">{t('tasks.description')}</h3>
+            
+            {/* Svenska beskrivningen */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t('userManagement.languages.sv')}
+              </label>
+              <textarea
+                value={editedDescriptionSv}
+                onChange={(e) => setEditedDescriptionSv(e.target.value)}
+                className="w-full min-h-24 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground dark:bg-card dark:text-card-foreground"
+                placeholder={t('task.details.noDescription')}
+              />
+            </div>
+            
+            {/* Engelska beskrivningen */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t('userManagement.languages.en')}
+              </label>
+              <textarea
+                value={editedDescriptionEn}
+                onChange={(e) => setEditedDescriptionEn(e.target.value)}
+                className="w-full min-h-24 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground dark:bg-card dark:text-card-foreground"
+                placeholder={t('task.details.noDescription')}
+              />
+            </div>
+            
+            {/* Polska beskrivningen */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t('userManagement.languages.pl')}
+              </label>
+              <textarea
+                value={editedDescriptionPl}
+                onChange={(e) => setEditedDescriptionPl(e.target.value)}
+                className="w-full min-h-24 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground dark:bg-card dark:text-card-foreground"
+                placeholder={t('task.details.noDescription')}
+              />
+            </div>
+            
+            {/* Ukrainska beskrivningen */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t('userManagement.languages.uk')}
+              </label>
+              <textarea
+                value={editedDescriptionUk}
+                onChange={(e) => setEditedDescriptionUk(e.target.value)}
+                className="w-full min-h-24 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground dark:bg-card dark:text-card-foreground"
+                placeholder={t('task.details.noDescription')}
+              />
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">
                 {t('tasks.assignedTo')}

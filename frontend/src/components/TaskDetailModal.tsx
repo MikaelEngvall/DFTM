@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Task, TaskStatus, TaskComment } from '../types/task';
+import { Task, TaskStatus, TaskComment, TaskDescription } from '../types/task';
 import { taskApi } from '../services/api/taskApi';
 import { useTranslation } from 'react-i18next';
 import { StatusBadge } from './ui/StatusBadge';
@@ -13,11 +13,40 @@ interface TaskDetailModalProps {
 }
 
 export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddComment }: TaskDetailModalProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [selectedStatus, setSelectedStatus] = useState<TaskStatus>(task.status);
   const [comments, setComments] = useState<TaskComment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Funktion för att hämta rätt beskrivningstext baserat på aktuellt språk
+  const getLocalizedDescription = () => {
+    if (!task.description) {
+      return t('task.details.noDescription');
+    }
+    
+    // Om description är ett objekt med språkversioner
+    if (typeof task.description === 'object') {
+      const descObj = task.description as TaskDescription;
+      const currentLang = i18n.language as keyof TaskDescription;
+      
+      // Försök hämta beskrivning på aktuellt språk
+      if (descObj[currentLang]) {
+        return descObj[currentLang];
+      }
+      
+      // Fallback till svenska om vald språkversion saknas
+      if (descObj.sv) {
+        return descObj.sv;
+      }
+      
+      // Om ingen beskrivning finns, visa standardmeddelande
+      return t('task.details.noDescription');
+    }
+    
+    // Om description är en vanlig sträng
+    return task.description;
+  };
 
   // Hämta kommentarer när modalen öppnas
   useEffect(() => {
@@ -144,7 +173,7 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddCo
           <div className="mb-6 space-y-4">
             <div>
               <h3 className="text-lg font-semibold">{t('task.details.description')}</h3>
-              <p className="mt-1 whitespace-pre-line">{task.description || t('task.details.noDescription')}</p>
+              <p className="mt-1 whitespace-pre-line">{getLocalizedDescription()}</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

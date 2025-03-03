@@ -16,10 +16,17 @@ export enum TaskPriority {
   URGENT = 'URGENT'
 }
 
+export interface TaskDescription {
+  sv: string;
+  en: string;
+  pl: string;
+  uk: string;
+}
+
 export interface Task {
   id: string;
   title: string;
-  description?: string;
+  description?: string | TaskDescription;
   status: TaskStatus;
   priority: TaskPriority;
   dueDate?: string;

@@ -320,7 +320,7 @@
       "rejected": "Rejected",
       "notfeasible": "Not Feasible"
     },
-    "unassigned": "Unassigned",
+    "unassigned": "Not assigned",
     "priorities": {
       "low": "Low",
       "medium": "Medium",
@@ -330,14 +330,15 @@
     "details": {
       "description": "Description",
       "dueDate": "Due Date",
-      "completedDate": "Completed Date",
+      "completedDate": "Completion Date",
       "created": "Created",
       "updated": "Updated",
       "updateStatus": "Update Status",
       "comments": "Comments",
       "noComments": "No comments yet",
       "commentPlaceholder": "Write your comment here...",
-      "addComment": "Add Comment"
+      "addComment": "Add Comment",
+      "noDescription": "No description available"
     }
   },
   "pendingTasks": {
