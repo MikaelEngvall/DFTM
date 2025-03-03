@@ -1,11 +1,10 @@
 package com.dftm.model;
 
 public enum TaskStatus {
-    PENDING("PENDING"),
-    IN_PROGRESS("IN_PROGRESS"),
-    COMPLETED("COMPLETED"),
-    APPROVED("APPROVED"),
-    REJECTED("REJECTED");
+    PENDING("väntande"),
+    IN_PROGRESS("pågående"),
+    NOT_FEASIBLE("ej genomförbar"),
+    COMPLETED("klar");
 
     private final String value;
 

@@ -27,10 +27,9 @@ import com.dftm.model.Language;
 import com.dftm.model.Task;
 import com.dftm.model.TaskPriority;
 import com.dftm.model.TaskStatus;
-import com.dftm.model.Comment;
+import com.dftm.repository.CommentRepository;
 import com.dftm.repository.PendingTaskRepository;
 import com.dftm.repository.TaskRepository;
-import com.dftm.repository.CommentRepository;
 import com.dftm.service.TaskService;
 
 import jakarta.validation.Valid;
@@ -123,6 +122,7 @@ public class TaskController {
     }
     
     @PutMapping("/{taskId}/status/{status}")
+    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'USER')")
     public ResponseEntity<Task> updateTaskStatus(
             @PathVariable String taskId,
             @PathVariable TaskStatus status) {
@@ -135,6 +135,7 @@ public class TaskController {
     }
     
     @PatchMapping("/{taskId}/status")
+    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'USER')")
     public ResponseEntity<Task> patchUpdateTaskStatus(
             @PathVariable String taskId,
             @RequestBody Map<String, String> statusMap) {
@@ -264,7 +265,7 @@ public class TaskController {
                 .title(pendingTask.getTitle())
                 .description(pendingTask.getDescription())
                 .reporter(pendingTask.getReporter())
-                .status(TaskStatus.APPROVED)
+                .status(TaskStatus.COMPLETED)
                 .priority(TaskPriority.valueOf(pendingTask.getPriority()))
                 .createdAt(pendingTask.getCreatedAt())
                 .updatedAt(LocalDateTime.now())
@@ -276,7 +277,7 @@ public class TaskController {
 
             taskRepository.save(task);
             
-            pendingTask.setStatus(TaskStatus.APPROVED.toString());
+            pendingTask.setStatus(TaskStatus.COMPLETED.toString());
             pendingTaskRepository.save(pendingTask);
             
             return ResponseEntity.ok().build();
@@ -291,7 +292,7 @@ public class TaskController {
         try {
             var task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
-            task.setStatus(TaskStatus.REJECTED);
+            task.setStatus(TaskStatus.NOT_FEASIBLE);
             taskRepository.save(task);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
@@ -304,6 +305,7 @@ public class TaskController {
     @PreAuthorize("hasAnyRole('ROLE_SUPERADMIN', 'ROLE_ADMIN', 'ROLE_USER')")
     public ResponseEntity<?> getTaskComments(@PathVariable String taskId, 
                                             @RequestParam(defaultValue = "EN") String language) {
-        // Implementera logik för att hämta kommentarer
+        log.debug("GET request for comments redirected to CommentController");
+        return ResponseEntity.ok().build();
     }
 } 

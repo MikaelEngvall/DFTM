@@ -15,9 +15,8 @@ export enum TaskPriority {
 export enum TaskStatus {
   PENDING = 'PENDING',
   IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED'
+  NOT_FEASIBLE = 'NOT_FEASIBLE',
+  COMPLETED = 'COMPLETED'
 }
 
 // Gränssnittstyp för uppgifter (frontend)

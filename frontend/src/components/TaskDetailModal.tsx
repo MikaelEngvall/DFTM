@@ -85,9 +85,8 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddCo
   const statusOptions = [
     { value: TaskStatus.PENDING, label: t('task.status.pending') },
     { value: TaskStatus.IN_PROGRESS, label: t('task.status.inProgress') },
-    { value: TaskStatus.COMPLETED, label: t('task.status.completed') },
-    { value: TaskStatus.APPROVED, label: t('task.status.approved') },
-    { value: TaskStatus.REJECTED, label: t('task.status.rejected') }
+    { value: TaskStatus.NOT_FEASIBLE, label: t('task.status.notFeasible') },
+    { value: TaskStatus.COMPLETED, label: t('task.status.completed') }
   ];
 
   // Färgkoder för olika prioritetsnivåer
@@ -113,12 +112,10 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddCo
         return 'bg-yellow-500 text-yellow-950';
       case 'IN_PROGRESS':
         return 'bg-blue-500 text-blue-950';
+      case 'NOT_FEASIBLE':
+        return 'bg-destructive text-destructive-foreground';
       case 'COMPLETED':
         return 'bg-green-500 text-green-950';
-      case 'APPROVED':
-        return 'bg-violet-500 text-violet-950';
-      case 'REJECTED':
-        return 'bg-destructive text-destructive-foreground';
       default:
         return 'bg-primary text-primary-foreground';
     }
