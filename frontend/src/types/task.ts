@@ -22,10 +22,12 @@ export interface Task {
   status: TaskStatus;
   priority: TaskPriority;
   dueDate?: string;
-  assignedTo?: User;
-  assignedBy?: User;
+  completedDate?: string;
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
+  assignedTo?: User;
+  assigner?: User;
+  approved?: boolean;
 }
 
 export interface TaskComment {

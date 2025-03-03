@@ -336,9 +336,9 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
                         }}
                         className={`text-xs p-1 rounded cursor-pointer truncate ${
                           task.priority === 'URGENT' 
-                            ? 'bg-destructive/60 text-destructive-foreground' 
+                            ? 'bg-destructive/60 text-destructive-foreground shadow-lg shadow-destructive/50 ring-2 ring-destructive/80' 
                             : task.priority === 'HIGH' 
-                              ? 'bg-amber-500/60 text-amber-950' 
+                              ? 'bg-amber-500/60 text-amber-950 shadow-md shadow-amber-500/40' 
                               : task.status === 'COMPLETED' 
                                 ? 'bg-green-500/60 text-green-950' 
                                 : 'bg-primary/60 text-primary-foreground'

@@ -35,7 +35,8 @@ export const pendingTaskToTask = (pendingTask: PendingTask): Task => {
     updatedAt: pendingTask.updatedAt,
     assignedTo: assignedToUser,
     assignedBy: assignedByUser,
-    dueDate: undefined // Saknas i PendingTask
+    dueDate: undefined, // Saknas i PendingTask
+    approved: pendingTask.approved // Använd värdet direkt, det är redan en boolean
   };
 };
 

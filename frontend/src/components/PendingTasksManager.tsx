@@ -20,6 +20,8 @@ export const PendingTasksManager = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showApproved, setShowApproved] = useState(false);
+  const [showRejected, setShowRejected] = useState(false);
   
   // Modals state
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -50,43 +52,74 @@ export const PendingTasksManager = () => {
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
-      setFilteredTasks(tasks);
+      // Använd samma filtrering som i useEffect för showApproved/showRejected
+      const filtered = tasks.filter(task => {
+        if (task.approved) {
+          return showApproved;
+        }
+        if (task.status === TaskStatus.REJECTED) {
+          return showRejected;
+        }
+        return true;
+      });
+      setFilteredTasks(filtered);
     } else {
       const lowerCaseQuery = searchQuery.toLowerCase();
-      const filtered = tasks.filter(task => 
-        task.title.toLowerCase().includes(lowerCaseQuery) || 
-        (task.description && task.description.toLowerCase().includes(lowerCaseQuery))
-      );
+      const filtered = tasks.filter(task => {
+        // Först kontrollera approved/rejected status
+        if (task.approved && !showApproved) {
+          return false;
+        }
+        if (task.status === TaskStatus.REJECTED && !showRejected) {
+          return false;
+        }
+        // Sedan kontrollera söktexten
+        return task.title.toLowerCase().includes(lowerCaseQuery) || 
+          (task.description && task.description.toLowerCase().includes(lowerCaseQuery));
+      });
       setFilteredTasks(filtered);
     }
-  }, [searchQuery, tasks]);
+  }, [searchQuery, tasks, showApproved, showRejected]);
 
   const fetchPendingTasks = async () => {
     setIsLoading(true);
     setError(null);
     try {
       const pendingTasksResponse = await taskApi.getPendingTasks();
-      console.log('Pending tasks response:', pendingTasksResponse);
+      console.log('Raw pending tasks response:', pendingTasksResponse);
       
-      // Kontrollera om det finns någon uppgift med id 67bdb085b526ba5619e3b3d1
-      const targetTask = pendingTasksResponse.find(task => task.id === '67bdb085b526ba5619e3b3d1');
-      if (targetTask) {
-        console.log('Target task found:', targetTask);
-        console.log('Task assigned:', targetTask.assigned);
-        console.log('Task approved:', targetTask.approved);
-      } else {
-        console.log('Target task not found in response');
-      }
-      
-      // Konvertera PendingTask till Task-format
+      // Konvertera alla pending tasks till Task-format
       const convertedTasks = pendingTasksToTasks(pendingTasksResponse);
-      console.log('Converted tasks:', convertedTasks);
+      console.log('Converted tasks with approved status:', 
+        convertedTasks.map(task => ({
+          id: task.id,
+          title: task.title,
+          approved: task.approved
+        }))
+      );
       
+      // Spara alla tasks i state för senare filtrering
       setTasks(convertedTasks);
-      setFilteredTasks(convertedTasks);
+      
+      // Filtrera bort approved tasks för initial visning
+      const initialFiltered = convertedTasks.filter(task => {
+        const isApproved = Boolean(task.approved);
+        console.log(`Task ${task.id} (${task.title}) approved status:`, isApproved);
+        return !isApproved;
+      });
+      
+      console.log('Initial filtered tasks (no approved):', 
+        initialFiltered.map(task => ({
+          id: task.id,
+          title: task.title,
+          approved: task.approved
+        }))
+      );
+      
+      setFilteredTasks(initialFiltered);
     } catch (err) {
       console.error('Failed to fetch pending tasks:', err);
-      setError('Failed to load pending tasks');
+      setError('Det gick inte att hämta väntande uppgifter');
     } finally {
       setIsLoading(false);
     }
@@ -350,6 +383,14 @@ export const PendingTasksManager = () => {
     }
   };
 
+  // Funktion för att få opacity baserat på pending task status
+  const getTaskOpacity = (task: Task) => {
+    if (task.approved || task.status === TaskStatus.REJECTED) {
+      return 'opacity-50';
+    }
+    return '';
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -376,7 +417,109 @@ export const PendingTasksManager = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Väntande uppgifter</h1>
+        <div className="flex gap-4">
+          <button
+            onClick={() => {
+              const newShowApproved = !showApproved;
+              setShowApproved(newShowApproved);
+              const filtered = tasks.filter(task => {
+                if (task.approved) {
+                  return newShowApproved;
+                }
+                if (task.status === TaskStatus.REJECTED) {
+                  return showRejected;
+                }
+                return true;
+              });
+              setFilteredTasks(filtered);
+              console.log('Toggle approved, new filtered tasks:', filtered);
+            }}
+            className={`px-4 py-2 rounded-md ${
+              showApproved 
+                ? 'bg-green-500 text-white' 
+                : 'bg-gray-200 text-gray-700'
+            }`}
+          >
+            {showApproved ? "Dölj godkända" : "Visa godkända"}
+          </button>
+          <button
+            onClick={() => {
+              const newShowRejected = !showRejected;
+              setShowRejected(newShowRejected);
+              const filtered = tasks.filter(task => {
+                if (task.approved) {
+                  return showApproved;
+                }
+                if (task.status === TaskStatus.REJECTED) {
+                  return newShowRejected;
+                }
+                return true;
+              });
+              setFilteredTasks(filtered);
+              console.log('Toggle rejected, new filtered tasks:', filtered);
+            }}
+            className={`px-4 py-2 rounded-md ${
+              showRejected 
+                ? 'bg-red-500 text-white' 
+                : 'bg-gray-200 text-gray-700'
+            }`}
+          >
+            {showRejected ? "Dölj avvisade" : "Visa avvisade"}
+          </button>
+        </div>
+      </div>
+
+      {/* Sökfält */}
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Sök väntande uppgifter..."
+          className="w-full p-2 border rounded"
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {/* Tabell */}
+      <div className="bg-card rounded-lg shadow overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-muted">
+            <tr>
+              <th className="px-4 py-2 text-left">Titel</th>
+              <th className="px-4 py-2 text-left">Beskrivning</th>
+              <th className="px-4 py-2 text-center">Status</th>
+              <th className="px-4 py-2 text-center">Prioritet</th>
+              <th className="px-4 py-2 text-right">Tilldelad till</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredTasks.map((task) => (
+              <tr
+                key={task.id}
+                onClick={() => handleTaskClick(task)}
+                className={`border-t border-border hover:bg-muted/50 cursor-pointer ${getTaskOpacity(task)}`}
+              >
+                <td className="px-4 py-2 text-sm text-card-foreground font-medium">{task.title}</td>
+                <td className="px-4 py-2 text-sm text-card-foreground">
+                  <div className="max-w-xs truncate">{task.description || '-'}</div>
+                </td>
+                <td className="px-4 py-2 text-sm">
+                  {renderStatusBadge(task.status)}
+                </td>
+                <td className="px-4 py-2 text-sm">
+                  {renderPriorityBadge(task.priority)}
+                </td>
+                <td className="px-4 py-2 text-sm text-card-foreground">
+                  {task.assignedTo ? `${task.assignedTo.firstName} ${task.assignedTo.lastName}` : "Ej tilldelad"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      
       {/* Notification component */}
       <Notification
         type={notification.type}
@@ -386,76 +529,6 @@ export const PendingTasksManager = () => {
         autoHideDuration={1500}
       />
 
-      <h1 className="text-2xl font-bold mb-2">{t('pendingTasks.title')}</h1>
-      <p className="text-muted-foreground mb-6">{t('pendingTasks.subtitle')}</p>
-      
-      {/* Search och filter */}
-      <div className="mb-6">
-        <Input
-          type="text"
-          placeholder={t('pendingTasks.search')}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="max-w-md mb-4"
-        />
-      </div>
-      
-      {/* Tabell för väntande uppgifter */}
-      {filteredTasks.length === 0 ? (
-        <div className="text-center p-12 border rounded-lg">
-          <p className="text-muted-foreground">{t('pendingTasks.emptyState')}</p>
-        </div>
-      ) : (
-        <div className="bg-card rounded-lg shadow-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-border">
-              <thead className="bg-muted">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    {t('tasks.title')}
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    {t('tasks.description')}
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    {t('tasks.status')}
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    {t('tasks.priority')}
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    {t('tasks.assignedTo')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border bg-card">
-                {filteredTasks.map((task) => (
-                  <tr
-                    key={task.id}
-                    className="hover:bg-muted/50 cursor-pointer"
-                    onClick={() => handleTaskClick(task)}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-card-foreground font-medium">{task.title}</td>
-                    <td className="px-6 py-4 text-sm text-card-foreground">
-                      <div className="max-w-xs truncate">{task.description || '-'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      {renderStatusBadge(task.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      {renderPriorityBadge(task.priority)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-card-foreground">
-                      {task.assignedTo ? `${task.assignedTo.firstName} ${task.assignedTo.lastName}` : t('tasks.notAssigned')}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-      
       {/* Edit Task Modal - Comprehensive version */}
       <Dialog
         isOpen={isEditModalOpen}
