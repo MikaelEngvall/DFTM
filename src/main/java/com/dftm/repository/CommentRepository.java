@@ -8,4 +8,5 @@ import com.dftm.model.Comment;
 
 public interface CommentRepository extends MongoRepository<Comment, String> {
     List<Comment> findByTaskId(String taskId);
+    void deleteByTaskId(String taskId);
 } 

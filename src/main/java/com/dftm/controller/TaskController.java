@@ -27,8 +27,10 @@ import com.dftm.model.Language;
 import com.dftm.model.Task;
 import com.dftm.model.TaskPriority;
 import com.dftm.model.TaskStatus;
+import com.dftm.model.Comment;
 import com.dftm.repository.PendingTaskRepository;
 import com.dftm.repository.TaskRepository;
+import com.dftm.repository.CommentRepository;
 import com.dftm.service.TaskService;
 
 import jakarta.validation.Valid;
@@ -44,6 +46,7 @@ public class TaskController {
     private final MessageSource messageSource;
     private final PendingTaskRepository pendingTaskRepository;
     private final TaskRepository taskRepository;
+    private final CommentRepository commentRepository;
 
     private String getMessage(String code) {
         return messageSource.getMessage(code, null, LocaleContextHolder.getLocale());
@@ -295,5 +298,45 @@ public class TaskController {
             log.error("Failed to reject task: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @GetMapping("/{taskId}/comments")
+    public ResponseEntity<List<Comment>> getComments(@PathVariable String taskId) {
+        log.debug("GET request to fetch comments for task: {}", taskId);
+        
+        // Alla roller kan hämta kommentarer för alla uppgifter
+        List<Comment> comments = commentRepository.findByTaskId(taskId);
+        return ResponseEntity.ok(comments);
+    }
+
+    @PostMapping("/{taskId}/comments")
+    public ResponseEntity<Comment> addComment(
+            @PathVariable String taskId,
+            @RequestBody Map<String, String> commentMap) {
+        
+        // Alla roller kan lägga till kommentarer på alla uppgifter
+        String text = commentMap.get("text");
+        if (text == null || text.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userId = auth.getName();
+
+        Comment comment = Comment.createNew(taskId, text.trim(), userId);
+        Comment savedComment = commentRepository.save(comment);
+
+        return ResponseEntity.ok(savedComment);
+    }
+
+    @DeleteMapping("/{taskId}/comments/{commentId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable String taskId,
+            @PathVariable String commentId) {
+        
+        // Endast admin och superadmin kan ta bort kommentarer
+        commentRepository.deleteById(commentId);
+        return ResponseEntity.ok().build();
     }
 } 

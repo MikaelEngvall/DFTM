@@ -1,13 +1,12 @@
 package com.dftm.model;
 
+import java.time.LocalDateTime;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -19,30 +18,18 @@ public class Comment {
     private String id;
     private String taskId;
     private String text;
-    private String textTranslationId;  // Referens till översättning av kommentartexten
     private String userId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    @Builder.Default
-    private Language originalLanguage = Language.SV;  // Standardspråk för kommentaren
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public String getTranslationId() {
-        return this.textTranslationId;
-    }
-
-    public String getText() {
-        return this.text;
+    public static Comment createNew(String taskId, String text, String userId) {
+        LocalDateTime now = LocalDateTime.now();
+        return Comment.builder()
+            .taskId(taskId)
+            .text(text)
+            .userId(userId)
+            .createdAt(now)
+            .updatedAt(now)
+            .build();
     }
 } 
