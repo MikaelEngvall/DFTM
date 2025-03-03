@@ -29,7 +29,13 @@
     "details": "Details",
     "information": "Information",
     "description": "Description",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "title": "Title",
+    "status": "Status",
+    "priority": "Priority",
+    "assignedTo": "Assigned to",
+    "show": "Show",
+    "hide": "Hide"
   },
   "auth": {
     "login": "Log in",
@@ -311,7 +317,15 @@
       "inProgress": "In Progress",
       "completed": "Completed",
       "approved": "Approved",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "notfeasible": "Not Feasible"
+    },
+    "unassigned": "Unassigned",
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
     },
     "details": {
       "description": "Description",

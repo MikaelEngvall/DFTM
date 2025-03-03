@@ -29,7 +29,13 @@
     "details": "Detaljer",
     "information": "Information",
     "description": "Beskrivning",
-    "tryAgain": "Försök igen"
+    "tryAgain": "Försök igen",
+    "title": "Titel",
+    "status": "Status",
+    "priority": "Prioritet",
+    "assignedTo": "Tilldelad till",
+    "show": "Visa",
+    "hide": "Dölj"
   },
   "auth": {
     "login": "Logga in",
@@ -311,7 +317,15 @@
       "inProgress": "Pågående",
       "completed": "Slutförd",
       "approved": "Godkänd",
-      "rejected": "Avvisad"
+      "rejected": "Avvisad",
+      "notfeasible": "Ej genomförbar"
+    },
+    "unassigned": "Ej tilldelad",
+    "priorities": {
+      "low": "Låg",
+      "medium": "Medium",
+      "high": "Hög",
+      "urgent": "Akut"
     },
     "details": {
       "description": "Beskrivning",

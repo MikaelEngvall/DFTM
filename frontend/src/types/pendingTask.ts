@@ -2,19 +2,24 @@ import { Language } from './language';
 
 export interface PendingTask {
   id: string;
-  title: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  apartment?: string;
+  title?: string;
   description: string;
+  descriptionLanguage?: Language;
+  descriptionTranslations?: Record<Language, string>;
   status: string;
-  priority: string;
-  sender: string;
-  recipient: string;
-  messageId: string;
-  reporter: string;
-  createdAt: string;
-  updatedAt: string;
-  assigned: boolean;
-  approved: boolean;
-  originalLanguage: Language;
-  titleTranslations: Record<Language, string>;
-  descriptionTranslations: Record<Language, string>;
+  priority?: string;
+  sender?: string;
+  recipient?: string;
+  messageId?: string;
+  reporter?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  assigned?: boolean;
+  approved?: boolean;
+  received?: string;
 } 

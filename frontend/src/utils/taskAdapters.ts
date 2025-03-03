@@ -17,7 +17,7 @@ export const pendingTaskToTask = (pendingTask: PendingTask): Task => {
     role: 'ROLE_USER'
   } : undefined;
   
-  const assignedByUser: User | undefined = pendingTask.assigned && pendingTask.sender ? {
+  const assignerUser: User | undefined = pendingTask.assigned && pendingTask.sender ? {
     id: pendingTask.sender,
     firstName: 'User',
     lastName: pendingTask.sender,
@@ -25,16 +25,20 @@ export const pendingTaskToTask = (pendingTask: PendingTask): Task => {
     role: 'ROLE_USER'
   } : undefined;
   
+  // Använd name, adress och apartment för att skapa en titel om title inte finns
+  const title = pendingTask.title || 
+    `${pendingTask.name || 'Okänd'} - ${pendingTask.address || ''} ${pendingTask.apartment || ''}`.trim();
+  
   return {
     id: pendingTask.id,
-    title: pendingTask.title,
+    title: title,
     description: pendingTask.description,
-    status: pendingTask.status as unknown as TaskStatus, // Konvertera string till enum
-    priority: pendingTask.priority as unknown as TaskPriority, // Konvertera string till enum
-    createdAt: pendingTask.createdAt,
-    updatedAt: pendingTask.updatedAt,
+    status: (pendingTask.status || 'NEW') as unknown as TaskStatus, // Konvertera string till enum
+    priority: (pendingTask.priority || 'MEDIUM') as unknown as TaskPriority, // Konvertera string till enum
+    createdAt: pendingTask.createdAt || pendingTask.received || new Date().toISOString(), // Garantera ett värde
+    updatedAt: pendingTask.updatedAt || pendingTask.received || new Date().toISOString(),
     assignedTo: assignedToUser,
-    assignedBy: assignedByUser,
+    assigner: assignerUser,
     dueDate: undefined, // Saknas i PendingTask
     approved: pendingTask.approved // Använd värdet direkt, det är redan en boolean
   };

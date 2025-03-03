@@ -4,7 +4,9 @@ export enum TaskStatus {
   PENDING = 'PENDING',
   IN_PROGRESS = 'IN_PROGRESS',
   NOT_FEASIBLE = 'NOT_FEASIBLE',
-  COMPLETED = 'COMPLETED'
+  COMPLETED = 'COMPLETED',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED'
 }
 
 export enum TaskPriority {

@@ -5,7 +5,7 @@
     "edit": "Edytuj",
     "delete": "Usuń",
     "create": "Utwórz",
-    "submit": "Zatwierdź",
+    "submit": "Wyślij",
     "close": "Zamknij",
     "back": "Wstecz",
     "next": "Dalej",
@@ -19,7 +19,7 @@
     "remove": "Usuń",
     "change": "Zmień",
     "select": "Wybierz",
-    "assign": "Przydziel",
+    "assign": "Przypisz",
     "required": "Pole wymagane",
     "error": "Wystąpił błąd",
     "success": "Akcja zakończona pomyślnie",
@@ -29,7 +29,13 @@
     "details": "Szczegóły",
     "information": "Informacja",
     "description": "Opis",
-    "tryAgain": "Spróbuj ponownie"
+    "tryAgain": "Spróbuj ponownie",
+    "title": "Tytuł",
+    "status": "Status",
+    "priority": "Priorytet",
+    "assignedTo": "Przypisane do",
+    "show": "Pokaż",
+    "hide": "Ukryj"
   },
   "auth": {
     "login": "Zaloguj się",
@@ -311,7 +317,15 @@
       "inProgress": "W trakcie",
       "completed": "Zakończone",
       "approved": "Zatwierdzone",
-      "rejected": "Odrzucone"
+      "rejected": "Odrzucone",
+      "notfeasible": "Niewykonalne"
+    },
+    "unassigned": "Nieprzypisane",
+    "priorities": {
+      "low": "Niski",
+      "medium": "Średni",
+      "high": "Wysoki",
+      "urgent": "Pilny"
     },
     "details": {
       "description": "Opis",

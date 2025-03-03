@@ -294,24 +294,25 @@ export const PendingTasksManager = () => {
     
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${colorMap[priority]}`}>
-        {t(`tasks.priorities.${priority.toLowerCase()}`)}
+        {t(`task.priorities.${priority.toLowerCase()}`)}
       </span>
     );
   };
 
   // Helper för att visa status med färg
   const renderStatusBadge = (status: TaskStatus) => {
-    const colorMap = {
+    const colorMap: Record<string, string> = {
       [TaskStatus.PENDING]: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
       [TaskStatus.IN_PROGRESS]: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+      [TaskStatus.NOT_FEASIBLE]: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
       [TaskStatus.COMPLETED]: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
       [TaskStatus.APPROVED]: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
       [TaskStatus.REJECTED]: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
     };
     
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${colorMap[status]}`}>
-        {t(`tasks.statuses.${status.toLowerCase().replace('_', '')}`)}
+      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${colorMap[status] || 'bg-gray-100 text-gray-800'}`}>
+        {t(`task.status.${status.toLowerCase().replace('_', '')}`)}
       </span>
     );
   };
@@ -404,13 +405,13 @@ export const PendingTasksManager = () => {
       <div className="flex flex-col items-center justify-center p-4">
         <div className="text-red-500 mb-4">{error}</div>
         <Button onClick={fetchPendingTasks}>
-          Försök igen
+          {t('common.tryAgain')}
         </Button>
         <Button 
           onClick={fetchSpecificPendingTask} 
           className="mt-2 bg-yellow-500 hover:bg-yellow-600"
         >
-          Hämta specifik uppgift (67bdb085b526ba5619e3b3d1)
+          {t('common.tryAgain')} (67bdb085b526ba5619e3b3d1)
         </Button>
       </div>
     );
@@ -419,7 +420,7 @@ export const PendingTasksManager = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Väntande uppgifter</h1>
+        <h1 className="text-2xl font-bold">{t('pendingTasks.title')}</h1>
         <div className="flex gap-4">
           <button
             onClick={() => {
@@ -443,7 +444,7 @@ export const PendingTasksManager = () => {
                 : 'bg-gray-200 text-gray-700'
             }`}
           >
-            {showApproved ? "Dölj godkända" : "Visa godkända"}
+            {showApproved ? t('common.hide') + ' ' + t('task.status.approved').toLowerCase() : t('common.show') + ' ' + t('task.status.approved').toLowerCase()}
           </button>
           <button
             onClick={() => {
@@ -467,7 +468,7 @@ export const PendingTasksManager = () => {
                 : 'bg-gray-200 text-gray-700'
             }`}
           >
-            {showRejected ? "Dölj avvisade" : "Visa avvisade"}
+            {showRejected ? t('common.hide') + ' ' + t('task.status.rejected').toLowerCase() : t('common.show') + ' ' + t('task.status.rejected').toLowerCase()}
           </button>
         </div>
       </div>
@@ -476,7 +477,7 @@ export const PendingTasksManager = () => {
       <div className="mb-6">
         <input
           type="text"
-          placeholder="Sök väntande uppgifter..."
+          placeholder={t('pendingTasks.search')}
           className="w-full p-2 border rounded"
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -487,11 +488,11 @@ export const PendingTasksManager = () => {
         <table className="w-full">
           <thead className="bg-muted">
             <tr>
-              <th className="px-4 py-2 text-left">Titel</th>
-              <th className="px-4 py-2 text-left">Beskrivning</th>
-              <th className="px-4 py-2 text-center">Status</th>
-              <th className="px-4 py-2 text-center">Prioritet</th>
-              <th className="px-4 py-2 text-right">Tilldelad till</th>
+              <th className="px-4 py-2 text-left">{t('common.title')}</th>
+              <th className="px-4 py-2 text-left">{t('common.description')}</th>
+              <th className="px-4 py-2 text-center">{t('common.status')}</th>
+              <th className="px-4 py-2 text-center">{t('common.priority')}</th>
+              <th className="px-4 py-2 text-right">{t('common.assignedTo')}</th>
             </tr>
           </thead>
           <tbody>
@@ -512,7 +513,7 @@ export const PendingTasksManager = () => {
                   {renderPriorityBadge(task.priority)}
                 </td>
                 <td className="px-4 py-2 text-sm text-card-foreground">
-                  {task.assignedTo ? `${task.assignedTo.firstName} ${task.assignedTo.lastName}` : "Ej tilldelad"}
+                  {task.assignedTo ? `${task.assignedTo.firstName} ${task.assignedTo.lastName}` : t('task.unassigned')}
                 </td>
               </tr>
             ))}
@@ -605,7 +606,7 @@ export const PendingTasksManager = () => {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">
-                {t('tasks.priority')}
+                {t('common.priority')}
               </label>
               <Select
                 value={selectedPriority}
@@ -614,7 +615,7 @@ export const PendingTasksManager = () => {
               >
                 {Object.values(TaskPriority).map(priority => (
                   <option key={priority} value={priority}>
-                    {t(`tasks.priorities.${priority.toLowerCase()}`)}
+                    {t(`task.priorities.${priority.toLowerCase()}`)}
                   </option>
                 ))}
               </Select>
@@ -622,7 +623,7 @@ export const PendingTasksManager = () => {
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">
-              {t('tasks.dueDate')}
+              {t('task.details.dueDate')}
             </label>
             <Input
               type="date"
