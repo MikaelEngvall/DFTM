@@ -1,7 +1,31 @@
 import { axiosInstance } from './axiosConfig';
 // import { api } from './api'; // Denna import används inte
-import { Task, TaskStatus, TaskPriority, TaskComment } from '../../types/task';
+import { Task, TaskStatus, TaskPriority, TaskComment, TaskDescription } from '../../types/task';
 import { PendingTask } from '../../types/pendingTask';
+
+// Hjälpfunktion för att konvertera backend-format till frontend-format för översättningar
+const transformTask = (taskData: Record<string, any>): Task => {
+  if (taskData.descriptionTranslations) {
+    console.log('Konverterar descriptionTranslations till TaskDescription-format', taskData.descriptionTranslations);
+    
+    // Konvertera från backend-format till frontend-format
+    taskData.description = {
+      sv: taskData.descriptionTranslations.SV || taskData.description || '',
+      en: taskData.descriptionTranslations.EN || taskData.description || '',
+      pl: taskData.descriptionTranslations.PL || taskData.description || '',
+      uk: taskData.descriptionTranslations.UK || taskData.description || ''
+    } as TaskDescription;
+    
+    // Ta bort originalet för att undvika dubblering
+    delete taskData.descriptionTranslations;
+  }
+  return taskData as Task;
+};
+
+// Hjälpfunktion för att konvertera en lista med uppgifter
+const transformTasks = (tasksData: Record<string, any>[]): Task[] => {
+  return tasksData.map(task => transformTask(task));
+};
 
 // Task API service
 export const taskApi = {
@@ -9,7 +33,7 @@ export const taskApi = {
   getAllTasks: async (): Promise<Task[]> => {
     try {
       const response = await axiosInstance.get('/tasks');
-      return response.data;
+      return transformTasks(response.data);
     } catch (error) {
       console.error('Error fetching tasks:', error);
       throw error;
@@ -20,7 +44,7 @@ export const taskApi = {
   getTasksByUser: async (userId: string, archived: boolean = false): Promise<Task[]> => {
     try {
       const response = await axiosInstance.get(`/tasks/user/${userId}?archived=${archived}`);
-      return response.data;
+      return transformTasks(response.data);
     } catch (error) {
       console.error(`Error fetching tasks for user ${userId}:`, error);
       throw error;
@@ -31,7 +55,7 @@ export const taskApi = {
   getTaskById: async (id: string): Promise<Task> => {
     try {
       const response = await axiosInstance.get(`/tasks/${id}`);
-      return response.data;
+      return transformTask(response.data);
     } catch (error) {
       console.error(`Error fetching task ${id}:`, error);
       throw error;
@@ -46,7 +70,7 @@ export const taskApi = {
       console.log(`Gör PATCH-anrop till: /tasks/${taskId}/status`);
       const response = await axiosInstance.patch(`/tasks/${taskId}/status`, { status: newStatus });
       console.log('PATCH-anrop lyckades:', response.data);
-      return response.data;
+      return transformTask(response.data);
     } catch (error) {
       console.error(`PATCH-anrop misslyckades: ${error instanceof Error ? error.message : 'Okänt fel'}`);
       
@@ -74,7 +98,7 @@ export const taskApi = {
           
           if (refreshedTask.data && refreshedTask.data.status === newStatus) {
             console.log('Uppgiften uppdaterades trots felmeddelandet!');
-            return refreshedTask.data;
+            return transformTask(refreshedTask.data);
           } else {
             console.log('Uppgiften uppdaterades inte. Nuvarande status:', 
               refreshedTask.data ? refreshedTask.data.status : 'okänd');
@@ -163,7 +187,7 @@ export const taskApi = {
   updateTask: async (taskId: string, taskData: Partial<Task>): Promise<Task> => {
     try {
       const response = await axiosInstance.patch(`/tasks/${taskId}`, taskData);
-      return response.data;
+      return transformTask(response.data);
     } catch (error) {
       console.error(`Error updating task ${taskId}:`, error);
       throw error;
@@ -174,7 +198,7 @@ export const taskApi = {
   assignTask: async (taskId: string, userId: string): Promise<Task> => {
     try {
       const response = await axiosInstance.patch(`/tasks/${taskId}/assign`, { userId });
-      return response.data;
+      return transformTask(response.data);
     } catch (error) {
       console.error(`Error assigning task ${taskId} to user ${userId}:`, error);
       throw error;
@@ -185,7 +209,7 @@ export const taskApi = {
   updateTaskPriority: async (taskId: string, priority: TaskPriority): Promise<Task> => {
     try {
       const response = await axiosInstance.patch(`/tasks/${taskId}/priority`, { priority });
-      return response.data;
+      return transformTask(response.data);
     } catch (error) {
       console.error(`Error updating priority for task ${taskId}:`, error);
       throw error;
@@ -260,7 +284,7 @@ export const taskApi = {
       try {
         const response = await axiosInstance.post('/tasks', backendTask);
         console.log('Task creation response:', response);
-        return response.data;
+        return transformTask(response.data);
       } catch (apiError: unknown) {
         if (apiError && typeof apiError === 'object' && 'response' in apiError) {
           const axiosError = apiError as { 
