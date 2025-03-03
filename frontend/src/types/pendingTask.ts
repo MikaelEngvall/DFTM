@@ -19,7 +19,8 @@ export interface PendingTask {
   reporter?: string;
   createdAt?: string;
   updatedAt?: string;
-  assigned?: boolean;
+  assignedToUserId?: string;
+  assignedByUserId?: string;
   approved?: boolean;
   received?: string;
 } 

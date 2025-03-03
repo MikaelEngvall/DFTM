@@ -63,8 +63,6 @@ public class Task {
     @Builder.Default
     private Language originalLanguage = Language.SV;  // Standardspråk för uppgiften
 
-    private boolean assigned;
-
     @Builder.Default
     private Map<Language, String> titleTranslations = new HashMap<>();
     

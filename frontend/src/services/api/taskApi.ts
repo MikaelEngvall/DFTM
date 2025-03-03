@@ -40,28 +40,51 @@ export const taskApi = {
 
   // Uppdatera en uppgifts status
   updateTaskStatus: async (taskId: string, newStatus: TaskStatus): Promise<Task> => {
-    console.log(`Uppdaterar uppgift ${taskId} till status ${newStatus} med axios direkt`);
+    console.log(`Uppdaterar uppgift ${taskId} till status ${newStatus}`);
     
     try {
-      // Använd axiosInstance istället för axios direkt
-      console.log(`Försöker PATCH-anrop till: /tasks/${taskId}/status`);
+      console.log(`Gör PATCH-anrop till: /tasks/${taskId}/status`);
       const response = await axiosInstance.patch(`/tasks/${taskId}/status`, { status: newStatus });
       console.log('PATCH-anrop lyckades:', response.data);
       return response.data;
-    } catch (patchError) {
-      console.error(`PATCH-anrop misslyckades: ${patchError instanceof Error ? patchError.message : 'Okänt fel'}`);
-      console.log('Försöker med PUT-anrop istället');
+    } catch (error) {
+      console.error(`PATCH-anrop misslyckades: ${error instanceof Error ? error.message : 'Okänt fel'}`);
       
-      try {
-        // Försök med PUT om PATCH misslyckas
-        console.log(`Försöker PUT-anrop till: /tasks/${taskId}/status/${newStatus}`);
-        const putResponse = await axiosInstance.put(`/tasks/${taskId}/status/${newStatus}`);
-        console.log('PUT-anrop lyckades:', putResponse.data);
-        return putResponse.data;
-      } catch (putError) {
-        console.error(`PUT-anrop misslyckades också: ${putError instanceof Error ? putError.message : 'Okänt fel'}`);
-        throw new Error(`Kunde inte uppdatera uppgiftens status med varken PATCH eller PUT: ${putError instanceof Error ? putError.message : 'Okänt fel'}`);
+      // Logga mer information om felet
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { 
+          response?: { 
+            status?: number, 
+            data?: unknown, 
+            headers?: unknown
+          } 
+        };
+        console.error('API error details:', {
+          status: axiosError.response?.status,
+          data: axiosError.response?.data,
+          headers: axiosError.response?.headers
+        });
       }
+      
+      // Trots 403-fel, försök hämta uppgiften för att se om statusen uppdaterades
+      if (taskId) {
+        try {
+          console.log('Kontrollerar om uppgiften uppdaterades trots fel...');
+          const refreshedTask = await axiosInstance.get(`/tasks/${taskId}`);
+          
+          if (refreshedTask.data && refreshedTask.data.status === newStatus) {
+            console.log('Uppgiften uppdaterades trots felmeddelandet!');
+            return refreshedTask.data;
+          } else {
+            console.log('Uppgiften uppdaterades inte. Nuvarande status:', 
+              refreshedTask.data ? refreshedTask.data.status : 'okänd');
+          }
+        } catch (refreshError) {
+          console.error('Kunde inte kontrollera uppgiftens status:', refreshError);
+        }
+      }
+      
+      throw new Error(`Kunde inte uppdatera uppgiftens status: ${error instanceof Error ? error.message : 'Okänt fel'}`);
     }
   },
 

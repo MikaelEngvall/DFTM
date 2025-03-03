@@ -8,39 +8,47 @@ import { User } from '../types/user';
 export const pendingTaskToTask = (pendingTask: PendingTask): Task => {
   console.log('Converting pendingTask to Task:', pendingTask);
   
-  // Skapa minimala User-objekt från strängvärden för kompatibilitet med Task-typen
-  const assignedToUser: User | undefined = pendingTask.assigned && pendingTask.recipient ? {
-    id: pendingTask.recipient,
-    firstName: 'User',
-    lastName: pendingTask.recipient,
+  // Skapa minimala User-objekt från assignedToUserId och assignedByUserId
+  const assignedToUser: User | undefined = pendingTask.assignedToUserId ? {
+    id: pendingTask.assignedToUserId,
+    firstName: 'Användare',
+    lastName: pendingTask.assignedToUserId.substring(0, 8), // Visar bara en del av ID:t för bättre läsbarhet
     email: '',
     role: 'ROLE_USER'
   } : undefined;
   
-  const assignerUser: User | undefined = pendingTask.assigned && pendingTask.sender ? {
-    id: pendingTask.sender,
-    firstName: 'User',
-    lastName: pendingTask.sender,
+  const assignerUser: User | undefined = pendingTask.assignedByUserId ? {
+    id: pendingTask.assignedByUserId,
+    firstName: 'Admin',
+    lastName: pendingTask.assignedByUserId.substring(0, 8), // Visar bara en del av ID:t för bättre läsbarhet
     email: '',
-    role: 'ROLE_USER'
+    role: 'ROLE_ADMIN'
   } : undefined;
   
-  // Använd name, adress och apartment för att skapa en titel om title inte finns
-  const title = pendingTask.title || 
-    `${pendingTask.name || 'Okänd'} - ${pendingTask.address || ''} ${pendingTask.apartment || ''}`.trim();
+  // Skapa en beskrivande titel baserad på tillgängliga fält
+  let title = pendingTask.title;
+  
+  if (!title) {
+    // Om title saknas, bygg en från name, address och apartment
+    const namePart = pendingTask.name ? pendingTask.name : 'Okänd';
+    const addressPart = pendingTask.address ? pendingTask.address : '';
+    const apartmentPart = pendingTask.apartment ? `Lägenhet ${pendingTask.apartment}` : '';
+    
+    title = [namePart, addressPart, apartmentPart].filter(Boolean).join(' - ');
+  }
   
   return {
     id: pendingTask.id,
     title: title,
     description: pendingTask.description,
-    status: (pendingTask.status || 'NEW') as unknown as TaskStatus, // Konvertera string till enum
-    priority: (pendingTask.priority || 'MEDIUM') as unknown as TaskPriority, // Konvertera string till enum
-    createdAt: pendingTask.createdAt || pendingTask.received || new Date().toISOString(), // Garantera ett värde
+    status: (pendingTask.status || 'PENDING') as unknown as TaskStatus, // Säkerställ standardvärde
+    priority: (pendingTask.priority || 'MEDIUM') as unknown as TaskPriority, // Säkerställ standardvärde
+    createdAt: pendingTask.createdAt || pendingTask.received || new Date().toISOString(),
     updatedAt: pendingTask.updatedAt || pendingTask.received || new Date().toISOString(),
     assignedTo: assignedToUser,
     assigner: assignerUser,
-    dueDate: undefined, // Saknas i PendingTask
-    approved: pendingTask.approved // Använd värdet direkt, det är redan en boolean
+    dueDate: undefined, // Läggs till senare vid behov
+    approved: pendingTask.approved || false // Säkerställ boolean-värde
   };
 };
 

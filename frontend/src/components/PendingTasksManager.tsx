@@ -52,9 +52,10 @@ export const PendingTasksManager = () => {
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
-      // Använd samma filtrering som i useEffect för showApproved/showRejected
+      // Filtrering baserad på status
       const filtered = tasks.filter(task => {
-        if (task.approved) {
+        // Visa godkända uppgifter ENDAST om showApproved är true
+        if (task.status === TaskStatus.APPROVED) {
           return showApproved;
         }
         if (task.status === TaskStatus.REJECTED) {
@@ -66,8 +67,8 @@ export const PendingTasksManager = () => {
     } else {
       const lowerCaseQuery = searchQuery.toLowerCase();
       const filtered = tasks.filter(task => {
-        // Först kontrollera approved/rejected status
-        if (task.approved && !showApproved) {
+        // Först kontrollera status
+        if (task.status === TaskStatus.APPROVED && !showApproved) {
           return false;
         }
         if (task.status === TaskStatus.REJECTED && !showRejected) {
@@ -83,44 +84,52 @@ export const PendingTasksManager = () => {
 
   const fetchPendingTasks = async () => {
     setIsLoading(true);
-    setError(null);
+    
     try {
-      const pendingTasksResponse = await taskApi.getPendingTasks();
-      console.log('Raw pending tasks response:', pendingTasksResponse);
+      console.log('Hämtar väntande uppgifter...');
+      const pendingTasks = await taskApi.getPendingTasks();
+      console.log('Hämtade pending tasks:', pendingTasks);
       
-      // Konvertera alla pending tasks till Task-format
-      const convertedTasks = pendingTasksToTasks(pendingTasksResponse);
-      console.log('Converted tasks with approved status:', 
-        convertedTasks.map(task => ({
-          id: task.id,
-          title: task.title,
-          approved: task.approved
-        }))
-      );
+      // Konvertera till Task-format för UI-kompatibilitet
+      const tasksList = pendingTasksToTasks(pendingTasks);
+      console.log('Konverterade till tasks-format:', tasksList);
       
-      // Spara alla tasks i state för senare filtrering
-      setTasks(convertedTasks);
+      // Ladda användarinformation för assignedToUserId om det finns
+      const tasksWithUserInfo = await Promise.all(tasksList.map(async (task) => {
+        if (task.assignedTo && task.assignedTo.id) {
+          try {
+            const user = await userApi.getUserById(task.assignedTo.id);
+            return {
+              ...task,
+              assignedTo: user // Ersätt med den fullständiga användarinformationen
+            };
+          } catch (error) {
+            console.error(`Kunde inte hämta användarinfo för ${task.assignedTo.id}:`, error);
+            return task;
+          }
+        }
+        return task;
+      }));
       
-      // Filtrera bort approved tasks för initial visning
-      const initialFiltered = convertedTasks.filter(task => {
-        const isApproved = Boolean(task.approved);
-        console.log(`Task ${task.id} (${task.title}) approved status:`, isApproved);
-        return !isApproved;
+      // Spara alla uppgifter i tasks-state för senare filtrering
+      setTasks(tasksWithUserInfo);
+      
+      // Filtrera uppgifter för initial visning baserat på showApproved och showRejected
+      const initialFiltered = tasksWithUserInfo.filter(task => {
+        if (task.status === TaskStatus.APPROVED) {
+          return showApproved; // Visa godkända ENDAST om showApproved är true
+        }
+        if (task.status === TaskStatus.REJECTED) {
+          return showRejected;
+        }
+        return true; // Visa alla andra uppgifter
       });
       
-      console.log('Initial filtered tasks (no approved):', 
-        initialFiltered.map(task => ({
-          id: task.id,
-          title: task.title,
-          approved: task.approved
-        }))
-      );
-      
       setFilteredTasks(initialFiltered);
-    } catch (err) {
-      console.error('Failed to fetch pending tasks:', err);
-      setError('Det gick inte att hämta väntande uppgifter');
-    } finally {
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error fetching pending tasks:', error);
+      setError('Kunde inte hämta väntande uppgifter');
       setIsLoading(false);
     }
   };
@@ -329,7 +338,7 @@ export const PendingTasksManager = () => {
         console.log('Task details:');
         console.log('- ID:', task.id);
         console.log('- Title:', task.title);
-        console.log('- Assigned:', task.assigned);
+        console.log('- AssignedToUserId:', task.assignedToUserId);
         console.log('- Approved:', task.approved);
         
         // Konvertera och lägg till i listan
@@ -384,12 +393,20 @@ export const PendingTasksManager = () => {
     }
   };
 
-  // Funktion för att få opacity baserat på pending task status
+  // Uppdatera getTaskOpacity för att hantera godkända uppgifter korrekt
   const getTaskOpacity = (task: Task) => {
-    if (task.approved || task.status === TaskStatus.REJECTED) {
+    // Om approved status, visa med 50% opacitet
+    if (task.status === TaskStatus.APPROVED) {
       return 'opacity-50';
     }
-    return '';
+    
+    // Om rejected status och showRejected är true, visa med 70% opacitet
+    if (task.status === TaskStatus.REJECTED && showRejected) {
+      return 'opacity-70';
+    }
+    
+    // Alla andra uppgifter visas med full opacitet
+    return 'opacity-100';
   };
 
   if (isLoading) {
@@ -427,7 +444,7 @@ export const PendingTasksManager = () => {
               const newShowApproved = !showApproved;
               setShowApproved(newShowApproved);
               const filtered = tasks.filter(task => {
-                if (task.approved) {
+                if (task.status === TaskStatus.APPROVED) {
                   return newShowApproved;
                 }
                 if (task.status === TaskStatus.REJECTED) {
@@ -451,7 +468,7 @@ export const PendingTasksManager = () => {
               const newShowRejected = !showRejected;
               setShowRejected(newShowRejected);
               const filtered = tasks.filter(task => {
-                if (task.approved) {
+                if (task.status === TaskStatus.APPROVED) {
                   return showApproved;
                 }
                 if (task.status === TaskStatus.REJECTED) {
