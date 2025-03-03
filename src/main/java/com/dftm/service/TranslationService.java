@@ -1,19 +1,19 @@
 package com.dftm.service;
 
-import org.springframework.stereotype.Service;
-
-import com.dftm.client.GoogleTranslateClient;
-import com.dftm.model.Language;
-import com.dftm.model.Translation;
-import com.dftm.repository.TranslationRepository;
-import com.dftm.exception.ResourceNotFoundException;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
+import com.dftm.client.GoogleTranslateClient;
+import com.dftm.exception.ResourceNotFoundException;
+import com.dftm.model.Language;
+import com.dftm.model.Translation;
+import com.dftm.repository.TranslationRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -95,5 +95,14 @@ public class TranslationService {
         }
 
         return translation.getTranslations().getOrDefault(targetLanguage, translation.getOriginalText());
+    }
+
+    public Translation updateTranslation(Translation translation) {
+        if (translation == null) {
+            throw new IllegalArgumentException("Translation cannot be null");
+        }
+        
+        translation.setUpdatedAt(LocalDateTime.now());
+        return translationRepository.save(translation);
     }
 } 

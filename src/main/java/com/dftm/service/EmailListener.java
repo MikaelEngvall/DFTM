@@ -2,6 +2,7 @@ package com.dftm.service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.springframework.core.env.Environment;
@@ -13,13 +14,16 @@ import com.dftm.model.Language;
 import com.dftm.model.PendingTask;
 import com.dftm.model.TaskPriority;
 import com.dftm.model.TaskStatus;
+import com.dftm.model.Translation;
 import com.dftm.repository.PendingTaskRepository;
 
+import jakarta.mail.Address;
 import jakarta.mail.BodyPart;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.Session;
 import jakarta.mail.Store;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMultipart;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +36,10 @@ public class EmailListener {
     private final JavaMailProperties mailProperties;
     private final PendingTaskRepository pendingTaskRepository;
     private final Environment environment;
+    private final TranslationService translationService;
+    
+    private static final String TARGET_RECIPIENT = "felanmalan@duggalsfastigheter.se";
+    private static final String TARGET_SENDER = "mikael.engvall.me@gmail.com";
 
     private boolean isDevEnvironment() {
         String[] activeProfiles = environment.getActiveProfiles();
@@ -80,8 +88,62 @@ public class EmailListener {
                 Folder inbox = store.getFolder("INBOX");
                 inbox.open(Folder.READ_WRITE);
                 
-                // Process emails and convert to PendingTask objects
-                // Kod för att hämta riktiga e-postmeddelanden här
+                // Hämta alla olästa meddelanden
+                Message[] messages = inbox.search(
+                    new jakarta.mail.search.FlagTerm(
+                        new jakarta.mail.Flags(jakarta.mail.Flags.Flag.SEEN), 
+                        false
+                    )
+                );
+                
+                log.info("Found {} unread messages", messages.length);
+                
+                for (Message message : messages) {
+                    // Kontrollera avsändare och mottagare
+                    boolean isFromTargetSender = false;
+                    boolean isToTargetRecipient = false;
+                    
+                    // Kolla avsändare
+                    Address[] fromAddresses = message.getFrom();
+                    if (fromAddresses != null && fromAddresses.length > 0) {
+                        for (Address address : fromAddresses) {
+                            if (address instanceof InternetAddress) {
+                                String sender = ((InternetAddress) address).getAddress();
+                                log.info("Message from: {}", sender);
+                                if (TARGET_SENDER.equalsIgnoreCase(sender)) {
+                                    isFromTargetSender = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Kolla mottagare
+                    Address[] recipients = message.getRecipients(Message.RecipientType.TO);
+                    if (recipients != null && recipients.length > 0) {
+                        for (Address address : recipients) {
+                            if (address instanceof InternetAddress) {
+                                String recipient = ((InternetAddress) address).getAddress();
+                                log.info("Message to: {}", recipient);
+                                if (TARGET_RECIPIENT.equalsIgnoreCase(recipient)) {
+                                    isToTargetRecipient = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Fortsätt bara om meddelandet är från rätt avsändare till rätt mottagare
+                    if (isFromTargetSender && isToTargetRecipient) {
+                        log.info("Processing message from {} to {}", TARGET_SENDER, TARGET_RECIPIENT);
+                        processEmail(message);
+                    } else {
+                        log.info("Skipping message - not matching target sender and recipient");
+                    }
+                    
+                    // Markera meddelandet som läst oavsett
+                    message.setFlag(jakarta.mail.Flags.Flag.SEEN, true);
+                }
                 
                 inbox.close(false);
             }
@@ -171,14 +233,68 @@ public class EmailListener {
         LocalDateTime now = LocalDateTime.now();
         
         try {
+            // Skapa översättningar för titel och beskrivning
+            Translation titleTranslation = translationService.createTranslation(title, Language.SV);
+            Translation descriptionTranslation = translationService.createTranslation(finalDescription, Language.SV);
+            
+            // Översätt till alla tillgängliga språk
+            Map<Language, String> titleTranslations = new HashMap<>();
+            Map<Language, String> descriptionTranslations = new HashMap<>();
+            
+            for (Language language : Language.values()) {
+                if (language != Language.SV) {
+                    // Översätt från svenska till andra språk
+                    String translatedTitle = "";
+                    String translatedDescription = "";
+                    
+                    try {
+                        translatedTitle = translationService.getTranslatedText(
+                            titleTranslation.getId(), language);
+                        translatedDescription = translationService.getTranslatedText(
+                            descriptionTranslation.getId(), language);
+                            
+                        // Om översättningen inte finns i databasen, gör översättningen med Google Translate
+                        if (translatedTitle.equals(title)) {
+                            translatedTitle = translationService.translate(title, language.getCode());
+                            // Spara översättningen
+                            Map<Language, String> translations = titleTranslation.getTranslations();
+                            translations.put(language, translatedTitle);
+                            titleTranslation.setTranslations(translations);
+                        }
+                        
+                        if (translatedDescription.equals(finalDescription)) {
+                            translatedDescription = translationService.translate(finalDescription, language.getCode());
+                            // Spara översättningen
+                            Map<Language, String> translations = descriptionTranslation.getTranslations();
+                            translations.put(language, translatedDescription);
+                            descriptionTranslation.setTranslations(translations);
+                        }
+                    } catch (Exception e) {
+                        log.error("Error translating to {}: {}", language, e.getMessage());
+                        // Om översättningen misslyckas, använd originaltexten
+                        translatedTitle = title;
+                        translatedDescription = finalDescription;
+                    }
+                    
+                    titleTranslations.put(language, translatedTitle);
+                    descriptionTranslations.put(language, translatedDescription);
+                }
+            }
+            
+            // Spara uppdaterade översättningar i databasen
+            translationService.updateTranslation(titleTranslation);
+            translationService.updateTranslation(descriptionTranslation);
+            
             PendingTask pendingTask = PendingTask.builder()
                     .title(title)
                     .description(finalDescription)
                     .reporter(reporterEmail)
+                    .sender(TARGET_SENDER)
+                    .recipient(TARGET_RECIPIENT)
                     .createdAt(now)
                     .updatedAt(now)
-                    .titleTranslations(new HashMap<>())
-                    .descriptionTranslations(new HashMap<>())
+                    .titleTranslations(titleTranslations)
+                    .descriptionTranslations(descriptionTranslations)
                     .originalLanguage(Language.SV)
                     .status(TaskStatus.PENDING.toString())
                     .priority(TaskPriority.MEDIUM.toString())
@@ -191,11 +307,13 @@ public class EmailListener {
                     "Description: {}\n" +
                     "Reporter: {}\n" +
                     "CreatedAt: {}\n" +
+                    "With translations to: {}\n" +
                     "\033[0m",
                     pendingTask.getTitle(),
                     pendingTask.getDescription(),
                     pendingTask.getReporter(),
-                    pendingTask.getCreatedAt());
+                    pendingTask.getCreatedAt(),
+                    pendingTask.getTitleTranslations().keySet());
                     
             PendingTask savedTask = pendingTaskRepository.save(pendingTask);
             
@@ -252,22 +370,22 @@ public class EmailListener {
     }
 
     private String cleanHtmlContent(String content) {
-        // Ersätt <br> med radbrytningar
-        String cleaned = content.replace("<br>", "\n");
+        if (content == null) {
+            return "";
+        }
         
-        // Ta bort eventuella andra HTML-taggar
-        cleaned = cleaned.replaceAll("<[^>]+>", "");
+        // Ta bort HTML-taggar
+        String noHtml = content.replaceAll("<[^>]*>", "");
         
-        // Hantera specialtecken
-        cleaned = cleaned.replace("&nbsp;", " ")
-                        .replace("&lt;", "<")
-                        .replace("&gt;", ">")
-                        .replace("&amp;", "&");
+        // Konvertera HTML-entiteter
+        String decodedHtml = noHtml
+            .replace("&nbsp;", " ")
+            .replace("&lt;", "<")
+            .replace("&gt;", ">")
+            .replace("&amp;", "&")
+            .replace("&quot;", "\"")
+            .replace("&apos;", "'");
         
-        // Ta bort tomma rader och trimma
-        return cleaned.lines()
-                     .map(String::trim)
-                     .filter(line -> !line.isEmpty())
-                     .collect(java.util.stream.Collectors.joining("\n"));
+        return decodedHtml;
     }
 } 
