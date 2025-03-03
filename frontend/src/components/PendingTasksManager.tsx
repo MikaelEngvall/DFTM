@@ -393,16 +393,11 @@ export const PendingTasksManager = () => {
     }
   };
 
-  // Uppdatera getTaskOpacity för att hantera godkända uppgifter korrekt
+  // Uppdatera getTaskOpacity för att hantera godkända och avvisade uppgifter korrekt
   const getTaskOpacity = (task: Task) => {
-    // Om approved status, visa med 50% opacitet
-    if (task.status === TaskStatus.APPROVED) {
+    // Om approved eller rejected status, visa med 50% opacitet
+    if (task.status === TaskStatus.APPROVED || task.status === TaskStatus.REJECTED) {
       return 'opacity-50';
-    }
-    
-    // Om rejected status och showRejected är true, visa med 70% opacitet
-    if (task.status === TaskStatus.REJECTED && showRejected) {
-      return 'opacity-70';
     }
     
     // Alla andra uppgifter visas med full opacitet

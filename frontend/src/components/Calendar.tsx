@@ -4,7 +4,7 @@ import { taskApi } from '../services/api/taskApi';
 import { TaskDetailModal } from './TaskDetailModal';
 import { CreateTaskModal } from './CreateTaskModal';
 import { useTranslation } from 'react-i18next';
-import { getStatusColorWithOpacity } from '../utils/statusColors';
+import { getStatusColorWithOpacity, getStatusBorderColor } from '../utils/statusColors';
 
 interface CalendarProps {
   userId: string;
@@ -219,21 +219,26 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
     // Säkerställ att task.status finns och är en giltig sträng
     if (!task || !task.status) {
       console.warn('Task eller task.status saknas:', task);
-      return 'bg-slate-500/90 text-white font-medium'; // Default-färg om status saknas
+      return 'bg-slate-500 text-white font-medium'; // Default-färg om status saknas
     }
     
-    // För URGENT prioritet, använd alltid rött med skuggor oavsett status
+    // För URGENT prioritet, använd akut styling med glödeffekt
     if (task.priority === 'URGENT') {
-      return 'bg-destructive/90 text-white font-semibold shadow-lg shadow-destructive/50 ring-2 ring-destructive/80 hover:bg-destructive/100';
+      return 'bg-destructive text-white font-semibold shadow-lg shadow-destructive/50 ring-2 ring-destructive/80 hover:bg-destructive/90 animate-pulse';
     }
     
     // För HIGH prioritet, förbättra synlighet och lägg till skuggor
     if (task.priority === 'HIGH') {
-      return `${getStatusColorWithOpacity(task.status, 90)} font-medium shadow-md hover:shadow-lg`;
+      return `${getStatusColorWithOpacity(task.status)} font-medium shadow-md hover:shadow-lg border-2 ${getStatusBorderColor(task.status)}`;
     }
     
-    // För alla andra, använd statusfärg med förbättrad synlighet
-    return `${getStatusColorWithOpacity(task.status, 85)} hover:shadow-sm`;
+    // För MEDIUM prioritet
+    if (task.priority === 'MEDIUM') {
+      return `${getStatusColorWithOpacity(task.status)} font-normal hover:shadow-sm`;
+    }
+    
+    // För LOW prioritet
+    return `${getStatusColorWithOpacity(task.status)} hover:shadow-sm text-sm`;
   };
 
   // Få namnen på veckodagarna
@@ -375,7 +380,7 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
                           e.stopPropagation(); // Förhindra att kalendercellen aktiveras
                           openTaskDetails(task);
                         }}
-                        className={`text-xs p-1.5 rounded cursor-pointer truncate transition-all ${getTaskCardClass(task)}`}
+                        className={`text-xs p-2 rounded-md cursor-pointer truncate transition-all ${getTaskCardClass(task)}`}
                       >
                         {task.title}
                       </div>

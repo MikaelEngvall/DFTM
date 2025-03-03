@@ -37,17 +37,16 @@ export const getStatusColor = (status: string): string => {
 /**
  * Returnerar CSS-klasser för bakgrundsfärg och textfärg för angiven uppgiftsstatus med varierande opacitet
  * @param status Uppgiftsstatus
- * @param opacity Opacitet för bakgrunden (0-100)
  * @returns CSS-klassnamn för färgsättning
  */
-export const getStatusColorWithOpacity = (status: string, opacity: number = 80): string => {
+export const getStatusColorWithOpacity = (status: string): string => {
   // Logga för att debugga statusvärdet
   console.log(`getStatusColorWithOpacity anropad med status: '${status}', typeof: ${typeof status}`);
   
   // Kontrollera att statusen är en sträng
   if (!status || typeof status !== 'string') {
     console.warn('Status är inte en giltig sträng:', status);
-    return `bg-slate-500/${opacity} text-white`;
+    return `bg-slate-500 text-white`;
   }
   
   // Hantera strängar från backend som kan vara lite annorlunda formaterade
@@ -56,20 +55,20 @@ export const getStatusColorWithOpacity = (status: string, opacity: number = 80):
   
   switch (normalizedStatus) {
     case TaskStatus.PENDING:
-      return `bg-yellow-500/${opacity} text-yellow-950`;
+      return `bg-yellow-500 text-yellow-950`;
     case TaskStatus.IN_PROGRESS:
-      return `bg-blue-500/${opacity} text-white`;
+      return `bg-blue-500 text-white`;
     case TaskStatus.NOT_FEASIBLE:
-      return `bg-red-500/${opacity} text-white`;
+      return `bg-red-500 text-white`;
     case TaskStatus.COMPLETED:
-      return `bg-green-500/${opacity} text-white`;
+      return `bg-green-500 text-white`;
     case TaskStatus.APPROVED:
-      return `bg-emerald-500/${opacity} text-white`;
+      return `bg-emerald-500 text-white`;
     case TaskStatus.REJECTED:
-      return `bg-destructive/${opacity} text-white`;
+      return `bg-destructive text-white`;
     default:
       console.warn(`Okänd status: '${status}', normaliserad: '${normalizedStatus}'`);
-      return `bg-slate-500/${opacity} text-white`;
+      return `bg-slate-500 text-white`;
   }
 };
 
