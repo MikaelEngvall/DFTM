@@ -122,30 +122,56 @@ public class TaskController {
     }
     
     @PutMapping("/{taskId}/status/{status}")
-    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN', 'ROLE_USER')")
     public ResponseEntity<Task> updateTaskStatus(
             @PathVariable String taskId,
             @PathVariable TaskStatus status) {
             
-        log.debug("PUT request to update task status, ID: {}, new status: {}", taskId, status);
-        Task updatedTask = taskService.updateTaskStatus(taskId, status);
-        return ResponseEntity.ok()
-                .header("X-Message", getMessage("task.status.updated"))
-                .body(updatedTask);
+        log.info("PUT-anrop för att uppdatera uppgiftsstatus: ID={}, Status={}", taskId, status);
+        
+        Task currentTask = taskService.getTaskById(taskId);
+        log.info("Nuvarande uppgift: ID={}, Status={}", taskId, currentTask.getStatus());
+        
+        try {
+            log.debug("Uppdaterar uppgiftsstatus från {} till {}", currentTask.getStatus(), status);
+            Task updatedTask = taskService.updateTaskStatus(taskId, status);
+            log.info("Uppgift uppdaterad: ID={}, Ny status={}", updatedTask.getId(), updatedTask.getStatus());
+            return ResponseEntity.ok()
+                    .header("X-Message", getMessage("task.status.updated"))
+                    .body(updatedTask);
+        } catch (Exception e) {
+            log.error("Fel vid uppdatering av uppgiftsstatus: {}", e.getMessage(), e);
+            throw e;
+        }
     }
     
     @PatchMapping("/{taskId}/status")
-    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN', 'ROLE_USER')")
     public ResponseEntity<Task> patchUpdateTaskStatus(
             @PathVariable String taskId,
             @RequestBody Map<String, String> statusMap) {
             
-        TaskStatus status = TaskStatus.valueOf(statusMap.get("status"));
-        log.debug("PATCH request to update task status, ID: {}, new status: {}", taskId, status);
-        Task updatedTask = taskService.updateTaskStatus(taskId, status);
-        return ResponseEntity.ok()
-                .header("X-Message", getMessage("task.status.updated"))
-                .body(updatedTask);
+        log.info("PATCH-anrop för att uppdatera uppgiftsstatus: ID={}, Payload={}", taskId, statusMap);
+        
+        String statusStr = statusMap.get("status");
+        log.info("Inkommande status från klient: {}", statusStr);
+        
+        Task currentTask = taskService.getTaskById(taskId);
+        log.info("Nuvarande uppgift: ID={}, Status={}, Behörigheter krävs: {}", 
+            taskId, currentTask.getStatus(), "ROLE_ADMIN, ROLE_SUPERADMIN, ROLE_USER");
+            
+        try {
+            TaskStatus status = TaskStatus.valueOf(statusStr);
+            log.info("Konverterade status till enum: {}", status);
+            Task updatedTask = taskService.updateTaskStatus(taskId, status);
+            log.info("Uppgift uppdaterad: ID={}, Ny status={}", updatedTask.getId(), updatedTask.getStatus());
+            return ResponseEntity.ok()
+                    .header("X-Message", getMessage("task.status.updated"))
+                    .body(updatedTask);
+        } catch (Exception e) {
+            log.error("Fel vid uppdatering av uppgiftsstatus: {}", e.getMessage(), e);
+            throw e;
+        }
     }
     
     @PatchMapping("/{taskId}/assign")
@@ -302,7 +328,7 @@ public class TaskController {
     }
 
     @GetMapping("/{taskId}/task-comments")
-    @PreAuthorize("hasAnyRole('ROLE_SUPERADMIN', 'ROLE_ADMIN', 'ROLE_USER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_SUPERADMIN', 'ROLE_ADMIN', 'ROLE_USER')")
     public ResponseEntity<?> getTaskComments(@PathVariable String taskId, 
                                             @RequestParam(defaultValue = "EN") String language) {
         log.debug("GET request for comments redirected to CommentController");

@@ -56,7 +56,10 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddCo
   // Spara statusändring
   const handleSaveStatus = () => {
     if (selectedStatus !== task.status) {
+      console.log(`Uppdaterar uppgift ${task.id} från status ${task.status} till ${selectedStatus}`);
       onStatusUpdate(task.id, selectedStatus);
+    } else {
+      console.log('Ingen ändring i status, hoppar över uppdatering');
     }
   };
 

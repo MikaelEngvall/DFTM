@@ -2,6 +2,7 @@ import { axiosInstance } from './axiosConfig';
 // import { api } from './api'; // Denna import används inte
 import { Task, TaskStatus, TaskPriority } from '../../types/task';
 import { PendingTask } from '../../types/pendingTask';
+import axios from 'axios';
 
 // Uppgifternas prioritetsnivåer
 export enum TaskPriority {
@@ -100,13 +101,29 @@ export const taskApi = {
   },
 
   // Uppdatera en uppgifts status
-  updateTaskStatus: async (taskId: string, status: TaskStatus): Promise<Task> => {
+  updateTaskStatus: async (taskId: string, newStatus: TaskStatus): Promise<Task> => {
+    console.log(`Uppdaterar uppgift ${taskId} till status ${newStatus} med axios direkt`);
+    
     try {
-      const response = await axiosInstance.patch(`/tasks/${taskId}/status`, { status });
+      // Använd axiosInstance istället för axios direkt
+      console.log(`Försöker PATCH-anrop till: /tasks/${taskId}/status`);
+      const response = await axiosInstance.patch(`/tasks/${taskId}/status`, { status: newStatus });
+      console.log('PATCH-anrop lyckades:', response.data);
       return response.data;
-    } catch (error) {
-      console.error(`Error updating task status for ${taskId}:`, error);
-      throw error;
+    } catch (patchError) {
+      console.error(`PATCH-anrop misslyckades: ${patchError instanceof Error ? patchError.message : 'Okänt fel'}`);
+      console.log('Försöker med PUT-anrop istället');
+      
+      try {
+        // Försök med PUT om PATCH misslyckas
+        console.log(`Försöker PUT-anrop till: /tasks/${taskId}/status/${newStatus}`);
+        const putResponse = await axiosInstance.put(`/tasks/${taskId}/status/${newStatus}`);
+        console.log('PUT-anrop lyckades:', putResponse.data);
+        return putResponse.data;
+      } catch (putError) {
+        console.error(`PUT-anrop misslyckades också: ${putError instanceof Error ? putError.message : 'Okänt fel'}`);
+        throw new Error(`Kunde inte uppdatera uppgiftens status med varken PATCH eller PUT: ${putError instanceof Error ? putError.message : 'Okänt fel'}`);
+      }
     }
   },
 

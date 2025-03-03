@@ -33,11 +33,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
-        log.info("Request URL: {}", request.getRequestURL());
-        log.info("Request Method: {}", request.getMethod());
-        log.info("Auth header: {}", authHeader);
+        final String requestPath = request.getRequestURI();
+        final String requestMethod = request.getMethod();
+        
+        log.info("Request Path: {}", requestPath);
+        log.info("Request Method: {}", requestMethod);
+        log.info("Auth header: {}", authHeader != null ? authHeader.substring(0, Math.min(20, authHeader.length())) + "..." : null);
         
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("No Bearer token found in request");
             filterChain.doFilter(request, response);
             return;
         }
@@ -45,8 +49,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt = authHeader.substring(7);
         String userEmail = jwtService.extractUsername(jwt);
         
+        log.info("JWT token extracted for user: {}", userEmail);
+        
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            
+            log.info("User loaded: {}, Authorities: {}", userDetails.getUsername(), userDetails.getAuthorities());
+            
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
@@ -55,6 +64,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                
+                log.info("Authentication set in SecurityContext: {}", authToken);
+            } else {
+                log.warn("Token validation failed for user: {}", userEmail);
+            }
+        } else {
+            if (userEmail == null) {
+                log.warn("Could not extract username from token");
+            }
+            if (SecurityContextHolder.getContext().getAuthentication() != null) {
+                log.info("Authentication already exists in SecurityContext");
             }
         }
         

@@ -24,6 +24,8 @@ public class AdminInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        // Kommenterar bort skapande av standardanvändare
+        /*
         createUserIfNotExists(
             "superadmin@dftm.com", 
             "Super", 
@@ -47,6 +49,9 @@ public class AdminInitializer implements CommandLineRunner {
             "user123", 
             Role.ROLE_USER
         );
+        */
+        
+        log.info("Automatisk skapande av användare har inaktiverats.");
     }
     
     private void createUserIfNotExists(String email, String firstName, String lastName, String password, Role role) {
