@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Task, TaskStatus, TaskComment } from '../types/task';
 import { taskApi } from '../services/api/taskApi';
 import { useTranslation } from 'react-i18next';
+import { StatusBadge } from './ui/StatusBadge';
 
 interface TaskDetailModalProps {
   isOpen: boolean;
@@ -111,22 +112,6 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddCo
     }
   };
 
-  // Färgkoder för olika statustyper
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return 'bg-yellow-500 text-yellow-950';
-      case 'IN_PROGRESS':
-        return 'bg-blue-500 text-blue-950';
-      case 'NOT_FEASIBLE':
-        return 'bg-destructive text-destructive-foreground';
-      case 'COMPLETED':
-        return 'bg-green-500 text-green-950';
-      default:
-        return 'bg-primary text-primary-foreground';
-    }
-  };
-
   // Visa ingen modal om den inte är öppen
   if (!isOpen) return null;
 
@@ -140,9 +125,7 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddCo
               <span className={`text-xs px-2 py-1 rounded ${getPriorityColor(task.priority)}`}>
                 {t(`task.priority.${task.priority.toLowerCase()}`)}
               </span>
-              <span className={`text-xs px-2 py-1 rounded ${getStatusColor(task.status)}`}>
-                {t(`task.status.${task.status === 'IN_PROGRESS' ? 'inProgress' : task.status.toLowerCase()}`)}
-              </span>
+              <StatusBadge status={task.status} size="sm" />
             </div>
           </div>
           <button 

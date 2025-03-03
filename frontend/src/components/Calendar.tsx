@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Task, TaskStatus, taskApi } from '../services/api/taskApi';
+import { Task, TaskStatus } from '../types/task';
+import { taskApi } from '../services/api/taskApi';
 import { TaskDetailModal } from './TaskDetailModal';
 import { CreateTaskModal } from './CreateTaskModal';
 import { useTranslation } from 'react-i18next';
+import { getStatusColorWithOpacity } from '../utils/statusColors';
 
 interface CalendarProps {
   userId: string;
@@ -19,8 +21,6 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
-  const [selectedTaskComments, setSelectedTaskComments] = useState<Comment[]>([]);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Kontrollera om användaren är admin (ROLE_ADMIN eller ROLE_SUPERADMIN)
   const isAdmin = userRole && (userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN');
@@ -135,16 +135,9 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
       setIsLoading(true);
       await taskApi.addComment(taskId, commentText);
       
-      // Uppdatera kommentarslistan efter att kommentaren lagts till
-      const updatedComments = await taskApi.getComments(taskId);
-      setSelectedTaskComments(updatedComments);
-      
-      console.log('Comment successfully added and comments refreshed');
+      console.log('Comment successfully added');
     } catch (error) {
       console.error('Failed to add comment:', error);
-      // Visa ett felmeddelande till användaren
-      setErrorMessage('Kunde inte lägga till kommentar. Försök igen senare.');
-      setTimeout(() => setErrorMessage(''), 5000); // Rensa felmeddelande efter 5 sekunder
     } finally {
       setIsLoading(false);
     }
@@ -185,6 +178,8 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
     if (!date) return [];
     
     return tasks.filter(task => {
+      if (!task.dueDate) return false;
+      
       const taskDate = new Date(task.dueDate);
       return (
         taskDate.getFullYear() === date.getFullYear() &&
@@ -192,6 +187,22 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
         taskDate.getDate() === date.getDate()
       );
     });
+  };
+
+  // Funktion för att kombinera statusfärg med prioritet
+  const getTaskCardClass = (task: Task): string => {
+    // För URGENT prioritet, använd alltid rött med skuggor oavsett status
+    if (task.priority === 'URGENT') {
+      return 'bg-destructive/60 text-destructive-foreground shadow-lg shadow-destructive/50 ring-2 ring-destructive/80';
+    }
+    
+    // För HIGH prioritet, använd amber med skuggor men behåll statusfärgen
+    if (task.priority === 'HIGH') {
+      return `${getStatusColorWithOpacity(task.status)} shadow-md`;
+    }
+    
+    // För alla andra, använd statusfärg
+    return getStatusColorWithOpacity(task.status);
   };
 
   // Få namnen på veckodagarna
@@ -333,15 +344,7 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
                           e.stopPropagation(); // Förhindra att kalendercellen aktiveras
                           openTaskDetails(task);
                         }}
-                        className={`text-xs p-1 rounded cursor-pointer truncate ${
-                          task.priority === 'URGENT' 
-                            ? 'bg-destructive/60 text-destructive-foreground shadow-lg shadow-destructive/50 ring-2 ring-destructive/80' 
-                            : task.priority === 'HIGH' 
-                              ? 'bg-amber-500/60 text-amber-950 shadow-md shadow-amber-500/40' 
-                              : task.status === 'COMPLETED' 
-                                ? 'bg-green-500/60 text-green-950' 
-                                : 'bg-primary/60 text-primary-foreground'
-                        }`}
+                        className={`text-xs p-1 rounded cursor-pointer truncate ${getTaskCardClass(task)}`}
                       >
                         {task.title}
                       </div>
