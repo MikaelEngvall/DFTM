@@ -1,69 +1,7 @@
 import { axiosInstance } from './axiosConfig';
 // import { api } from './api'; // Denna import används inte
-import { Task, TaskStatus, TaskPriority } from '../../types/task';
+import { Task, TaskStatus, TaskPriority, TaskComment } from '../../types/task';
 import { PendingTask } from '../../types/pendingTask';
-import axios from 'axios';
-
-// Uppgifternas prioritetsnivåer
-export enum TaskPriority {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-  URGENT = 'URGENT'
-}
-
-// Uppgifternas status
-export enum TaskStatus {
-  PENDING = 'PENDING',
-  IN_PROGRESS = 'IN_PROGRESS',
-  NOT_FEASIBLE = 'NOT_FEASIBLE',
-  COMPLETED = 'COMPLETED'
-}
-
-// Gränssnittstyp för uppgifter (frontend)
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  assignedTo: string;
-  assigner?: string;
-  reporter?: string;
-  dueDate: string;
-  completedDate?: string;
-  createdAt: string;
-  updatedAt: string;
-  comments?: string[];
-  archived: boolean;
-  approved: boolean;
-}
-
-// Gränssnittstyp för uppgifter (backend)
-interface BackendTask {
-  title: string;
-  description: string;
-  status: string;
-  priority: string;
-  assignedTo: string;
-  assigner?: string;
-  reporter?: string;
-  dueDate: string;
-  completedDate?: string;
-  archived: boolean;
-  approved: boolean;
-}
-
-// Gränssnittstyp för kommentarer
-export interface Comment {
-  id: string;
-  taskId: string;
-  text: string;
-  userId: string;
-  userName: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 // Task API service
 export const taskApi = {
@@ -232,7 +170,7 @@ export const taskApi = {
   },
 
   // Hämta kommentarer för en uppgift
-  getComments: async (taskId: string): Promise<Comment[]> => {
+  getComments: async (taskId: string): Promise<TaskComment[]> => {
     try {
       console.log(`Fetching comments for task ${taskId}`);
       
@@ -247,7 +185,7 @@ export const taskApi = {
   },
 
   // Lägg till en kommentar till en uppgift
-  addComment: async (taskId: string, text: string): Promise<Comment> => {
+  addComment: async (taskId: string, text: string): Promise<TaskComment> => {
     try {
       console.log(`Attempting to add comment to task ${taskId}, text: ${text}`);
       
@@ -281,18 +219,16 @@ export const taskApi = {
   createTask: async (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<Task> => {
     try {
       // Transformera uppgift till backend-format
-      const backendTask: BackendTask = {
+      const backendTask = {
         title: task.title,
         description: task.description,
         status: String(task.status),
         priority: String(task.priority),
-        assignedTo: task.assignedTo,
-        assigner: task.assigner,
-        reporter: task.reporter,
+        assignedTo: task.assignedTo?.id,
+        assigner: task.assigner?.id,
         dueDate: task.dueDate,
         completedDate: task.completedDate,
-        archived: task.archived,
-        approved: task.approved
+        approved: task.approved ?? true
       };
       
       console.log('Sending task creation request:', backendTask);
@@ -307,8 +243,8 @@ export const taskApi = {
           const axiosError = apiError as { 
             response?: { 
               status?: number, 
-              data?: any, 
-              headers?: any 
+              data?: unknown, 
+              headers?: unknown
             } 
           };
           console.error('API error details:', {

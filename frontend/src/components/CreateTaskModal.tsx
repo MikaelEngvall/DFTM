@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Task, TaskStatus, TaskPriority, taskApi } from '../services/api/taskApi';
+import { Task, TaskStatus, TaskPriority } from '../types/task';
 import { User } from '../types/user';
 import { userApi } from '../services/api/userApi';
+import { taskApi } from '../services/api/taskApi';
 import { useTranslation } from 'react-i18next';
 
 interface CreateTaskModalProps {
@@ -31,6 +32,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [userError, setUserError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   // Kontrollera om användaren är admin
   const isAdmin = userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN';
@@ -39,8 +41,19 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       fetchUsers();
+      fetchCurrentUser();
     }
-  }, [isOpen]);
+  }, [isOpen, currentUserId]);
+
+  // Hämta information om den inloggade användaren
+  const fetchCurrentUser = async () => {
+    try {
+      const user = await userApi.getUserById(currentUserId);
+      setCurrentUser(user);
+    } catch (err) {
+      console.error('Error fetching current user:', err);
+    }
+  };
 
   // Hämta aktiva användare
   const fetchUsers = async () => {
@@ -49,7 +62,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       setUserError(null);
       const allUsers = await userApi.getUsers();
       // Filtrera bort inaktiva användare
-      const activeUsers = allUsers.filter(user => user.isActive);
+      const activeUsers = allUsers.filter(user => user.active !== false);
       
       // Om användaren är admin, visa alla användare, annars bara sig själv
       if (isAdmin) {
@@ -98,16 +111,23 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       setIsLoading(true);
       setError(null);
       
+      // Hitta den tilldelade användaren
+      const assignedUser = users.find(user => user.id === assignedTo);
+      if (!assignedUser) {
+        setError('Kunde inte hitta vald användare');
+        setIsLoading(false);
+        return;
+      }
+      
       // Förbered uppgiftsobjektet
       const newTask = {
         title,
         description,
         status: TaskStatus.PENDING,
         priority,
-        assignedTo,
-        assigner: currentUserId,
+        assignedTo: assignedUser,
+        assigner: currentUser || undefined,
         dueDate: `${selectedDate.toISOString().split('T')[0]}T12:00:00`, // Format: YYYY-MM-DDT12:00:00
-        archived: false,
         approved: true,
       };
       

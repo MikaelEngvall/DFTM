@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Task, TaskStatus, Comment, taskApi } from '../services/api/taskApi';
+import { Task, TaskStatus, TaskComment } from '../types/task';
+import { taskApi } from '../services/api/taskApi';
 import { useTranslation } from 'react-i18next';
 
 interface TaskDetailModalProps {
@@ -13,7 +14,7 @@ interface TaskDetailModalProps {
 export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddComment }: TaskDetailModalProps) => {
   const { t } = useTranslation();
   const [selectedStatus, setSelectedStatus] = useState<TaskStatus>(task.status);
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<TaskComment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -73,7 +74,9 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddCo
   };
 
   // Formatera datum på svenska
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return t('task.details.notSet');
+    
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('sv-SE', {
       year: 'numeric',
@@ -135,10 +138,10 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddCo
             <h2 className="text-2xl font-bold">{task.title}</h2>
             <div className="flex gap-2 mt-1">
               <span className={`text-xs px-2 py-1 rounded ${getPriorityColor(task.priority)}`}>
-                {task.priority}
+                {t(`task.priority.${task.priority.toLowerCase()}`)}
               </span>
               <span className={`text-xs px-2 py-1 rounded ${getStatusColor(task.status)}`}>
-                {task.status}
+                {t(`task.status.${task.status === 'IN_PROGRESS' ? 'inProgress' : task.status.toLowerCase()}`)}
               </span>
             </div>
           </div>
@@ -158,7 +161,7 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddCo
           <div className="mb-6 space-y-4">
             <div>
               <h3 className="text-lg font-semibold">{t('task.details.description')}</h3>
-              <p className="mt-1 whitespace-pre-line">{task.description}</p>
+              <p className="mt-1 whitespace-pre-line">{task.description || t('task.details.noDescription')}</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -183,6 +186,18 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddCo
                 <h4 className="text-sm font-medium text-muted-foreground">{t('task.details.updated')}</h4>
                 <p>{formatDate(task.updatedAt)}</p>
               </div>
+              
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground">{t('task.details.assignedTo')}</h4>
+                <p>{task.assignedTo ? `${task.assignedTo.firstName} ${task.assignedTo.lastName}` : t('task.unassigned')}</p>
+              </div>
+              
+              {task.assigner && (
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">{t('task.details.assigner')}</h4>
+                  <p>{`${task.assigner.firstName} ${task.assigner.lastName}`}</p>
+                </div>
+              )}
             </div>
           </div>
           
@@ -227,7 +242,7 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddCo
                   comments.map(comment => (
                     <div key={comment.id} className="bg-muted/30 p-3 rounded-md">
                       <div className="flex justify-between text-sm text-muted-foreground mb-1">
-                        <span>{comment.userName || 'Användare'}</span>
+                        <span>{comment.createdBy ? `${comment.createdBy.firstName} ${comment.createdBy.lastName}` : 'Användare'}</span>
                         <span>{formatDate(comment.createdAt)}</span>
                       </div>
                       <p>{comment.text}</p>
