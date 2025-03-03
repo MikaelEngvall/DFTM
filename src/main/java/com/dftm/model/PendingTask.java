@@ -28,6 +28,10 @@ public class PendingTask {
     private String apartment;
     private String description;
     
+    // Användarfält för tilldelning
+    private String assignedToUserId;
+    private String assignedByUserId;
+    
     // Översättningsfält
     private Language descriptionLanguage;
     @Builder.Default

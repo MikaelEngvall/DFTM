@@ -59,6 +59,34 @@ public class PendingTaskService {
         return pendingTaskRepository.save(pendingTask);
     }
     
+    /**
+     * Godkänner en väntande uppgift och uppdaterar tilldelningsinformation.
+     * 
+     * @param pendingTaskId ID för uppgiften som ska godkännas
+     * @param assignedToUserId ID för användaren som uppgiften tilldelas
+     * @param assignedByUserId ID för användaren som gör tilldelningen
+     * @param dueDate Förfallodatum för uppgiften (ISO-8601 format)
+     * @return Den uppdaterade väntande uppgiften
+     */
+    public PendingTask approvePendingTask(String pendingTaskId, String assignedToUserId, String assignedByUserId, String dueDate) {
+        PendingTask pendingTask = pendingTaskRepository.findById(pendingTaskId)
+                .orElseThrow(() -> new RuntimeException("Pending task not found"));
+
+        // Markera pending task som godkänd
+        pendingTask.setStatus("APPROVED");
+        
+        // Uppdatera tilldelningsinformation om den angetts
+        if (assignedToUserId != null && !assignedToUserId.isEmpty()) {
+            pendingTask.setAssignedToUserId(assignedToUserId);
+        }
+        
+        if (assignedByUserId != null && !assignedByUserId.isEmpty()) {
+            pendingTask.setAssignedByUserId(assignedByUserId);
+        }
+        
+        return pendingTaskRepository.save(pendingTask);
+    }
+    
     public PendingTask rejectPendingTask(String pendingTaskId) {
         PendingTask pendingTask = pendingTaskRepository.findById(pendingTaskId)
                 .orElseThrow(() -> new RuntimeException("Pending task not found"));

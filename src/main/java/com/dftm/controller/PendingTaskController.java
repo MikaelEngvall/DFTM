@@ -8,6 +8,8 @@ import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,11 +54,50 @@ public class PendingTaskController {
 
     @PatchMapping("/{id}/approve")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
-    public ResponseEntity<PendingTask> approvePendingTask(@PathVariable String id) {
-        log.debug("Approving pending task with id: {}", id);
+    public ResponseEntity<PendingTask> approvePendingTask(
+            @PathVariable String id,
+            @RequestParam(required = false) String assignedToUserId,
+            @RequestParam(required = false) String assignedByUserId,
+            @RequestParam(required = false) String dueDate) {
+        log.debug("Approving pending task with id: {}, assignedToUserId: {}, assignedByUserId: {}, dueDate: {}", 
+                 id, assignedToUserId, assignedByUserId, dueDate);
         
-        PendingTask approvedTask = pendingTaskService.approvePendingTask(id);
+        PendingTask approvedTask = pendingTaskService.approvePendingTask(id, assignedToUserId, assignedByUserId, dueDate);
         return ResponseEntity.ok(approvedTask);
+    }
+    
+    @PatchMapping("/{id}/assign")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
+    public ResponseEntity<PendingTask> assignPendingTask(
+            @PathVariable String id,
+            @RequestBody Map<String, String> assignMap) {
+        
+        String userId = assignMap.get("userId");
+        log.debug("PATCH request to assign pending task, ID: {}, to user: {}", id, userId);
+        
+        try {
+            Optional<PendingTask> taskOptional = pendingTaskRepository.findById(id);
+            
+            if (taskOptional.isPresent()) {
+                PendingTask task = taskOptional.get();
+                task.setAssignedToUserId(userId);
+                
+                // Använd aktuell användares ID som assignedByUserId
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                String assignerEmail = authentication.getName();
+                task.setAssignedByUserId(assignerEmail); // Här kan du behöva konvertera e-postadressen till ett användar-ID
+                
+                PendingTask updatedTask = pendingTaskRepository.save(task);
+                log.info("Successfully assigned pending task with ID: {} to user: {}", id, userId);
+                return ResponseEntity.ok(updatedTask);
+            } else {
+                log.warn("Pending task with ID {} not found for assignment", id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            log.error("Error assigning pending task with ID {} to user {}: {}", id, userId, e.getMessage(), e);
+            throw new RuntimeException("Failed to assign pending task: " + e.getMessage(), e);
+        }
     }
     
     @PatchMapping("/{id}/reject")
