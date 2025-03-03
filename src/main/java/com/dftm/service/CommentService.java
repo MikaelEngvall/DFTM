@@ -4,13 +4,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.dftm.model.Comment;
 import com.dftm.model.Language;
+import com.dftm.model.Task;
 import com.dftm.model.Translation;
+import com.dftm.model.User;
 import com.dftm.repository.CommentRepository;
 import com.dftm.repository.TaskRepository;
+import com.dftm.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,26 +26,39 @@ public class CommentService {
     private final TaskRepository taskRepository;
     private final EmailService emailService;
     private final TranslationService translationService;
+    private final UserRepository userRepository;
 
     public Comment addComment(String taskId, Comment comment) {
-        var task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = authentication.getName();
         
+        // Hämta användaren för att få namn
+        User user = userRepository.findByEmail(currentUserEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Använd användarens förnamn
+        String displayName = user.getFirstName();
+        
+        comment.setUserId(currentUserEmail);
+        comment.setUserName(displayName);
         comment.setTaskId(taskId);
         comment.setCreatedAt(LocalDateTime.now());
         comment.setUpdatedAt(LocalDateTime.now());
         
         // Skapa översättning för kommentartexten
-        Translation textTranslation = translationService.createTranslation(
-            comment.getText(), 
-            comment.getOriginalLanguage()
-        );
-        comment.setTextTranslationId(textTranslation.getId());
+        if (comment.getTextTranslationId() == null && comment.getText() != null) {
+            Translation translation = translationService.createTranslation(
+                comment.getText(), 
+                comment.getOriginalLanguage()
+            );
+            comment.setTextTranslationId(translation.getId());
+        }
         
-        var savedComment = commentRepository.save(comment);
+        Comment savedComment = commentRepository.save(comment);
         
-        // Notify assignee
-        if (task.getAssignedTo() != null) {
+        // Notify assignee - behöver hämta Task separat eftersom Comment inte har Task-objekt
+        Task task = taskRepository.findById(taskId).orElse(null);
+        if (task != null && task.getAssignedTo() != null) {
             emailService.sendTaskNotification(
                 task.getAssignedTo(),
                 "New comment on task: " + task.getTitle(),
@@ -82,6 +100,7 @@ public class CommentService {
         translatedComment.setText(translatedText);
         translatedComment.setTextTranslationId(comment.getTextTranslationId());
         translatedComment.setUserId(comment.getUserId());
+        translatedComment.setUserName(comment.getUserName());
         translatedComment.setCreatedAt(comment.getCreatedAt());
         translatedComment.setUpdatedAt(comment.getUpdatedAt());
         

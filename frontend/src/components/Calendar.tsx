@@ -19,6 +19,8 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
+  const [selectedTaskComments, setSelectedTaskComments] = useState<Comment[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Kontrollera om användaren är admin (ROLE_ADMIN eller ROLE_SUPERADMIN)
   const isAdmin = userRole && (userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN');
@@ -130,24 +132,21 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
   // Funktion för att lägga till kommentar
   const handleAddComment = async (taskId: string, commentText: string) => {
     try {
+      setIsLoading(true);
       await taskApi.addComment(taskId, commentText);
       
-      // Hämta den uppdaterade uppgiften med nya kommentarer
-      const updatedTask = await taskApi.getTaskById(taskId);
+      // Uppdatera kommentarslistan efter att kommentaren lagts till
+      const updatedComments = await taskApi.getComments(taskId);
+      setSelectedTaskComments(updatedComments);
       
-      // Uppdatera uppgiftslistan
-      setTasks(prevTasks => 
-        prevTasks.map(task => 
-          task.id === updatedTask.id ? updatedTask : task
-        )
-      );
-      
-      // Uppdatera den valda uppgiften om den är öppen
-      if (selectedTask && selectedTask.id === updatedTask.id) {
-        setSelectedTask(updatedTask);
-      }
-    } catch (err) {
-      console.error('Error adding comment:', err);
+      console.log('Comment successfully added and comments refreshed');
+    } catch (error) {
+      console.error('Failed to add comment:', error);
+      // Visa ett felmeddelande till användaren
+      setErrorMessage('Kunde inte lägga till kommentar. Försök igen senare.');
+      setTimeout(() => setErrorMessage(''), 5000); // Rensa felmeddelande efter 5 sekunder
+    } finally {
+      setIsLoading(false);
     }
   };
 

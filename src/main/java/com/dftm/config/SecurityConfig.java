@@ -48,6 +48,7 @@ public class SecurityConfig {
                 auth.requestMatchers("/api/v1/tasks/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERADMIN", "ROLE_USER");
                 auth.requestMatchers("/api/v1/health").permitAll();
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+                auth.requestMatchers("/api/v1/tasks/*/comments").hasAnyAuthority("ROLE_SUPERADMIN", "ROLE_ADMIN", "ROLE_USER");
                 auth.anyRequest().authenticated();
             })
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

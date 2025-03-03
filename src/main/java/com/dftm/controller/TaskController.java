@@ -300,43 +300,10 @@ public class TaskController {
         }
     }
 
-    @GetMapping("/{taskId}/comments")
-    public ResponseEntity<List<Comment>> getComments(@PathVariable String taskId) {
-        log.debug("GET request to fetch comments for task: {}", taskId);
-        
-        // Alla roller kan hämta kommentarer för alla uppgifter
-        List<Comment> comments = commentRepository.findByTaskId(taskId);
-        return ResponseEntity.ok(comments);
-    }
-
-    @PostMapping("/{taskId}/comments")
-    public ResponseEntity<Comment> addComment(
-            @PathVariable String taskId,
-            @RequestBody Map<String, String> commentMap) {
-        
-        // Alla roller kan lägga till kommentarer på alla uppgifter
-        String text = commentMap.get("text");
-        if (text == null || text.trim().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userId = auth.getName();
-
-        Comment comment = Comment.createNew(taskId, text.trim(), userId);
-        Comment savedComment = commentRepository.save(comment);
-
-        return ResponseEntity.ok(savedComment);
-    }
-
-    @DeleteMapping("/{taskId}/comments/{commentId}")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_SUPERADMIN')")
-    public ResponseEntity<Void> deleteComment(
-            @PathVariable String taskId,
-            @PathVariable String commentId) {
-        
-        // Endast admin och superadmin kan ta bort kommentarer
-        commentRepository.deleteById(commentId);
-        return ResponseEntity.ok().build();
+    @GetMapping("/{taskId}/task-comments")
+    @PreAuthorize("hasAnyRole('ROLE_SUPERADMIN', 'ROLE_ADMIN', 'ROLE_USER')")
+    public ResponseEntity<?> getTaskComments(@PathVariable String taskId, 
+                                            @RequestParam(defaultValue = "EN") String language) {
+        // Implementera logik för att hämta kommentarer
     }
 } 

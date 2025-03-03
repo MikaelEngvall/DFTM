@@ -1,7 +1,9 @@
 package com.dftm.controller;
 
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,19 +29,34 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_SUPERADMIN', 'ROLE_ADMIN', 'ROLE_USER')")
     public ResponseEntity<Comment> addComment(
             @PathVariable String taskId,
-            @RequestBody Comment comment
+            @RequestBody Map<String, String> payload
     ) {
-        return ResponseEntity.ok(commentService.addComment(taskId, comment));
+        try {
+            // Extrahera text från payload
+            String text = payload.get("text");
+            if (text == null || text.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            // Skapa en ny kommentar
+            Comment comment = Comment.createNew(taskId, text, null); // userId sätts i service
+            
+            Comment savedComment = commentService.addComment(taskId, comment);
+            return ResponseEntity.ok(savedComment);
+        } catch (Exception e) {
+            log.error("Error adding comment: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN', 'ROLE_SUPERADMIN')")
     public ResponseEntity<List<Comment>> getComments(
             @PathVariable String taskId,
-            @RequestParam(required = false, defaultValue = "SV") Language language
+            @RequestParam(defaultValue = "EN") Language language
     ) {
         return ResponseEntity.ok(commentService.getTranslatedComments(taskId, language));
     }

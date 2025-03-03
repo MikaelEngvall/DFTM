@@ -60,6 +60,7 @@ export interface Comment {
   taskId: string;
   text: string;
   userId: string;
+  userName: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -214,24 +215,48 @@ export const taskApi = {
     }
   },
 
-  // Lägg till en kommentar till en uppgift
-  addComment: async (taskId: string, text: string): Promise<Task> => {
+  // Hämta kommentarer för en uppgift
+  getComments: async (taskId: string): Promise<Comment[]> => {
     try {
-      const response = await axiosInstance.post(`/tasks/${taskId}/comments`, { text });
+      console.log(`Fetching comments for task ${taskId}`);
+      
+      // Använd standardspråket (SV) om inget annat anges
+      const response = await axiosInstance.get(`/tasks/${taskId}/comments?language=SV`);
+      console.log('Comments fetched successfully:', response.data);
       return response.data;
     } catch (error) {
-      console.error(`Error adding comment to task ${taskId}:`, error);
+      console.error(`Error fetching comments for task ${taskId}:`, error);
       throw error;
     }
   },
 
-  // Hämta kommentarer för en uppgift
-  getComments: async (taskId: string): Promise<Comment[]> => {
+  // Lägg till en kommentar till en uppgift
+  addComment: async (taskId: string, text: string): Promise<Comment> => {
     try {
-      const response = await axiosInstance.get(`/tasks/${taskId}/comments`);
+      console.log(`Attempting to add comment to task ${taskId}, text: ${text}`);
+      
+      // Hämta CSRF-token från cookie om den finns
+      const csrfCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('XSRF-TOKEN='));
+      
+      const csrfToken = csrfCookie ? csrfCookie.split('=')[1] : '';
+      
+      // Konfigurera headers med CSRF-token
+      const headers: Record<string, string> = {};
+      if (csrfToken) {
+        headers['X-XSRF-TOKEN'] = csrfToken;
+      }
+      
+      const response = await axiosInstance.post(
+        `/tasks/${taskId}/comments`, 
+        { text }, 
+        { headers }
+      );
+      console.log('Comment added successfully:', response.data);
       return response.data;
     } catch (error) {
-      console.error(`Error fetching comments for task ${taskId}:`, error);
+      console.error(`Error adding comment to task ${taskId}:`, error);
       throw error;
     }
   },
