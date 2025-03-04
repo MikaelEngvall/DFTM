@@ -12,6 +12,11 @@ export const axiosInstance = axios.create({
 // Interceptor för att lägga till JWT-token till varje utgående förfrågan
 axiosInstance.interceptors.request.use(
   (config) => {
+    // Skippa token för auth-relaterade endpoints
+    if (config.url?.includes('/auth/authenticate') || config.url?.includes('/auth/register')) {
+      return config;
+    }
+
     const token = localStorage.getItem('token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;

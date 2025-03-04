@@ -37,18 +37,19 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> {
-                auth.requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register").permitAll();
-                auth.requestMatchers("/api/v1/admin/**").permitAll();
+                // Tillåt alla auth-relaterade endpoints utan autentisering
+                auth.requestMatchers("/api/v1/auth/**").permitAll();
+                auth.requestMatchers("/api/v1/health").permitAll();
+                auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                 
-                // Återställ normal säkerhetskonfiguration
-                auth.requestMatchers("/api/v1/auth/me").authenticated();
+                // Skyddade endpoints som kräver autentisering och specifika roller
                 auth.requestMatchers("/api/v1/users").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERADMIN", "ROLE_USER");
                 auth.requestMatchers("/api/v1/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERADMIN", "ROLE_USER");
                 auth.requestMatchers(HttpMethod.POST, "/api/v1/users").hasAuthority("ROLE_SUPERADMIN");
                 auth.requestMatchers("/api/v1/tasks/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERADMIN", "ROLE_USER");
-                auth.requestMatchers("/api/v1/health").permitAll();
-                auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                 auth.requestMatchers("/api/v1/tasks/*/comments").hasAnyAuthority("ROLE_SUPERADMIN", "ROLE_ADMIN", "ROLE_USER");
+                
+                // Alla andra requests kräver autentisering
                 auth.anyRequest().authenticated();
             })
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
