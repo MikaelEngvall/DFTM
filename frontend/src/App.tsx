@@ -34,11 +34,9 @@ function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const viewFromHash = getViewFromHash();
-      console.log("URL hash changed, new view:", viewFromHash);
       
       // Om vyn kräver autentisering och användaren inte är inloggad, stannar vi på landing
       if (requiresAuthentication(viewFromHash) && !localStorage.getItem('token')) {
-        console.log("View requires authentication but no token found");
         if (window.location.hash !== '#landing') {
           window.location.hash = 'landing';
         }
@@ -53,7 +51,6 @@ function App() {
     
     // Initialisera vid första laddningen
     const initialView = getViewFromHash();
-    console.log("Initial hash view:", initialView);
     
     const token = localStorage.getItem('token');
     if (token) {
@@ -80,17 +77,14 @@ function App() {
   // Hämta användarinformation
   const fetchUserData = async () => {
     try {
-      console.log("Hämtar användardata...");
       const user = await userApi.getLoggedInUser();
       if (user) {
-        console.log("Användare inloggad:", user.firstName, user.lastName, "med roll:", user.role);
         setUserId(user.id);
         setUserName(user.firstName);
         setUserRole(user.role);
 
         // Ställ in språk baserat på användarens preferredLanguage
         if (user.preferredLanguage) {
-          console.log(`Setting language based on user preference: ${user.preferredLanguage}`);
           // Importera i18n direkt
           const i18n = (await import('./i18n')).default;
           
@@ -104,7 +98,6 @@ function App() {
           
           const frontendLangCode = languageMapping[user.preferredLanguage] || 'en';
           i18n.changeLanguage(frontendLangCode);
-          console.log(`Language changed to: ${frontendLangCode}`);
           // Spara även i localStorage så att språket bevaras
           localStorage.setItem('language', frontendLangCode);
         }
@@ -117,7 +110,6 @@ function App() {
         
         return true; // Indikerar framgångsrik autentisering
       } else {
-        console.log("Ingen användarinformation hittad, användaren är inte inloggad");
         // Om användaren inte är inloggad eller token är ogiltig
         setUserName(undefined);
         setUserId('');
@@ -131,8 +123,7 @@ function App() {
         
         return false;
       }
-    } catch (err) {
-      console.error('Error fetching user data:', err);
+    } catch {
       // Vid fel, rensa användardata
       setUserName(undefined);
       setUserId('');
@@ -173,11 +164,9 @@ function App() {
 
   // Rendera rätt innehåll baserat på aktuell vy
   const renderContent = () => {
-    console.log("Rendering view:", currentView, "with user role:", userRole);
     
     // Om vi inte har ett användarID för vyer som kräver inloggning, visa landningssidan
     if (!userId && requiresAuthentication(currentView)) {
-      console.log("Missing userId for protected view, redirecting to landing");
       // Sätt tillbaka tillståndet till landing utan delay
       window.location.hash = 'landing';
       return (
@@ -200,7 +189,6 @@ function App() {
         if (userRole === 'ROLE_ADMIN' || userRole === 'ROLE_SUPERADMIN') {
           return <UserManagementPage />;
         } else {
-          console.log("Unauthorized access to users page, redirecting to calendar");
           // Sätt tillbaka tillståndet till calendar utan delay
           window.location.hash = 'calendar';
           return (
@@ -215,7 +203,6 @@ function App() {
         if (canManageTasks()) {
           return <PendingTasksManager />;
         } else {
-          console.log("Unauthorized access to pending tasks page, redirecting to calendar");
           // Sätt tillbaka tillståndet till calendar utan delay
           window.location.hash = 'calendar';
           return (
