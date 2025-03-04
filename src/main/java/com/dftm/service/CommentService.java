@@ -1,11 +1,9 @@
 package com.dftm.service;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.dftm.model.Comment;
@@ -18,52 +16,61 @@ import com.dftm.repository.TaskRepository;
 import com.dftm.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CommentService {
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
-    private final EmailService emailService;
-    private final TranslationService translationService;
     private final UserRepository userRepository;
+    private final TranslationService translationService;
+    private final UserService userService;
+    private final EmailService emailService;
 
-    public Comment addComment(String taskId, Comment comment) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserEmail = authentication.getName();
+    public Comment addComment(String taskId, String text) {
+        User currentUser = userService.getCurrentUser();
         
-        // Hämta användaren för att få namn
-        User user = userRepository.findByEmail(currentUserEmail)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-        
-        // Använd användarens förnamn
-        String displayName = user.getFirstName();
-        
-        comment.setUserId(currentUserEmail);
-        comment.setUserName(displayName);
-        comment.setTaskId(taskId);
-        comment.setCreatedAt(LocalDateTime.now());
-        comment.setUpdatedAt(LocalDateTime.now());
-        
-        // Skapa översättning för kommentartexten
-        if (comment.getTextTranslationId() == null && comment.getText() != null) {
-            Translation translation = translationService.createTranslation(
-                comment.getText(), 
-                comment.getOriginalLanguage()
-            );
-            comment.setTextTranslationId(translation.getId());
+        if (currentUser == null) {
+            throw new IllegalStateException("Användare måste vara inloggad för att lägga till kommentar");
         }
         
+        Optional<Task> taskOpt = taskRepository.findById(taskId);
+        
+        if (taskOpt.isEmpty()) {
+            throw new IllegalArgumentException("Uppgift med id " + taskId + " hittades inte");
+        }
+        
+        // Skapa en ny kommentar
+        Comment comment = Comment.createNew(
+            taskId, 
+            text, 
+            currentUser.getId(), 
+            currentUser.getFirstName() + " " + currentUser.getLastName()
+        );
+        
+        // Detektera språk (kommentaren behåller originalspråket)
+        Language detectedLanguage = Language.SV; // Standardvärde
+        
+        // Översätt kommentaren till alla språk och spara översättningarna
+        Translation translation = translationService.translateAndSave(text, detectedLanguage);
+        
+        // Koppla översättningens ID till kommentaren
+        comment.setTextTranslationId(translation.getId());
+        comment.setOriginalLanguage(detectedLanguage);
+        
+        // Spara kommentaren
         Comment savedComment = commentRepository.save(comment);
         
-        // Notify assignee - behöver hämta Task separat eftersom Comment inte har Task-objekt
-        Task task = taskRepository.findById(taskId).orElse(null);
-        if (task != null && task.getAssignedTo() != null) {
-            emailService.sendTaskNotification(
-                task.getAssignedTo(),
-                "New comment on task: " + task.getTitle(),
-                "A new comment has been added to task: " + task.getTitle()
-            );
+        // Skicka e-postnotifikation till uppgiftens ansvarige om det inte är samma person
+        Task task = taskOpt.get();
+        if (task.getAssignedTo() != null && !task.getAssignedTo().equals(currentUser.getId())) {
+            Optional<User> assigneeOpt = userRepository.findById(task.getAssignedTo());
+            if (assigneeOpt.isPresent()) {
+                User assignee = assigneeOpt.get();
+                emailService.sendCommentNotification(assignee.getEmail(), task.getTitle(), comment.getText());
+            }
         }
         
         return savedComment;
@@ -75,35 +82,34 @@ public class CommentService {
 
     public List<Comment> getTranslatedComments(String taskId, Language language) {
         List<Comment> comments = getCommentsByTaskId(taskId);
+        List<Comment> translatedComments = new ArrayList<>();
         
-        return comments.stream()
-            .map(comment -> translateComment(comment, language))
-            .collect(Collectors.toList());
-    }
-
-    private Comment translateComment(Comment comment, Language language) {
-        // Om språket är samma som originalspråket, returnera kommentaren som den är
-        if (language == comment.getOriginalLanguage()) {
-            return comment;
+        for (Comment comment : comments) {
+            // Skapa en kopia av kommentaren för att inte ändra originalet i databasen
+            Comment translatedComment = new Comment();
+            // Kopiera alla fält från originalkommentaren
+            translatedComment.setId(comment.getId());
+            translatedComment.setTaskId(comment.getTaskId());
+            translatedComment.setUserId(comment.getUserId());
+            translatedComment.setUserName(comment.getUserName());
+            translatedComment.setCreatedAt(comment.getCreatedAt());
+            translatedComment.setUpdatedAt(comment.getUpdatedAt());
+            translatedComment.setOriginalLanguage(comment.getOriginalLanguage());
+            
+            // Hämta översättningen om det finns en koppling till Translation
+            if (comment.getTextTranslationId() != null && !comment.getTextTranslationId().isEmpty()) {
+                // Använd TranslationService för att hämta översättningen
+                String translatedText = translationService.getTranslatedText(
+                    comment.getTextTranslationId(), language);
+                translatedComment.setText(translatedText);
+            } else {
+                // Om ingen översättning finns, använd originaltext
+                translatedComment.setText(comment.getText());
+            }
+            
+            translatedComments.add(translatedComment);
         }
         
-        // Hämta översättning
-        String translatedText = translationService.getTranslatedText(
-            comment.getTextTranslationId(), 
-            language
-        );
-        
-        // Skapa en kopia av kommentaren med översatt text
-        Comment translatedComment = new Comment();
-        translatedComment.setId(comment.getId());
-        translatedComment.setTaskId(comment.getTaskId());
-        translatedComment.setText(translatedText);
-        translatedComment.setTextTranslationId(comment.getTextTranslationId());
-        translatedComment.setUserId(comment.getUserId());
-        translatedComment.setUserName(comment.getUserName());
-        translatedComment.setCreatedAt(comment.getCreatedAt());
-        translatedComment.setUpdatedAt(comment.getUpdatedAt());
-        
-        return translatedComment;
+        return translatedComments;
     }
 } 

@@ -30,4 +30,21 @@ public class EmailService {
             throw new RuntimeException("Could not send email", e);
         }
     }
+    
+    /**
+     * Skickar en e-postnotifikation om en ny kommentar
+     * 
+     * @param to E-postadressen till mottagaren
+     * @param taskTitle Uppgiftens titel
+     * @param commentText Kommentarens text
+     */
+    public void sendCommentNotification(String to, String taskTitle, String commentText) {
+        String subject = "Ny kommentar på uppgift: " + taskTitle;
+        String content = "<h2>Ny kommentar har lagts till på din uppgift</h2>" 
+                + "<p><strong>Uppgift:</strong> " + taskTitle + "</p>"
+                + "<p><strong>Kommentar:</strong> " + commentText + "</p>"
+                + "<p>Logga in i systemet för att se mer information.</p>";
+        
+        sendTaskNotification(to, subject, content);
+    }
 } 

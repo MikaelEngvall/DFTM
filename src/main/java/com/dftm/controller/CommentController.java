@@ -3,8 +3,6 @@ package com.dftm.controller;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,36 +26,44 @@ import lombok.extern.slf4j.Slf4j;
 public class CommentController {
     private final CommentService commentService;
 
+    /**
+     * Lägger till en kommentar för en specifik uppgift
+     * 
+     * @param taskId ID för uppgiften som kommentaren gäller
+     * @param requestPayload Map som innehåller texten för kommentaren
+     * @return Den skapade kommentaren
+     */
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_SUPERADMIN', 'ROLE_ADMIN', 'ROLE_USER')")
-    public ResponseEntity<Comment> addComment(
-            @PathVariable String taskId,
-            @RequestBody Map<String, String> payload
-    ) {
-        try {
-            // Extrahera text från payload
-            String text = payload.get("text");
-            if (text == null || text.isEmpty()) {
-                return ResponseEntity.badRequest().build();
-            }
-            
-            // Skapa en ny kommentar
-            Comment comment = Comment.createNew(taskId, text, null); // userId sätts i service
-            
-            Comment savedComment = commentService.addComment(taskId, comment);
-            return ResponseEntity.ok(savedComment);
-        } catch (Exception e) {
-            log.error("Error adding comment: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN', 'ROLE_SUPERADMIN')")
+    public Comment addComment(@PathVariable String taskId, @RequestBody Map<String, String> requestPayload) {
+        String commentText = requestPayload.get("text");
+        if (commentText == null || commentText.trim().isEmpty()) {
+            throw new IllegalArgumentException("Comment text cannot be empty");
         }
+        
+        return commentService.addComment(taskId, commentText);
     }
-
+    
+    /**
+     * Hämtar alla kommentarer för en specifik uppgift
+     * 
+     * @param taskId ID för uppgiften
+     * @param language Språket som kommentarerna ska översättas till
+     * @return Lista med kommentarer
+     */
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN', 'ROLE_SUPERADMIN')")
-    public ResponseEntity<List<Comment>> getComments(
+    public List<Comment> getComments(
             @PathVariable String taskId,
-            @RequestParam(defaultValue = "EN") Language language
-    ) {
-        return ResponseEntity.ok(commentService.getTranslatedComments(taskId, language));
+            @RequestParam(required = false, defaultValue = "SV") String language) {
+        
+        Language lang;
+        try {
+            lang = Language.valueOf(language);
+        } catch (IllegalArgumentException e) {
+            lang = Language.SV; // Default till svenska om ogiltig språkkod
+        }
+        
+        return commentService.getTranslatedComments(taskId, lang);
     }
 } 

@@ -28,6 +28,23 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Hämtar den aktuella inloggade användaren från säkerhetskontexten
+     * 
+     * @return Den inloggade användaren eller null om ingen användare är inloggad
+     */
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || 
+            authentication.getPrincipal().equals("anonymousUser")) {
+            return null;
+        }
+        
+        String userEmail = authentication.getName();
+        return userRepository.findByEmail(userEmail)
+                .orElse(null);
+    }
+
     public List<User> getAllUsers() {
         log.debug("Fetching all users");
         return userRepository.findAll();

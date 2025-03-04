@@ -48,6 +48,9 @@ public class SecurityConfig {
                 auth.requestMatchers(HttpMethod.POST, "/api/v1/users").hasAuthority("ROLE_SUPERADMIN");
                 auth.requestMatchers("/api/v1/tasks/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_SUPERADMIN", "ROLE_USER");
                 auth.requestMatchers("/api/v1/tasks/*/comments").hasAnyAuthority("ROLE_SUPERADMIN", "ROLE_ADMIN", "ROLE_USER");
+                // Lägg till frontend-URL-format
+                auth.requestMatchers("/tasks/**").hasAnyAuthority("ROLE_SUPERADMIN", "ROLE_ADMIN", "ROLE_USER");
+                auth.requestMatchers("/tasks/*/comments").hasAnyAuthority("ROLE_SUPERADMIN", "ROLE_ADMIN", "ROLE_USER");
                 
                 // Alla andra requests kräver autentisering
                 auth.anyRequest().authenticated();
