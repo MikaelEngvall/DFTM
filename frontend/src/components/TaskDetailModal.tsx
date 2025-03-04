@@ -254,7 +254,7 @@ export const TaskDetailModal = ({ isOpen, onClose, task, onStatusUpdate, onAddCo
                   comments.map(comment => (
                     <div key={comment.id} className="bg-muted/30 p-3 rounded-md">
                       <div className="flex justify-between text-sm text-muted-foreground mb-1">
-                        <span>{comment.createdBy ? `${comment.createdBy.firstName} ${comment.createdBy.lastName}` : 'Användare'}</span>
+                        <span>{comment.createdBy ? `${comment.createdBy.firstName} ${comment.createdBy.lastName}` : t('task.details.unknownUser')}</span>
                         <span>{formatDate(comment.createdAt)}</span>
                       </div>
                       <p>{comment.text}</p>

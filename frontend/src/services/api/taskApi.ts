@@ -3,8 +3,26 @@ import { axiosInstance } from './axiosConfig';
 import { Task, TaskStatus, TaskPriority, TaskComment, TaskDescription } from '../../types/task';
 import { PendingTask } from '../../types/pendingTask';
 
+// Definierar en typ för backend task data
+interface BackendTaskData {
+  id: string;
+  title: string;
+  description?: string;
+  descriptionTranslations?: Record<string, string>;
+  status: string;
+  priority: string;
+  dueDate?: string;
+  completedDate?: string;
+  createdAt: string;
+  updatedAt: string;
+  assignedTo?: any; // Användare från backend
+  assigner?: any; // Användare från backend
+  approved?: boolean;
+  [key: string]: any; // För andra potentiella fält
+}
+
 // Hjälpfunktion för att konvertera backend-format till frontend-format för översättningar
-const transformTask = (taskData: Record<string, any>): Task => {
+const transformTask = (taskData: BackendTaskData): Task => {
   if (taskData.descriptionTranslations) {
     console.log('Konverterar descriptionTranslations till TaskDescription-format', taskData.descriptionTranslations);
     
@@ -23,7 +41,7 @@ const transformTask = (taskData: Record<string, any>): Task => {
 };
 
 // Hjälpfunktion för att konvertera en lista med uppgifter
-const transformTasks = (tasksData: Record<string, any>[]): Task[] => {
+const transformTasks = (tasksData: BackendTaskData[]): Task[] => {
   return tasksData.map(task => transformTask(task));
 };
 
@@ -221,10 +239,44 @@ export const taskApi = {
     try {
       console.log(`Fetching comments for task ${taskId}`);
       
-      // Använd standardspråket (SV) om inget annat anges
-      const response = await axiosInstance.get(`/tasks/${taskId}/comments?language=SV`);
+      // Hämta användarens nuvarande språk från localStorage
+      const userLang = localStorage.getItem('language') || 'sv';
+      
+      // Konvertera frontend språkkod till backend språkkod
+      const langMapping: Record<string, string> = {
+        'sv': 'SV',
+        'en': 'EN',
+        'pl': 'PL',
+        'uk': 'UK'
+      };
+      
+      const backendLang = langMapping[userLang] || 'SV';
+      console.log(`Using language ${backendLang} for fetching comments`);
+      
+      // Interface för kommentarer från backend
+      interface BackendComment {
+        id: string;
+        text: string;
+        taskId: string;
+        createdAt: string;
+        userName?: string;
+        userId?: string;
+        // Andra potentiella fält
+      }
+      
+      const response = await axiosInstance.get(`/tasks/${taskId}/comments?language=${backendLang}`);
       console.log('Comments fetched successfully:', response.data);
-      return response.data;
+      
+      // Transformera kommentarer för att anpassa till frontendstrukturen
+      const transformedComments = response.data.map((comment: BackendComment) => ({
+        ...comment,
+        createdBy: comment.userName ? {
+          firstName: comment.userName,
+          lastName: ''
+        } : null
+      }));
+      
+      return transformedComments;
     } catch (error) {
       console.error(`Error fetching comments for task ${taskId}:`, error);
       throw error;

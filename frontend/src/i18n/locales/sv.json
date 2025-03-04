@@ -338,7 +338,8 @@
       "noComments": "Inga kommentarer ännu",
       "commentPlaceholder": "Skriv din kommentar här...",
       "addComment": "Lägg till kommentar",
-      "noDescription": "Ingen beskrivning tillgänglig"
+      "noDescription": "Ingen beskrivning tillgänglig",
+      "unknownUser": "Okänd användare"
     }
   },
   "pendingTasks": {

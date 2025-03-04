@@ -338,7 +338,8 @@
       "noComments": "No comments yet",
       "commentPlaceholder": "Write your comment here...",
       "addComment": "Add Comment",
-      "noDescription": "No description available"
+      "noDescription": "No description available",
+      "unknownUser": "Unknown user"
     }
   },
   "pendingTasks": {
