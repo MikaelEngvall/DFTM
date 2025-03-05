@@ -20,7 +20,6 @@ export const PendingTasksManager = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [showApproved, setShowApproved] = useState(false);
   const [showRejected, setShowRejected] = useState(false);
   
@@ -47,45 +46,26 @@ export const PendingTasksManager = () => {
   });
 
   const [isEditing, setIsEditing] = useState(false);
-  const [userRole, setUserRole] = useState<string>('');
 
   useEffect(() => {
     fetchPendingTasks();
     fetchUsers();
-    fetchUserRole();
   }, []);
 
   useEffect(() => {
-    if (searchQuery.trim() === '') {
-      // Filtrering baserad på status
-      const filtered = tasks.filter(task => {
-        // Visa godkända uppgifter ENDAST om showApproved är true
-        if (task.status === TaskStatus.APPROVED) {
-          return showApproved;
-        }
-        if (task.status === TaskStatus.REJECTED) {
-          return showRejected;
-        }
-        return true;
-      });
-      setFilteredTasks(filtered);
-    } else {
-      const lowerCaseQuery = searchQuery.toLowerCase();
-      const filtered = tasks.filter(task => {
-        // Först kontrollera status
-        if (task.status === TaskStatus.APPROVED && !showApproved) {
-          return false;
-        }
-        if (task.status === TaskStatus.REJECTED && !showRejected) {
-          return false;
-        }
-        // Sedan kontrollera söktexten
-        return task.title.toLowerCase().includes(lowerCaseQuery) || 
-          (task.description && task.description.toLowerCase().includes(lowerCaseQuery));
-      });
-      setFilteredTasks(filtered);
-    }
-  }, [searchQuery, tasks, showApproved, showRejected]);
+    // Filtrering baserad på status
+    const filtered = tasks.filter(task => {
+      // Visa godkända uppgifter ENDAST om showApproved är true
+      if (task.status === TaskStatus.APPROVED) {
+        return showApproved;
+      }
+      if (task.status === TaskStatus.REJECTED) {
+        return showRejected;
+      }
+      return true;
+    });
+    setFilteredTasks(filtered);
+  }, [tasks, showApproved, showRejected]);
 
   const fetchPendingTasks = async () => {
     setIsLoading(true);
@@ -143,17 +123,6 @@ export const PendingTasksManager = () => {
       setUsers(response);
     } catch (err) {
       console.error('Failed to fetch users:', err);
-    }
-  };
-
-  const fetchUserRole = async () => {
-    try {
-      const user = await userApi.getLoggedInUser();
-      if (user) {
-        setUserRole(user.role);
-      }
-    } catch (error) {
-      console.error('Kunde inte hämta användarinformation:', error);
     }
   };
 
@@ -596,16 +565,6 @@ export const PendingTasksManager = () => {
         </div>
       </div>
 
-      {/* Sökfält */}
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder={t('pendingTasks.search')}
-          className="w-full p-2 border rounded"
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-
       {/* Tabell */}
       <div className="bg-card rounded-lg shadow overflow-hidden">
         <table className="w-full">
@@ -615,7 +574,6 @@ export const PendingTasksManager = () => {
               <th className="px-4 py-2 text-left">{t('common.description')}</th>
               <th className="px-4 py-2 text-center">{t('common.status')}</th>
               <th className="px-4 py-2 text-center">{t('common.priority')}</th>
-              <th className="px-4 py-2 text-right">{t('common.assignedTo')}</th>
             </tr>
           </thead>
           <tbody>
@@ -634,9 +592,6 @@ export const PendingTasksManager = () => {
                 </td>
                 <td className="px-4 py-2 text-sm">
                   {renderPriorityBadge(task.priority)}
-                </td>
-                <td className="px-4 py-2 text-sm text-card-foreground">
-                  {task.assignedTo ? `${task.assignedTo.firstName} ${task.assignedTo.lastName}` : t('task.unassigned')}
                 </td>
               </tr>
             ))}
