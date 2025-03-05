@@ -109,7 +109,7 @@ public class UserService {
         if (request.getEmail() != null) {
             userToUpdate.setEmail(request.getEmail());
         }
-        if (request.getPassword() != null) {
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
             userToUpdate.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         if (request.getPhoneNumber() != null) {

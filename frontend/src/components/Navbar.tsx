@@ -50,7 +50,6 @@ export const Navbar = ({
     const savedLanguage = localStorage.getItem('language');
     if (savedLanguage) {
       i18n.changeLanguage(savedLanguage);
-      console.log('Språk återställt från localStorage:', savedLanguage);
     }
   }, []);
 
@@ -62,7 +61,6 @@ export const Navbar = ({
         if (user) {
           setUserFirstName(user.firstName);
           setUserRole(user.role);
-          console.log("Navbar received user role:", user.role);
         } else {
           // Användaren är inte inloggad eller token är ogiltig
           setUserFirstName(undefined);
@@ -102,7 +100,6 @@ export const Navbar = ({
         
         // Ställ in språk baserat på användarens preferredLanguage
         if (user.preferredLanguage) {
-          console.log(`Setting language based on user preference: ${user.preferredLanguage}`);
           // Mappning från backend språkkod till frontend språkkod
           const languageMapping: Record<string, string> = {
             'SV': 'sv',
@@ -115,13 +112,9 @@ export const Navbar = ({
           i18n.changeLanguage(frontendLangCode);
           // Spara även i localStorage så att språket bevaras
           localStorage.setItem('language', frontendLangCode);
-          console.log(`Language changed to: ${frontendLangCode} and saved in localStorage`);
         }
       }
       setIsLoginModalOpen(false);
-      
-      // Ladda om sidan för att säkerställa att alla komponenter uppdateras korrekt
-      console.log('Inloggning lyckades, laddar om sidan för att uppdatera applikationen...');
       window.location.reload();
     } catch (err) {
       console.error('Login error:', err);
@@ -137,7 +130,6 @@ export const Navbar = ({
   };
 
   const handleNavigate = (view: string) => {
-    console.log(`Navigating to: ${view}`);
     // Anropa navigeringsfunktionen från props
     if (onNavigate) {
       onNavigate(view);
@@ -202,7 +194,6 @@ export const Navbar = ({
 
   // Uppdatera för att hantera språkbyte och spara i localStorage
   const handleLanguageChange = (langCode: string) => {
-    console.log(`Changing language to: ${langCode}`);
     i18n.changeLanguage(langCode);
     localStorage.setItem('language', langCode);
   };

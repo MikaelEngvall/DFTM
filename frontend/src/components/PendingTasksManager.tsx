@@ -46,7 +46,6 @@ export const PendingTasksManager = () => {
     message: ''
   });
 
-  const [pendingTask, setPendingTask] = useState<PendingTask>({} as PendingTask);
   const [isEditing, setIsEditing] = useState(false);
   const [userRole, setUserRole] = useState<string>('');
 
@@ -92,13 +91,11 @@ export const PendingTasksManager = () => {
     setIsLoading(true);
     
     try {
-      console.log('Hämtar väntande uppgifter...');
+
       const pendingTasks = await taskApi.getPendingTasks();
-      console.log('Hämtade pending tasks:', pendingTasks);
       
       // Konvertera till Task-format för UI-kompatibilitet
       const tasksList = pendingTasksToTasks(pendingTasks);
-      console.log('Konverterade till tasks-format:', tasksList);
       
       // Ladda användarinformation för assignedToUserId om det finns
       const tasksWithUserInfo = await Promise.all(tasksList.map(async (task) => {
@@ -195,10 +192,8 @@ export const PendingTasksManager = () => {
 
     taskApi.getPendingTaskById(task.id)
       .then(fetchedTask => {
-        console.log('Hämtad uppgift:', fetchedTask);
         // Hantera lokaliserad beskrivning baserat på användarens språk
-        setPendingTask(fetchedTask);
-        setSelectedPendingTask(task.id);
+        setSelectedTask(task);
         setSelectedUserId(fetchedTask.assignedToUserId || '');
         setIsEditing(false);
       })
@@ -384,16 +379,10 @@ export const PendingTasksManager = () => {
   const fetchSpecificPendingTask = async () => {
     try {
       setIsLoading(true);
-      console.log('Fetching specific pending task with ID 67bdb085b526ba5619e3b3d1');
       const task = await taskApi.getPendingTaskById('67bdb085b526ba5619e3b3d1');
-      console.log('Specific pending task response:', task);
+
       
       if (task) {
-        console.log('Task details:');
-        console.log('- ID:', task.id);
-        console.log('- Title:', task.title);
-        console.log('- AssignedToUserId:', task.assignedToUserId);
-        console.log('- Approved:', task.approved);
         
         // Konvertera och lägg till i listan
         const convertedTask = pendingTaskToTask(task);
@@ -570,7 +559,7 @@ export const PendingTasksManager = () => {
                 return true;
               });
               setFilteredTasks(filtered);
-              console.log('Toggle approved, new filtered tasks:', filtered);
+
             }}
             className={`px-4 py-2 rounded-md ${
               showApproved 
@@ -594,7 +583,7 @@ export const PendingTasksManager = () => {
                 return true;
               });
               setFilteredTasks(filtered);
-              console.log('Toggle rejected, new filtered tasks:', filtered);
+
             }}
             className={`px-4 py-2 rounded-md ${
               showRejected 

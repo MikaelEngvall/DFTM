@@ -40,11 +40,9 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
         
         // Admin/superadmin kan se alla uppgifter
         if (isAdmin) {
-          console.log("Admin user, fetching all tasks");
           userTasks = await taskApi.getAllTasks();
         } else {
           // Vanliga användare ser bara egna uppgifter
-          console.log("Regular user, fetching user tasks for ID:", userId);
           userTasks = await taskApi.getTasksByUser(userId);
         }
         
@@ -144,10 +142,7 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
           setSelectedTask(updatedTask);
         }
       } catch (apiErr) {
-        // Även om API-anropet misslyckas, behåller vi den optimistiska uppdateringen
-        // eftersom vi märkte att servern faktiskt uppdaterar statusen trots 403-felet
         console.error('API error updating task status, but UI remains updated:', apiErr);
-        // Här kunde vi återställa UI till ursprungligt tillstånd om vi ville, men vi väljer att behålla uppdateringen
       }
     } catch (err) {
       console.error('Error in handleStatusUpdate:', err);
@@ -159,8 +154,6 @@ export const Calendar = ({ userId, userRole }: CalendarProps) => {
     try {
       setIsLoading(true);
       await taskApi.addComment(taskId, commentText);
-      
-      console.log('Comment successfully added');
     } catch (error) {
       console.error('Failed to add comment:', error);
     } finally {

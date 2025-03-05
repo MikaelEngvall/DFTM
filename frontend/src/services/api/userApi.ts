@@ -63,7 +63,7 @@ export const userApi = {
       // Kontrollera först om token finns
       const token = localStorage.getItem('token');
       if (!token) {
-        console.log('Ingen token hittades, användaren är inte inloggad');
+
         return null;
       }
       
@@ -91,7 +91,6 @@ export const userApi = {
       if (error && typeof error === 'object' && 'response' in error) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 401 || axiosError.response?.status === 403) {
-          console.log('Token är ogiltig eller utgången, tar bort token');
           localStorage.removeItem('token');
           return null;
         }
@@ -127,13 +126,11 @@ export const userApi = {
     try {
       // Validera token för bättre felsökning
       const tokenStatus = userApi.validateToken();
-      console.log('Token status innan användaruppdatering:', tokenStatus);
       
       if (!tokenStatus.valid) {
         throw new Error(`Ogiltig token: ${tokenStatus.reason}`);
       }
       
-      console.log('Updating user with ID:', userData.id);
       const response = await axiosInstance.patch(`/users/${userData.id}`, userData);
       return response.data;
     } catch (error) {
@@ -220,7 +217,6 @@ export const userApi = {
     try {
       // Validera token för bättre felsökning
       const tokenStatus = userApi.validateToken();
-      console.log('Token status innan användarregistrering:', tokenStatus);
       
       if (!tokenStatus.valid) {
         throw new Error(`Ogiltig token: ${tokenStatus.reason}`);
@@ -238,7 +234,6 @@ export const userApi = {
         role = 'ROLE_USER';
       }
       
-      console.log('Skapar användare med roll:', role);
       
       // Mappa 'isActive' från frontend till 'active' i backend
       const backendUser = {
@@ -252,14 +247,11 @@ export const userApi = {
         preferredLanguage: user.preferredLanguage || 'SV'
       };
       
-      console.log('Sending user creation request:', backendUser);
-      
       // VIKTIGA ÄNDRINGAR: 
       // 1. Använd absolut URL istället för relativ
       // 2. Lägg till headers explicit
       // 3. Skicka data i rätt format
       const token = localStorage.getItem('token');
-      console.log(`Använder token (första 10 tecken): ${token ? token.substring(0, 10) : 'INGEN TOKEN!'}`);
       
       // Använd den absoluta URL:en istället för relativ URL
       const response = await axiosInstance.post('/users', backendUser, {
@@ -269,7 +261,6 @@ export const userApi = {
         }
       });
       
-      console.log('User creation response:', response);
       
       // Mappa 'active' från backend till 'isActive' i frontend
       return {
@@ -316,12 +307,10 @@ export const userApi = {
     password: string
   ): Promise<{ token: string }> => {
     try {
-      console.log('Attempting registration with:', { firstName, lastName, email });
       const response = await axiosInstance.post(
         '/auth/register',
         { firstName, lastName, email, password }
       );
-      console.log('Registration response:', response);
       const { token } = response.data;
       if (token) {
         localStorage.setItem('token', token);
@@ -338,13 +327,11 @@ export const userApi = {
   // Logga in
   login: async (email: string, password: string): Promise<void> => {
     try {
-      console.log('Attempting login with:', { email, password });
       
       // Normal inloggningsprocess
       const response = await axiosInstance.post('/auth/authenticate', 
         { email, password }
       );
-      console.log('Login response:', response);
       const { token } = response.data;
       if (token) {
         localStorage.setItem('token', token);
@@ -386,16 +373,7 @@ export const userApi = {
       const expiryTime = payload.exp * 1000; // JS använder millisekunder
       const currentTime = Date.now();
       const isExpired = currentTime > expiryTime;
-      
-      // Logga information om token
-      console.log('Token information:', {
-        subject: payload.sub,
-        role: payload.role,
-        issuedAt: new Date(payload.iat * 1000).toLocaleString(),
-        expires: new Date(expiryTime).toLocaleString(),
-        expired: isExpired,
-        timeLeft: isExpired ? 'Utgången' : `${Math.floor((expiryTime - currentTime) / 60000)} minuter kvar`
-      });
+   
       
       if (isExpired) {
         console.error('Token har gått ut');

@@ -19,12 +19,12 @@ export const UserManagementPage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        console.log('Hämtar användarlista...');
+
         const fetchedUsers = await userApi.getUsers();
         
         // Kontrollera om komponenten fortfarande är monterad innan uppdatering av state
         if (isMounted) {
-          console.log('Antal hämtade användare:', fetchedUsers.length);
+
           setUsers(fetchedUsers);
           setIsLoading(false);
         }
@@ -49,18 +49,18 @@ export const UserManagementPage = () => {
 
   const handleUserUpdate = async (updatedUser: User) => {
     try {
-      console.log('Uppdaterar användare:', updatedUser);
+
       const updated = await userApi.updateUser(updatedUser);
-      console.log('Uppdaterad användare från server:', updated);
+
       
       // Uppdatera användarlistan med korrekt data inklusive isActive
       setUsers(prevUsers => {
         const newUsers = prevUsers.map(user => (user.id === updated.id ? {
           ...updated,
-          // Säkerställ att isActive finns med
-          isActive: updated.isActive ?? user.isActive
+          // Säkerställ att active finns med
+          active: updated.active ?? user.active
         } : user));
-        console.log('Uppdaterade användarlistan:', newUsers);
+
         return newUsers;
       });
     } catch (err) {
@@ -73,10 +73,10 @@ export const UserManagementPage = () => {
     try {
       // Validera token innan vi försöker skapa användaren
       const tokenStatus = userApi.validateToken();
-      console.log('Token status innan försök att skapa användare:', tokenStatus);
+
       
       if (!tokenStatus.valid) {
-        console.error(`Kan inte skapa användare - ogiltigt token: ${tokenStatus.reason}`);
+
         // Här kan du implementera ett visuellt felmeddelande till användaren
         return;
       }

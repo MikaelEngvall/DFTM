@@ -40,9 +40,6 @@ export const getStatusColor = (status: string): string => {
  * @returns CSS-klassnamn för färgsättning
  */
 export const getStatusColorWithOpacity = (status: string): string => {
-  // Logga för att debugga statusvärdet
-  console.log(`getStatusColorWithOpacity anropad med status: '${status}', typeof: ${typeof status}`);
-  
   // Kontrollera att statusen är en sträng
   if (!status || typeof status !== 'string') {
     console.warn('Status är inte en giltig sträng:', status);
@@ -51,8 +48,8 @@ export const getStatusColorWithOpacity = (status: string): string => {
   
   // Hantera strängar från backend som kan vara lite annorlunda formaterade
   const normalizedStatus = status.toUpperCase().replace(/\s+/g, '_');
-  console.log('Normaliserad status:', normalizedStatus);
-  
+
+
   switch (normalizedStatus) {
     case TaskStatus.PENDING:
       return `bg-yellow-500 text-yellow-950`;

@@ -20,17 +20,7 @@ axiosInstance.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
-      console.log(`Debug - API call to ${config.url} with token: ${token.substring(0, 15)}...`, {
-        method: config.method,
-        url: config.url,
-        baseURL: config.baseURL,
-        fullURL: `${config.baseURL}${config.url}`,
-        headers: {
-          ...config.headers,
-          Authorization: `Bearer ${token.substring(0, 10)}...`
-        },
-        data: config.data ? JSON.stringify(config.data).substring(0, 100) + '...' : 'None'
-      });
+
     } else {
       console.warn(`Debug - API call to ${config.url} without token!`, {
         method: config.method,
@@ -66,11 +56,6 @@ axiosInstance.interceptors.response.use(
         if (typeof window !== 'undefined' && window.location.pathname !== '/') {
           // Men undvik redirect om vi redan försöker logga in
           const isAuthEndpoint = error.config.url.includes('/auth/');
-          if (!isAuthEndpoint) {
-            console.log('Omdirigerar till startsidan pga. ogiltiga användaruppgifter');
-            // Vi använder redirect direkt bara för svåra auth-fel
-            // För andra fall låter vi komponenterna själva hantera navigeringen
-          }
         }
       }
       
@@ -85,11 +70,6 @@ axiosInstance.interceptors.response.use(
           try {
             const [, payload] = token.split('.');
             const decodedPayload = JSON.parse(atob(payload));
-            console.log('Token info (delar av payload):', {
-              role: decodedPayload.role,
-              exp: new Date(decodedPayload.exp * 1000).toLocaleString(),
-              sub: decodedPayload.sub
-            });
           } catch (e) {
             console.error('Kunde inte avkoda token:', e);
           }

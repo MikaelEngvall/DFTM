@@ -24,7 +24,6 @@ interface BackendTaskData {
 // Hjälpfunktion för att konvertera backend-format till frontend-format för översättningar
 const transformTask = (taskData: BackendTaskData): Task => {
   if (taskData.descriptionTranslations) {
-    console.log('Konverterar descriptionTranslations till TaskDescription-format', taskData.descriptionTranslations);
     
     // Konvertera från backend-format till frontend-format
     taskData.description = {
@@ -82,12 +81,9 @@ export const taskApi = {
 
   // Uppdatera en uppgifts status
   updateTaskStatus: async (taskId: string, newStatus: TaskStatus): Promise<Task> => {
-    console.log(`Uppdaterar uppgift ${taskId} till status ${newStatus}`);
     
     try {
-      console.log(`Gör PATCH-anrop till: /tasks/${taskId}/status`);
       const response = await axiosInstance.patch(`/tasks/${taskId}/status`, { status: newStatus });
-      console.log('PATCH-anrop lyckades:', response.data);
       return transformTask(response.data);
     } catch (error) {
       console.error(`PATCH-anrop misslyckades: ${error instanceof Error ? error.message : 'Okänt fel'}`);
@@ -111,16 +107,13 @@ export const taskApi = {
       // Trots 403-fel, försök hämta uppgiften för att se om statusen uppdaterades
       if (taskId) {
         try {
-          console.log('Kontrollerar om uppgiften uppdaterades trots fel...');
+
           const refreshedTask = await axiosInstance.get(`/tasks/${taskId}`);
           
           if (refreshedTask.data && refreshedTask.data.status === newStatus) {
-            console.log('Uppgiften uppdaterades trots felmeddelandet!');
+
             return transformTask(refreshedTask.data);
-          } else {
-            console.log('Uppgiften uppdaterades inte. Nuvarande status:', 
-              refreshedTask.data ? refreshedTask.data.status : 'okänd');
-          }
+          } 
         } catch (refreshError) {
           console.error('Kunde inte kontrollera uppgiftens status:', refreshError);
         }
@@ -133,11 +126,8 @@ export const taskApi = {
   // Hämta väntande uppgifter
   getPendingTasks: async (): Promise<PendingTask[]> => {
     try {
-      console.log('Fetching pending tasks...');
       // Vi hämtar alla pending tasks utan filter för att säkerställa att vi får alla från kollektionen
       const response = await axiosInstance.get('/pending-tasks');
-      console.log('Raw pending tasks response:', response);
-      console.log('Pending tasks data:', JSON.stringify(response.data));
       return response.data;
     } catch (error) {
       console.error('Error fetching pending tasks:', error);
@@ -149,7 +139,6 @@ export const taskApi = {
   getPendingTaskById: async (id: string): Promise<PendingTask> => {
     try {
       const response = await axiosInstance.get(`/pending-tasks/${id}`);
-      console.log(`Pending task ${id} response:`, response.data);
       return response.data;
     } catch (error) {
       console.error(`Error fetching pending task ${id}:`, error);
@@ -237,7 +226,6 @@ export const taskApi = {
   // Hämta kommentarer för en uppgift
   getComments: async (taskId: string): Promise<TaskComment[]> => {
     try {
-      console.log(`Fetching comments for task ${taskId}`);
       
       // Hämta användarens nuvarande språk från localStorage
       const userLang = localStorage.getItem('language') || 'sv';
@@ -251,7 +239,6 @@ export const taskApi = {
       };
       
       const backendLang = langMapping[userLang] || 'SV';
-      console.log(`Using language ${backendLang} for fetching comments`);
       
       // Interface för kommentarer från backend
       interface BackendComment {
@@ -265,7 +252,6 @@ export const taskApi = {
       }
       
       const response = await axiosInstance.get(`/tasks/${taskId}/comments?language=${backendLang}`);
-      console.log('Comments fetched successfully:', response.data);
       
       // Transformera kommentarer för att anpassa till frontendstrukturen
       const transformedComments = response.data.map((comment: BackendComment) => ({
@@ -286,7 +272,6 @@ export const taskApi = {
   // Lägg till en kommentar till en uppgift
   addComment: async (taskId: string, text: string): Promise<TaskComment> => {
     try {
-      console.log(`Attempting to add comment to task ${taskId}, text: ${text}`);
       
       // Hämta CSRF-token från cookie om den finns
       const csrfCookie = document.cookie
@@ -306,7 +291,6 @@ export const taskApi = {
         { text }, 
         { headers }
       );
-      console.log('Comment added successfully:', response.data);
       return response.data;
     } catch (error) {
       console.error(`Error adding comment to task ${taskId}:`, error);
@@ -329,13 +313,10 @@ export const taskApi = {
         completedDate: task.completedDate,
         approved: task.approved ?? true
       };
-      
-      console.log('Sending task creation request:', backendTask);
-      console.log('Token exists:', !!localStorage.getItem('token'));
+
       
       try {
         const response = await axiosInstance.post('/tasks', backendTask);
-        console.log('Task creation response:', response);
         return transformTask(response.data);
       } catch (apiError: unknown) {
         if (apiError && typeof apiError === 'object' && 'response' in apiError) {

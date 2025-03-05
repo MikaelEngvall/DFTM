@@ -6,7 +6,6 @@ import { User } from '../types/user';
  * Konverterar PendingTask till Task-format för UI-kompatibilitet
  */
 export const pendingTaskToTask = (pendingTask: PendingTask): Task => {
-  console.log('Converting pendingTask to Task:', pendingTask);
   
   // Skapa minimala User-objekt från assignedToUserId och assignedByUserId
   const assignedToUser: User | undefined = pendingTask.assignedToUserId ? {
@@ -56,6 +55,5 @@ export const pendingTaskToTask = (pendingTask: PendingTask): Task => {
  * Konverterar en array av PendingTask till Task-format
  */
 export const pendingTasksToTasks = (pendingTasks: PendingTask[]): Task[] => {
-  console.log('Converting array of pendingTasks to Tasks:', pendingTasks);
   return pendingTasks.map(pendingTask => pendingTaskToTask(pendingTask));
 }; 
