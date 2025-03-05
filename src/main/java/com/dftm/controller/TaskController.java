@@ -295,7 +295,7 @@ public class TaskController {
                 .priority(TaskPriority.MEDIUM)
                 .createdAt(pendingTask.getReceived())
                 .updatedAt(LocalDateTime.now())
-                .assigned(false)
+                .assignedTo("")
                 .build();
 
             taskRepository.save(task);

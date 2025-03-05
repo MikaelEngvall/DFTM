@@ -5,6 +5,11 @@ import { User } from '../types/user';
 import { EditUserModal } from './EditUserModal';
 import { CreateUserModal } from './CreateUserModal';
 
+// Interface för bakåtkompatibilitet
+interface LegacyUser extends User {
+  isActive?: boolean;
+}
+
 interface UserManagementTableProps {
   users: User[];
   onUserUpdate: (user: User) => void;
@@ -36,8 +41,13 @@ export const UserManagementTable = ({ users, onUserUpdate, onUserCreate }: UserM
 
   // Filtrera användare baserat på aktiv status
   const filteredUsers = showInactive
-    ? users
-    : users.filter(user => user.isActive);
+    ? users  // Visa alla användare när "visa inaktiva" är markerat
+    : users.filter(user => {
+        // Stöd för både active och isActive
+        const userWithLegacy = user as LegacyUser;
+        const isUserActive = user.active !== undefined ? user.active : userWithLegacy.isActive;
+        return isUserActive;
+      });
 
   return (
     <div className="bg-card rounded-lg shadow-xl overflow-hidden">
@@ -88,7 +98,9 @@ export const UserManagementTable = ({ users, onUserUpdate, onUserCreate }: UserM
             {filteredUsers.map((user) => (
               <tr
                 key={user.id}
-                className={`hover:bg-muted/50 cursor-pointer ${!user.isActive ? 'opacity-50' : ''}`}
+                className={`hover:bg-muted/50 cursor-pointer ${
+                  !((user as LegacyUser).active !== undefined ? (user as LegacyUser).active : (user as LegacyUser).isActive) ? 'opacity-50' : ''
+                }`}
                 onClick={() => handleEditUser(user)}
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-card-foreground">{user.firstName}</td>

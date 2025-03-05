@@ -191,17 +191,24 @@ export const userApi = {
   getUsers: async (): Promise<User[]> => {
     try {
       const response = await axiosInstance.get('/users');
-      return response.data.map((user: BackendUser) => ({
-        id: user.id,
-        username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        role: convertBackendRole(user.role),
-        isActive: user.active,
-        preferredLanguage: user.preferredLanguage
-      }));
+      
+      // Skapa frontend-användare från backenddata
+      return response.data.map((user: BackendUser) => {
+        // Kontrollera att user.active finns
+        const isActive = typeof user.active === 'boolean' ? user.active : true;
+        
+        return {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phoneNumber: user.phoneNumber,
+          role: convertBackendRole(user.role),
+          active: isActive,
+          isActive: isActive, // Sätt båda för att stödja alla delar av koden
+          preferredLanguage: user.preferredLanguage
+        };
+      });
     } catch (error) {
       console.error('Error fetching users:', error);
       throw error;
